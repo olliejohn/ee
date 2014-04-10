@@ -1,8 +1,17 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "binds.h"
 #include "buffer.h"
+
+#define INFO_NAME 	"ee"
+#define INFO_VERSION 	"0.01"
+#define INFO_AUTHOR 	"Ollie Etherington"
+#define INFO_LICENSE	"GNU GPLv2"
+#define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
+#define INFO_DESC	"A simple command-line text editor"
+#define INFO_WEBSITE	"http://github.com/olliejohn/ee"
 
 int save(char *file, struct Buffer *buf)
 {
@@ -107,13 +116,53 @@ int run(struct Buffer *buf)
 		return 0;
 }
 
+void version()
+{
+	printf("%s - Version %s\n", INFO_NAME, INFO_VERSION);
+	exit(0);
+}
+
+void about()
+{
+	printf( "\n%s - %s by %s\nVersion %s\n"
+		"Available under the %s\n%s\n%s\n"
+		"Use the --help flag for usage information\n\n",
+		INFO_NAME,
+		INFO_DESC,
+		INFO_AUTHOR,
+		INFO_VERSION,
+		INFO_LICENSE,
+		INFO_COPYRIGHT,
+		INFO_WEBSITE);
+	exit(0);
+}
+
+void usage()
+{
+	printf("Usage:\n"
+		"ee [filename | flag]\n\n"
+		"Flags:\n"
+		"--about     Display the about dialog\n"
+		"--version   Display version information\n"
+		"--help      Display this help dialog\n");
+	exit(0);
+}
+
 int main(int argc, char **argv)
 {
 	/* Parse args */
 	int FLAG_OPEN = 0;
 
-	if (argc == 2)
-		FLAG_OPEN++;
+	if (argc == 2) {
+		if (strcmp(argv[1], "--version") == 0)
+			version();
+		else if (strcmp(argv[1], "--about") == 0)
+			about();
+		else if (strcmp(argv[1], "--help") == 0)
+			usage();
+		else
+			FLAG_OPEN++;
+	}
 
 	if (argc > 2) {
 		printf("Invalid arguments");
