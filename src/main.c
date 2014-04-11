@@ -86,7 +86,7 @@ int run(struct Buffer *buf)
 			buffer_new_line(buf);
 			int i;
 			for (i = buf->pos; i < buf->size; i++)
-				mvprintw(i, 0, "%s", buf->data[buf->pos]->data);
+				mvprintw(i, 0, "%s", buf->data[i]->data);
 			break;
 		case KEY_LEFT:
 			buffer_move_backward(buf);

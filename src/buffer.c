@@ -106,6 +106,7 @@ struct Buffer *buffer_new()
 	buf->pos = 0;
 	buf->capacity = BUFFER_INITAL_CAPACITY;
 	buf->data = malloc(sizeof(struct Line *) * BUFFER_INITAL_CAPACITY);
+	buf->data[buf->pos] = line_new();
 	return buf;
 }
 
@@ -140,51 +141,27 @@ void buffer_add(struct Buffer *buf, char c)
 
 void buffer_new_line(struct Buffer *buf)
 {
-/*
-	buffer_double_capacity_if_full(buf);
-	buf->data[++buf->pos] = line_new();
-	buf->size++;
-*/
-	buffer_double_capacity_if_full(buf);
-	buf->size++;
-	buf->pos++;
-	memmove(buf->data[buf->pos + 1],
-		buf->data[buf->pos],
-		buf->size - 1 - buf->pos);
+	if (buf->pos == buf->size - 1) {
+		buffer_double_capacity_if_full(buf);
+		buf->size++;
+		buf->data[++buf->pos] = line_new();
+	} else {
+		buffer_double_capacity_if_full(buf);
+		buf->size++;
 
-	buf->data[buf->pos] = line_new();
-}
+		/* HERE'S THE PROBLEM */
+		//memmove(&buf->data[buf->pos + 1],
+		//	&buf->data[buf->pos],
+		//	buf->size - 1 - buf->pos);
 
-void buffer_split_line(struct Buffer *buf)
-{
-	// First insert a new line after the current line
-	buffer_double_capacity_if_full(buf);
-	buf->size++;
-	memmove(buf->data[buf->pos + 2],
-		buf->data[buf->pos + 1],
-		buf->size - 2 - buf->pos);
-
-	buf->data[buf->pos + 1] = line_new();
-
-	// Check if we're at the end of the current line or not
-	/*struct Line *cur_line = buf->data[buf->pos];
-	struct Line *new_line = buf->data[buf->pos + 1];
-	if (cur_line->pos < cur_line->size - 1) {
-		int i;
-		for (i = cur_line->pos; i < cur_line->size; i++) {
-			line_add(new_line, cur_line->data[i]);
-			cur_line->data[i] = 0;
-		}
+		buf->data[++buf->pos] = line_new();
 	}
-*/
-	// Place the cursor on the new inserted line at (0, 0)
-	buf->pos++;
 }
 
 void buffer_backspace(struct Buffer *buf)
 {
 	if (line_backspace(buf->data[buf->pos]) == -1) {
-		/* Split line */
+		/* Combine lines */
 	}
 }
 

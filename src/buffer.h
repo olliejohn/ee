@@ -28,12 +28,10 @@ struct Buffer *buffer_new();
 void buffer_free(struct Buffer *buf);
 void buffer_add(struct Buffer *buf, char c);
 void buffer_new_line(struct Buffer *buf);
-void buffer_split_line(struct Buffer *buf);
 void buffer_backspace(struct Buffer *buf);
 void buffer_move_forward(struct Buffer *buf);
 void buffer_move_backward(struct Buffer *buf);
 void buffer_move_up(struct Buffer *buf);
 void buffer_move_down(struct Buffer *buf);
-
 
 #endif
