@@ -194,14 +194,14 @@ void buffer_move_up(struct Buffer *buf)
 	if (buf->pos == 0)
 		return;
 
-	int line_pos = buf->data[buf->pos]->pos;
+	int old_line_pos = buf->data[buf->pos]->pos;
 	buf->pos--;
 
-	struct Line *line = buf->data[buf->pos];
-	if (line_pos < line->size)
-		line->pos = line_pos;
+	struct Line *new_line = buf->data[buf->pos];
+	if (old_line_pos <= new_line->size)
+		new_line->pos = old_line_pos;
 	else
-		line->pos = line->size - 1;
+		new_line->pos = (new_line->size == 0) ? 0 : new_line->size - 1;
 }
 
 void buffer_move_down(struct Buffer *buf)
