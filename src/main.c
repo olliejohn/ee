@@ -36,7 +36,7 @@
 #define INFO_DESC	"A simple command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/ee"
 
-//#define DEBUG
+#define DEBUG
 
 int save(char *file, struct Buffer *buf)
 {

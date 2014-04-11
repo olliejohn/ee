@@ -21,6 +21,7 @@
  */
 
 #include "buffer.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -90,7 +91,7 @@ void line_add(struct Line *line, char c)
 
 	line_double_capacity_if_full(line);
 
-	if (line->pos == line->size - 1) {
+	if (line->pos == line->size) {
 		line->size++;
 		line->data[line->pos++] = c;
 	} else {
@@ -199,8 +200,7 @@ void buffer_new_line(struct Buffer *buf)
  */
 int buffer_backspace(struct Buffer *buf)
 {
-	int status = line_backspace(buf->data[buf->pos]);
-	if (status == -1) {
+	if (line_backspace(buf->data[buf->pos]) == -1) {
 		if (buf->pos == 0)
 			return 0;
 
@@ -222,11 +222,8 @@ int buffer_backspace(struct Buffer *buf)
 		buf->pos--;
 
 		return 1;
-	} else if (status == 0) {
-		return 0;
-	} else {
-		return -1;
 	}
+
 	return 0;
 }
 
