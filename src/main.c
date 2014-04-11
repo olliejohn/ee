@@ -104,6 +104,7 @@ int run(struct Buffer *buf)
 		default:
 			buffer_add(buf, ch);
 			mvprintw(buf->pos, 0, "%s", buf->data[buf->pos]->data);
+			//mvprintw(0, 0, "%d", ch);
 		}
 
 		move(buf->pos, buf->data[buf->pos]->pos);
