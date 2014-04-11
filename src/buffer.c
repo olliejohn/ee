@@ -268,7 +268,7 @@ void buffer_move_up(struct Buffer *buf)
 
 void buffer_move_down(struct Buffer *buf)
 {
-	if (buf->pos == buf->size - 1)
+	if (buf->pos >= buf->size - 1)
 		return;
 
 	int line_pos = buf->data[buf->pos]->pos;
