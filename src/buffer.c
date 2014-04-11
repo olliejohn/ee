@@ -175,7 +175,7 @@ void buffer_new_line(struct Buffer *buf)
 		buf->data[buf->pos + 1] = line_new();
 
 		struct Line *cur_line = buf->data[buf->pos];
-		if (cur_line->pos < cur_line->size - 1) {
+		if (cur_line->pos <= cur_line->size - 1) {
 			struct Line *new_line = buf->data[buf->pos + 1];
 			int i, diff = 0;
 			for (i = cur_line->pos; i < cur_line->size; i++) {
@@ -199,7 +199,8 @@ void buffer_new_line(struct Buffer *buf)
  */
 int buffer_backspace(struct Buffer *buf)
 {
-	if (line_backspace(buf->data[buf->pos]) == -1) {
+	int status = line_backspace(buf->data[buf->pos]);
+	if (status == -1) {
 		if (buf->pos == 0)
 			return 0;
 
@@ -221,9 +222,12 @@ int buffer_backspace(struct Buffer *buf)
 		buf->pos--;
 
 		return 1;
-	} else {
+	} else if (status == 0) {
 		return 0;
+	} else {
+		return -1;
 	}
+	return 0;
 }
 
 void buffer_move_forward(struct Buffer *buf)

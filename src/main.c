@@ -36,6 +36,8 @@
 #define INFO_DESC	"A simple command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/ee"
 
+//#define DEBUG
+
 int save(char *file, struct Buffer *buf)
 {
 	FILE *f = fopen(file, "w");
@@ -86,6 +88,13 @@ int run(struct Buffer *buf)
 	int i;
 	for (i = 0; i < buf->size; i++)
 		mvprintw(i, 0, "%s", buf->data[i]->data);
+
+#ifdef DEBUG
+	mvprintw(1, 60, "L: %d      C: %d  ",
+		 buf->pos, buf->data[buf->pos]->pos);
+	mvprintw(2, 60, "This line is %d chars    ",
+		 buf->data[buf->pos]->size);
+#endif
 
 	move(buf->pos, buf->data[buf->pos]->pos);
 	refresh();
@@ -142,9 +151,16 @@ int run(struct Buffer *buf)
 			}
 		}
 
+#ifdef DEBUG
+		mvprintw(1, 60, "L: %d      C: %d  ",
+			 buf->pos, buf->data[buf->pos]->pos);
+		mvprintw(2, 60, "This line is %d chars    ",
+			 buf->data[buf->pos]->size);
+#endif
+
 		move(buf->pos, buf->data[buf->pos]->pos);
-		ch = getch();
 		refresh();
+		ch = getch();
 	}
 
 	if (ch == BIND_SAVE_EXIT)

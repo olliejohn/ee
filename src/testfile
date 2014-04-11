@@ -1,6 +1,7 @@
-Hello World - this is a buffer
-Here's another line
+#include <stdio.h>
 
-And another
-
-Here's yet another
+int main(int argc, char **argv) 
+{
+printf("Hello World");
+return 0;
+}
