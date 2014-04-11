@@ -3,8 +3,8 @@ CC=gcc
 CFLAGS=-c -Wall -O3
 LDFLAGS=-lncurses -ltinfo
 TARGET=ee
-OBJECTS=$(shell ls | grep .*\.o)
-SOURCES=$(shell ls | grep .*\.c)
+OBJECTS=$(shell ls | grep [.*][\.o])
+SOURCES:=$(shell ls | grep [.*][\.c])
 BINDIR=/usr/bin
 LIBDIR=/usr/lib
 

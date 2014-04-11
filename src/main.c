@@ -27,6 +27,7 @@
 
 #include "binds.h"
 #include "buffer.h"
+#include "config.h"
 
 #define INFO_NAME 	"ee"
 #define INFO_VERSION 	"0.01"
@@ -36,7 +37,7 @@
 #define INFO_DESC	"A simple command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/ee"
 
-#define DEBUG
+/* #define DEBUG */
 
 int save(char *file, struct Buffer *buf)
 {
