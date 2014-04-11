@@ -104,6 +104,7 @@ struct Buffer *buffer_new()
 	struct Buffer *buf = malloc(sizeof(struct Buffer *));
 	buf->size = 0;
 	buf->pos = 0;
+	buf->pref_line_pos = 0;
 	buf->capacity = BUFFER_INITAL_CAPACITY;
 	buf->data = malloc(sizeof(struct Line *) * BUFFER_INITAL_CAPACITY);
 	buf->data[buf->pos] = line_new();
@@ -168,10 +169,34 @@ void buffer_new_line(struct Buffer *buf)
 	}
 }
 
-void buffer_backspace(struct Buffer *buf)
+/*
+ * Returns 1 if the number of lines was altered or 0 if all changes were
+ * internal to a line
+ */
+int buffer_backspace(struct Buffer *buf)
 {
 	if (line_backspace(buf->data[buf->pos]) == -1) {
-		/* Combine lines */
+		if (buf->pos == 0)
+			return 0;
+
+		int i;
+		for (i = 0; i < buf->data[buf->pos]->size; i++)
+			line_add(buf->data[buf->pos - 1],
+				 buf->data[buf->pos]->data[i]);
+
+		buf->data[buf->pos - 1]->pos = buf->data[buf->pos - 1]->size -
+						buf->data[buf->pos]->size;
+
+		memmove(&buf->data[buf->pos],
+			&buf->data[buf->pos + 1],
+			sizeof(struct Line *) * (buf->size - buf->pos));
+
+		buf->size--;
+		buf->pos--;
+
+		return 1;
+	} else {
+		return 0;
 	}
 }
 

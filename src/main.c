@@ -23,10 +23,8 @@ int save(char *file, struct Buffer *buf)
 	}
 
 	int i;
-	for (i = 0; i < buf->size - 1; i++)
+	for (i = 0; i < buf->size; i++)
 		fprintf(f, "%s\n", buf->data[i]->data);
-
-	fprintf(f, "%s", buf->data[buf->size - 1]->data);
 
 	fclose(f);
 
@@ -43,7 +41,7 @@ int open(char *file, struct Buffer *buf, int x, int y)
 	}
 
 	char ch;
-	while (( ch = fgetc(f)) != EOF ) {
+	while ((ch = fgetc(f)) != EOF) {
 		if (ch == '\n') {
 			buffer_new_line(buf);
 			continue;
@@ -74,11 +72,28 @@ int run(struct Buffer *buf)
 	while (ch != BIND_EXIT && ch != BIND_SAVE_EXIT) {
 		switch (ch) {
 		case KEY_BACKSPACE:
+
 			buffer_backspace(buf);
 			move(buf->pos, 0);
 			wclrtoeol(stdscr);
 			move(buf->pos, buf->data[buf->pos]->pos);
 			mvprintw(buf->pos, 0, "%s", buf->data[buf->pos]->data);
+
+/*
+			if (buffer_backspace(buf) == 0) {
+				move(buf->pos, 0);
+				wclrtoeol(stdscr);
+				move(buf->pos, buf->data[buf->pos]->pos);
+				mvprintw(buf->pos, 0, "%s",
+					 buf->data[buf->pos]->data);
+			} else {
+				clear();
+				int i;
+				for (i = 0; i < buf->size; i++)
+					mvprintw(i, 0, "%s",
+						 buf->data[i]->data);
+			}
+*/
 			break;
 		case '\n':
 			buffer_new_line(buf);
