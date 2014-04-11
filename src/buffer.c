@@ -179,6 +179,8 @@ int buffer_backspace(struct Buffer *buf)
 		if (buf->pos == 0)
 			return 0;
 
+		buf->data[buf->pos - 1]->pos = buf->data[buf->pos - 1]->size;
+
 		int i;
 		for (i = 0; i < buf->data[buf->pos]->size; i++)
 			line_add(buf->data[buf->pos - 1],
