@@ -90,11 +90,11 @@ int run(struct Buffer *buf)
 		case '\n':
 			buffer_new_line(buf);
 			int i;
-			//for (i = buf->pos; i < buf->size; i++)
-				//mvprintw(i, 0, "%s", buf->data[i]->data);
-			clear();
-			for (i = 0; i < buf->size; i++)
+			for (i = buf->pos - 1; i < buf->size; i++) {
+				move(i, 0);
+				wclrtoeol(stdscr);
 				mvprintw(i, 0, "%s", buf->data[i]->data);
+			}
 			break;
 		case KEY_LEFT:
 			buffer_move_backward(buf);
@@ -111,7 +111,6 @@ int run(struct Buffer *buf)
 		default:
 			buffer_add(buf, ch);
 			mvprintw(buf->pos, 0, "%s", buf->data[buf->pos]->data);
-			//mvprintw(0, 0, "%d", ch);
 		}
 
 		move(buf->pos, buf->data[buf->pos]->pos);
