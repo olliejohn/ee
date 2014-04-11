@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,8 +110,14 @@ int run(struct Buffer *buf)
 			buffer_move_down(buf);
 			break;
 		default:
-			buffer_add(buf, ch);
-			mvprintw(buf->pos, 0, "%s", buf->data[buf->pos]->data);
+			if (isprint(ch)) {
+				buffer_add(buf, ch);
+				mvprintw(buf->pos, 0, "%s",
+					 buf->data[buf->pos]->data);
+			} else {
+				ch = getch();
+				continue;
+			}
 		}
 
 		move(buf->pos, buf->data[buf->pos]->pos);
