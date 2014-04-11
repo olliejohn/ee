@@ -149,10 +149,9 @@ void buffer_new_line(struct Buffer *buf)
 		buffer_double_capacity_if_full(buf);
 		buf->size++;
 
-		/* HERE'S THE PROBLEM */
-		//memmove(&buf->data[buf->pos + 1],
-		//	&buf->data[buf->pos],
-		//	buf->size - 1 - buf->pos);
+		memmove(&buf->data[buf->pos + 2],
+			&buf->data[buf->pos + 1],
+			sizeof(struct Line *) * (buf->size - buf->pos));
 
 		buf->data[++buf->pos] = line_new();
 	}

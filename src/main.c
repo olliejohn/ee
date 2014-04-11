@@ -22,13 +22,11 @@ int save(char *file, struct Buffer *buf)
 		return -1;
 	}
 
-	int i = 0;
-	struct Line *l = buf->data[i];
+	int i;
+	for (i = 0; i < buf->size - 1; i++)
+		fprintf(f, "%s\n", buf->data[i]->data);
 
-	while (l != NULL) {
-		fprintf(f, "%s\n", l->data);
-		l = buf->data[++i];
-	}
+	fprintf(f, "%s", buf->data[++i]->data);
 
 	fclose(f);
 
@@ -85,7 +83,10 @@ int run(struct Buffer *buf)
 		case '\n':
 			buffer_new_line(buf);
 			int i;
-			for (i = buf->pos; i < buf->size; i++)
+			//for (i = buf->pos; i < buf->size; i++)
+				//mvprintw(i, 0, "%s", buf->data[i]->data);
+			clear();
+			for (i = 0; i < buf->size; i++)
 				mvprintw(i, 0, "%s", buf->data[i]->data);
 			break;
 		case KEY_LEFT:
