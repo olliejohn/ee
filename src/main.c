@@ -26,7 +26,7 @@ int save(char *file, struct Buffer *buf)
 	for (i = 0; i < buf->size - 1; i++)
 		fprintf(f, "%s\n", buf->data[i]->data);
 
-	fprintf(f, "%s", buf->data[++i]->data);
+	fprintf(f, "%s", buf->data[buf->size - 1]->data);
 
 	fclose(f);
 

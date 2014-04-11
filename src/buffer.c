@@ -141,20 +141,16 @@ void buffer_add(struct Buffer *buf, char c)
 
 void buffer_new_line(struct Buffer *buf)
 {
-	if (buf->pos == buf->size - 1) {
-		buffer_double_capacity_if_full(buf);
-		buf->size++;
-		buf->data[++buf->pos] = line_new();
-	} else {
-		buffer_double_capacity_if_full(buf);
-		buf->size++;
+	buffer_double_capacity_if_full(buf);
+	buf->size++;
 
+	if (buf->pos < buf->size - 1) {
 		memmove(&buf->data[buf->pos + 2],
 			&buf->data[buf->pos + 1],
-			sizeof(struct Line *) * (buf->size - buf->pos));
-
-		buf->data[++buf->pos] = line_new();
+			sizeof(struct Line *) * (buf->size - 1 - buf->pos));
 	}
+
+	buf->data[++buf->pos] = line_new();
 }
 
 void buffer_backspace(struct Buffer *buf)
