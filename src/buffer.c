@@ -155,11 +155,13 @@ void buffer_new_line(struct Buffer *buf)
 		struct Line *cur_line = buf->data[buf->pos];
 		if (cur_line->pos < cur_line->size - 1) {
 			struct Line *new_line = buf->data[buf->pos + 1];
-			int i;
+			int i, diff = 0;
 			for (i = cur_line->pos; i < cur_line->size; i++) {
 				line_add(new_line, cur_line->data[i]);
 				cur_line->data[i] = 0;
+				diff++;
 			}
+			cur_line->size -= diff;
 		}
 
 		buf->pos++;
