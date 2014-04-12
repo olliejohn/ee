@@ -231,6 +231,8 @@ int main(int argc, char **argv)
 
 	/* Run program */
 	struct Buffer *buf = buffer_new();
+	struct Settings *settings = settings_new();
+	load_init_config(settings);
 
 	if (FLAG_OPEN)
 		open(argv[1], buf, 0, 0);
@@ -238,6 +240,7 @@ int main(int argc, char **argv)
 	if (run(buf) == 1)
 		save(argv[1], buf);
 
+	settings_free(settings);
 	buffer_free(buf);
 
 	/* ncurses destroy */

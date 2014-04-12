@@ -20,6 +20,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+ /*
+  * Found another bug: Sometimes longer lines appear to end 6 chars
+  * early, but only when the file is loaded - not when it's typed
+  */
+
 #include "buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -254,7 +259,7 @@ void buffer_move_backward(struct Buffer *buf)
 
 void buffer_move_up(struct Buffer *buf)
 {
-	if (buf->pos == 0)
+	if (buf->pos <= 0)
 		return;
 
 	int old_line_pos = buf->data[buf->pos]->pos;
@@ -269,7 +274,7 @@ void buffer_move_up(struct Buffer *buf)
 
 void buffer_move_down(struct Buffer *buf)
 {
-	if (buf->pos >= buf->size - 1)
+	if (buf->pos >= buf->size)
 		return;
 
 	int line_pos = buf->data[buf->pos]->pos;
