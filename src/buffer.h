@@ -23,6 +23,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include "config.h"
+
 struct Line {
 	int size;
 	int pos;
@@ -52,6 +54,7 @@ void buffer_free(struct Buffer *buf);
 void buffer_add(struct Buffer *buf, char c);
 void buffer_new_line(struct Buffer *buf);
 int buffer_backspace(struct Buffer *buf);
+int buffer_delete(struct Buffer *buf);
 void buffer_move_forward(struct Buffer *buf);
 void buffer_move_backward(struct Buffer *buf);
 void buffer_move_up(struct Buffer *buf);

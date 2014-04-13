@@ -144,6 +144,7 @@ void buffer_free(struct Buffer *buf)
 	int i;
 	for (i = 0; i < buf->size; i++)
 		line_free(buf->data[i]);
+	free(buf->data);
 	free(buf);
 }
 
@@ -152,7 +153,11 @@ void buffer_double_capacity_if_full(struct Buffer *buf)
 	if (buf->size < buf->capacity)
 		return;
 
-	buf->capacity <<= 1;
+	if (CFG->bufexpg == 1)
+		buf->capacity <<= 1;
+	else
+		buf->capacity += BUFFER_INITAL_CAPACITY;
+
 	buf->data = realloc(buf->data, sizeof(struct Line *) * buf->capacity);
 }
 
@@ -232,11 +237,21 @@ int buffer_backspace(struct Buffer *buf)
 	return 0;
 }
 
+int buffer_delete(struct Buffer *buf)
+{
+	struct Line *line = buf->data[buf->pos];
+	if (buf->pos >= buf->size - 1 && line->pos >= line->size)
+		return 0;
+
+	buffer_move_forward(buf);
+	return buffer_backspace(buf);
+}
+
 void buffer_move_forward(struct Buffer *buf)
 {
 	struct Line *line = buf->data[buf->pos];
 
-	if (line_move_forward(line) == -1) {
+	if (line_move_forward(line) == -1 && buf->pos < buf->size - 1) {
 		if (buf->pos == buf->size - 1)
 			return;
 

@@ -120,6 +120,22 @@ int run(struct Buffer *buf)
 			}
 
 			break;
+		case KEY_DC:
+			if (buffer_delete(buf) == 0) {
+				move(buf->pos, 0);
+				wclrtoeol(stdscr);
+				move(buf->pos, buf->data[buf->pos]->pos);
+				mvprintw(buf->pos, 0, "%s",
+					 buf->data[buf->pos]->data);
+			} else {
+				clear();
+				int i;
+				for (i = 0; i < buf->size; i++)
+					mvprintw(i, 0, "%s",
+						 buf->data[i]->data);
+			}
+
+			break;
 		case '\n':
 			buffer_new_line(buf);
 			int i;
@@ -230,9 +246,11 @@ int main(int argc, char **argv)
 	noecho();
 
 	/* Run program */
+	if (config_init() == -1) {
+		/* Print message: couldn't load or create cfg, using default */
+	}
+
 	struct Buffer *buf = buffer_new();
-	struct Settings *settings = settings_new();
-	load_init_config(settings);
 
 	if (FLAG_OPEN)
 		open(argv[1], buf, 0, 0);
@@ -240,8 +258,9 @@ int main(int argc, char **argv)
 	if (run(buf) == 1)
 		save(argv[1], buf);
 
-	settings_free(settings);
 	buffer_free(buf);
+
+	config_destroy();
 
 	/* ncurses destroy */
 	endwin();

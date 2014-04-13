@@ -31,8 +31,9 @@
 #include <unistd.h>
 
 #define DEFAULT_CFG_NAME ".ee"
-#define DEFAULT_CFG "usetabs 1\ntabsize 8\nlinnums 1\n"
+#define DEFAULT_CFG "usetabs 1\ntabsize 8\nlinnums 1\nbufexpg 0\n"
 #define CONFIG_BLOCK_SIZE 32
+#define MAX_LOAD_ATTEMPTS 3
 
 struct Settings *settings_new()
 {
@@ -40,6 +41,7 @@ struct Settings *settings_new()
 	settings->usetabs = -1;
 	settings->tabsize = -1;
 	settings->linnums = -1;
+	settings->bufexpg = -1;
 	return settings;
 }
 
@@ -76,6 +78,14 @@ void parse_config(struct Settings *settings, char *cfg)
 
 			if (isdigit(cmd[0]))
 				settings->linnums = atoi(cmd);
+		} else if (strcmp(cmd, "bufexpg") == 0) {
+			cmd = strtok(NULL, " \n");
+
+			if (cmd == NULL)
+				break;
+
+			if (isdigit(cmd[0]))
+				settings->bufexpg = atoi(cmd);
 		}
 
 		cmd = strtok(NULL, " \n");
@@ -118,7 +128,20 @@ int write_default_config(char *path)
 	return 0;
 }
 
-void load_init_config(struct Settings *settings)
+int load_config_from_file(struct Settings *settings, char *path)
+{
+	char *cfg;
+	if ((cfg = load_config(path)) == NULL)
+		return -1;
+
+	parse_config(settings, cfg);
+
+	free(cfg);
+
+	return 0;
+}
+
+int load_init_config(struct Settings *settings)
 {
 	struct passwd *pws = getpwuid(geteuid());
 
@@ -131,10 +154,45 @@ void load_init_config(struct Settings *settings)
 	strcat(path, DEFAULT_CFG_NAME);
 
 	char *cfg;
-	while ((cfg = load_config(path)) == NULL)
+	int i;
+	for (i = 0; (cfg = load_config(path)) == NULL; i++) {
 		write_default_config(path);
+
+		if (i >= MAX_LOAD_ATTEMPTS) {
+			parse_config(settings, DEFAULT_CFG);
+			return -1;
+		}
+	}
 
 	parse_config(settings, cfg);
 
 	free(cfg);
+
+	return 0;
+}
+
+int config_init()
+{
+	CFG = settings_new();
+
+	if (load_init_config(CFG) == -1)
+		return -1;
+
+	return 0;
+}
+
+int config_refresh()
+{
+	config_destroy();
+	return config_init();
+}
+
+int config_load_from_file(char *path)
+{
+	return load_config_from_file(CFG, path);
+}
+
+void config_destroy()
+{
+	settings_free(CFG);
 }

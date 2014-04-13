@@ -23,14 +23,26 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+/*
+ * New settings must be added to:
+ * - This struct
+ * - The 'settings_new' function
+ * - The 'parse_config' function
+ * - Optionally, the 'DEFAULT_CFG' macro
+ * All but the struct are located in config.c
+ */
 struct Settings {
 	int usetabs;
 	int tabsize;
 	int linnums;
+	int bufexpg;
 };
 
-struct Settings *settings_new();
-void settings_free(struct Settings *settings);
-void load_init_config(struct Settings *settings);
+struct Settings *CFG;
+
+int config_init();
+int config_refresh();
+int config_load_from_file(char *path);
+void config_destroy();
 
 #endif
