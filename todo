@@ -6,6 +6,10 @@ Undo/redo
 Config
 	Tabs
 	Line Numbers
+	Eponential buffer growth
+	Strip trailing whitespace
+	Scroll past EOF
+	Ensure empty line at EOF on save
 
 Grep (search/replace)
 

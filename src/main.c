@@ -27,6 +27,7 @@
 
 #include "binds.h"
 #include "buffer.h"
+#include "color.h"
 #include "config.h"
 
 #define INFO_NAME 	"ee"
@@ -37,7 +38,7 @@
 #define INFO_DESC	"A simple command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/ee"
 
-/* #define DEBUG */
+#define v_print_to_win(win, msg, ...) vw_printw(win, msg, __VA_ARGS__);
 
 int save(char *file, struct Buffer *buf)
 {
@@ -84,55 +85,88 @@ int open(char *file, struct Buffer *buf, int x, int y)
 	return 0;
 }
 
-int run(struct Buffer *buf)
+WINDOW *init_window(int startx, int starty, int width, int height)
 {
+	WINDOW *win = newwin(height, width, starty, startx);
+	keypad(win , TRUE);
+	wrefresh(win);
+	return win;
+}
+
+void destroy_window(WINDOW *win)
+{
+	wborder(win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+	wclear(win);
+	wrefresh(win);
+	delwin(win);
+}
+
+void print_to_win(WINDOW *win, const char *msg, ...)
+{
+	wclear(win);
+
+	va_list arg;
+	va_start(arg, msg);
+	v_print_to_win(win, msg, arg);
+	va_end(arg);
+
+	wrefresh(win);
+}
+
+int run(WINDOW *twin, WINDOW *bwin, WINDOW *cwin)
+{
+	struct Buffer *buf = buffer_new();
+
 	int i;
 	for (i = 0; i < buf->size; i++)
-		mvprintw(i, 0, "%s", buf->data[i]->data);
+		mvwprintw(bwin, i, 0, "%s", buf->data[i]->data);
 
-#ifdef DEBUG
-	mvprintw(1, 60, "L: %d      C: %d  ",
-		 buf->pos, buf->data[buf->pos]->pos);
-	mvprintw(2, 60, "This line is %d chars    ",
-		 buf->data[buf->pos]->size);
-#endif
+	print_to_win(twin, "TITLE BAR");
 
-	move(buf->pos, buf->data[buf->pos]->pos);
-	refresh();
+	print_to_win(cwin, "L:%d    C:%d    ",
+		     buf->pos, buf->data[buf->pos]->pos);
 
-	int ch = getch();
+	wrefresh(twin);
+	wrefresh(cwin);
+
+	wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
+	wrefresh(bwin);
+
+	int ch = wgetch(bwin);
 
 	while (ch != BIND_EXIT && ch != BIND_SAVE_EXIT) {
 		switch (ch) {
+		case KEY_EXIT:
+			//exit(0);
 		case KEY_BACKSPACE:
 			if (buffer_backspace(buf) == 0) {
-				move(buf->pos, 0);
-				wclrtoeol(stdscr);
-				move(buf->pos, buf->data[buf->pos]->pos);
-				mvprintw(buf->pos, 0, "%s",
-					 buf->data[buf->pos]->data);
+				wmove(bwin, buf->pos, 0);
+				wclrtoeol(bwin);
+				wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
+				mvwprintw(bwin, buf->pos, 0, "%s",
+					  buf->data[buf->pos]->data);
 			} else {
-				clear();
+				wclear(bwin);
 				int i;
 				for (i = 0; i < buf->size; i++)
-					mvprintw(i, 0, "%s",
-						 buf->data[i]->data);
+					mvwprintw(bwin, i, 0, "%s",
+						  buf->data[i]->data);
 			}
 
 			break;
 		case KEY_DC:
 			if (buffer_delete(buf) == 0) {
-				move(buf->pos, 0);
-				wclrtoeol(stdscr);
-				move(buf->pos, buf->data[buf->pos]->pos);
-				mvprintw(buf->pos, 0, "%s",
-					 buf->data[buf->pos]->data);
+				wmove(bwin, buf->pos, 0);
+				wclrtoeol(bwin);
+				wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
+				mvwprintw(bwin, buf->pos, 0, "%s",
+					  buf->data[buf->pos]->data);
 			} else {
-				clear();
+				wclear(bwin);
 				int i;
 				for (i = 0; i < buf->size; i++)
-					mvprintw(i, 0, "%s",
-						 buf->data[i]->data);
+					mvwprintw(bwin, i, 0, "%s",
+						  buf->data[i]->data);
 			}
 
 			break;
@@ -140,9 +174,9 @@ int run(struct Buffer *buf)
 			buffer_new_line(buf);
 			int i;
 			for (i = buf->pos - 1; i < buf->size; i++) {
-				move(i, 0);
-				wclrtoeol(stdscr);
-				mvprintw(i, 0, "%s", buf->data[i]->data);
+				wmove(bwin, i, 0);
+				wclrtoeol(bwin);
+				mvwprintw(bwin, i, 0, "%s", buf->data[i]->data);
 			}
 			break;
 		case KEY_LEFT:
@@ -160,25 +194,23 @@ int run(struct Buffer *buf)
 		default:
 			if (isprint(ch)) {
 				buffer_add(buf, ch);
-				mvprintw(buf->pos, 0, "%s",
-					 buf->data[buf->pos]->data);
+				mvwprintw(bwin, buf->pos, 0, "%s",
+					  buf->data[buf->pos]->data);
 			} else {
-				ch = getch();
+				ch = wgetch(bwin);
 				continue;
 			}
 		}
 
-#ifdef DEBUG
-		mvprintw(1, 60, "L: %d      C: %d  ",
-			 buf->pos, buf->data[buf->pos]->pos);
-		mvprintw(2, 60, "This line is %d chars    ",
-			 buf->data[buf->pos]->size);
-#endif
-
-		move(buf->pos, buf->data[buf->pos]->pos);
+		print_to_win(cwin, "L:%d    C:%d    ",
+			     buf->pos, buf->data[buf->pos]->pos);
 		refresh();
-		ch = getch();
+		wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
+		wrefresh(bwin);
+		ch = wgetch(bwin);
 	}
+
+	buffer_free(buf);
 
 	if (ch == BIND_SAVE_EXIT)
 		return 1;
@@ -242,28 +274,48 @@ int main(int argc, char **argv)
 	/* ncurses init */
 	initscr();
 	raw();
+	cbreak();
 	keypad(stdscr, TRUE);
 	noecho();
 
-	/* Run program */
-	if (config_init() == -1) {
-		/* Print message: couldn't load or create cfg, using default */
+	 if(has_colors() == FALSE) {
+		endwin();
+		printf("Your terminal does not support color\n");
+		exit(1);
 	}
 
-	struct Buffer *buf = buffer_new();
+	start_color();
+	color_init();
 
-	if (FLAG_OPEN)
-		open(argv[1], buf, 0, 0);
+	/* Run program */
+	int WIDTH, HEIGHT;
 
-	if (run(buf) == 1)
-		save(argv[1], buf);
+	refresh();
 
-	buffer_free(buf);
+	getmaxyx(stdscr, HEIGHT, WIDTH);
+
+	if (config_init() == -1) {
+		// Print message: couldn't load or create cfg, using default
+	}
+
+	WINDOW *title_win = init_window(0, 0, WIDTH, 1);
+	WINDOW *buffer_win = init_window(0, 1, WIDTH, HEIGHT - 2);
+	WINDOW *cmd_win = init_window(0, HEIGHT - 1, WIDTH, 1);
+
+	wbkgd(title_win, COLOR_PAIR(SCH_TITLE_BAR));
+	wbkgd(buffer_win, COLOR_PAIR(SCH_BUFFER));
+	wbkgd(cmd_win, COLOR_PAIR(SCH_CMD_BAR));
+
+	int status = run(title_win, buffer_win, cmd_win);
+
+	destroy_window(title_win);
+	destroy_window(buffer_win);
+	destroy_window(cmd_win);
 
 	config_destroy();
 
 	/* ncurses destroy */
 	endwin();
 
-	return 0;
+	return status;
 }

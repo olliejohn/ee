@@ -37,7 +37,7 @@
 
 struct Settings *settings_new()
 {
-	struct Settings *settings = malloc(sizeof(struct Settings *));
+	struct Settings *settings = malloc(sizeof(struct Settings));
 	settings->usetabs = -1;
 	settings->tabsize = -1;
 	settings->linnums = -1;
@@ -167,6 +167,7 @@ int load_init_config(struct Settings *settings)
 	parse_config(settings, cfg);
 
 	free(cfg);
+	free(path);
 
 	return 0;
 }

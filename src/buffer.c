@@ -35,7 +35,7 @@
 
 struct Line *line_new()
 {
-	struct Line *line = malloc(sizeof(struct Line *));
+	struct Line *line = malloc(sizeof(struct Line));
 	line->size = 0;
 	line->pos = 0;
 	line->capacity = LINE_INITAL_CAPACITY;
@@ -129,7 +129,7 @@ int line_backspace(struct Line *line)
 
 struct Buffer *buffer_new()
 {
-	struct Buffer *buf = malloc(sizeof(struct Buffer *));
+	struct Buffer *buf = malloc(sizeof(struct Buffer));
 	buf->size = 0;
 	buf->pos = 0;
 	buf->pref_line_pos = 0;
@@ -158,7 +158,7 @@ void buffer_double_capacity_if_full(struct Buffer *buf)
 	else
 		buf->capacity += BUFFER_INITAL_CAPACITY;
 
-	buf->data = realloc(buf->data, sizeof(struct Line *) * buf->capacity);
+	buf->data = realloc(buf->data, sizeof(struct Line) * buf->capacity);
 }
 
 void buffer_add(struct Buffer *buf, char c)
@@ -181,7 +181,7 @@ void buffer_new_line(struct Buffer *buf)
 	if (buf->pos < buf->size - 1) {
 		memmove(&buf->data[buf->pos + 2],
 			&buf->data[buf->pos + 1],
-			sizeof(struct Line *) * (buf->size - 1 - buf->pos));
+			sizeof(struct Line) * (buf->size - 1 - buf->pos));
 
 		buf->data[buf->pos + 1] = line_new();
 
