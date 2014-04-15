@@ -1,5 +1,5 @@
 /*
- * color.c
+ * screen.h
  * Part of the ee text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,28 +20,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "color.h"
+#ifndef SCREEN_H
+#define SCREEN_H
 
-#include <ncurses.h>
-#include <stdlib.h>
+#include <tui.h>
 
-void color_init()
-{
-	init_color(COL_BLACK, 	0, 	0, 	0	);
-	init_color(COL_RED, 	1000, 	0, 	0	);
-	init_color(COL_GREEN, 	0, 	1000, 	0	);
-	init_color(COL_BLUE, 	0, 	0, 	1000	);
-	init_color(COL_YELLOW, 	1000, 	1000, 	0	);
-	init_color(COL_MAGENTA,	1000, 	0, 	1000	);
-	init_color(COL_CYAN, 	0, 	1000, 	1000	);
-	init_color(COL_WHITE, 	1000, 	1000, 	1000	);
-	init_color(COL_L_GRAY, 	830, 	830, 	830	);
-	init_color(COL_D_GRAY, 	500, 	500, 	500	);
+struct Screen {
+	t_window *tbar;	/* Top bar */
+	t_window *bwin;	/* Buffer window */
+	t_window *bbar;	/* Bottom bar */
+	t_window *cbar;	/* Command bar */
+	int WIDTH;
+	int HEIGHT;
+};
 
-	init_pair(SCH_TITLE_BAR, 	COL_BLACK, 	COL_D_GRAY);
-	init_pair(SCH_TITLE_ERR, 	COL_RED, 	COL_WHITE);
-	init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
-	init_pair(SCH_BOTTOM_BAR, 	COL_BLACK, 	COL_D_GRAY);
-	init_pair(SCH_BOTTOM_ERR, 	COL_RED, 	COL_WHITE);
-	init_pair(SCH_CMD_BAR, 		COL_WHITE, 	COL_BLACK);
-}
+struct Screen *screen_new();
+void screen_free(struct Screen *scrn);
+int screen_run(struct Screen *scrn, char *filepath);
+
+#endif
