@@ -25,11 +25,14 @@
 
 #include <tui.h>
 
+#include "buffer.h"
+
 struct Screen {
 	t_window *tbar;	/* Top bar */
 	t_window *bwin;	/* Buffer window */
 	t_window *bbar;	/* Bottom bar */
 	t_window *cbar;	/* Command bar */
+	struct Buffer *buf;
 	int WIDTH;
 	int HEIGHT;
 };

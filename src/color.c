@@ -22,8 +22,8 @@
 
 #include "color.h"
 
-#include <ncurses.h>
 #include <stdlib.h>
+#include <tui.h>
 
 void color_init()
 {
