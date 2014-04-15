@@ -1,7 +1,7 @@
 
 CC=gcc
-CFLAGS=-c -Wall -O3
-LDFLAGS=-lncurses -ltinfo
+CFLAGS=-c -Wall -std=gnu99 -O3
+LDFLAGS=-lncursesw -ltinfo -ltui
 TARGET=ee
 OBJECTS=$(shell ls | grep [.*][\.o])
 SOURCES:=$(shell ls | grep [.*][\.c])

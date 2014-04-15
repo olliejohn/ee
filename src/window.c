@@ -1,5 +1,5 @@
 /*
- * color.h
+ * window.c
  * Part of the ee text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,18 +20,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef COLOR_H
-#define COLOR_H
+#include "window.h"
 
-/* Must not be 0 indexed */
-typedef enum {
-	SCH_TITLE_BAR = 1,
-	SCH_TITLE_ERR,
-	SCH_BUFFER,
-	SCH_CMD_BAR,
-	SCH_CMD_ERR,
-} ColScheme;
+#include <stdlib.h>
 
-void color_init();
+/*
+void print_to_win_at(t_window *win, const char *msg, ...)
+{
+	wclear(win);
 
-#endif
+	va_list arg;
+	va_start(arg, msg);
+	v_print_to_win(win, msg, arg);
+	va_end(arg);
+
+	wrefresh(win);
+}
+*/
+
+void print_to_win(t_window *win, t_char *msg, ...)
+{
+	wclear(win);
+
+	va_list arg;
+	va_start(arg, msg);
+	t_vwprint(win, msg, arg);
+	va_end(arg);
+
+	wrefresh(win);
+}

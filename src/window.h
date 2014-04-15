@@ -1,5 +1,5 @@
 /*
- * color.h
+ * window.h
  * Part of the ee text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,18 +20,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
-/* Must not be 0 indexed */
-typedef enum {
-	SCH_TITLE_BAR = 1,
-	SCH_TITLE_ERR,
-	SCH_BUFFER,
-	SCH_CMD_BAR,
-	SCH_CMD_ERR,
-} ColScheme;
+#include <tui.h>
 
-void color_init();
+#define v_print_to_win(win, msg, ...) t_vwprint(win, msg, __VA_ARGS__)
+/*
+enum Justification {
+	J_LEFT,
+	J_CENTER,
+	J_RIGHT,
+};
 
+struct Window {
+	t_window *twin;	// Title window
+	t_window *bwin;	// Buffer window
+	t_window *cwin;	// Command window
+};
+*/
+void print_to_win(t_window *win, t_char *msg, ...);
+/*
+struct Window *window_new();
+void window_free(struct Window *win);
+*/
 #endif

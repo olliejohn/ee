@@ -25,11 +25,14 @@
 
 #include "config.h"
 
+#include <tui.h>
+
 struct Line {
 	int size;
-	int pos;
+	int pos;	/* Character position */
+	int coffs;	/* Cursor offset added to pos to account for tabs */
 	int capacity;
-	char *data;
+	t_char *data;
 };
 
 struct Buffer {
@@ -42,16 +45,17 @@ struct Buffer {
 
 struct Line *line_new();
 void line_free(struct Line *line);
-void line_append(struct Line *line, char c);
+int line_get_cur_pos(struct Line *line);
+void line_append(struct Line *line, t_char c);
 int line_move_forward(struct Line *line);
 int line_move_backward(struct Line *line);
-void line_set(struct Line *line, int index, char c);
-void line_add(struct Line *line, char c);
+void line_set(struct Line *line, int index, t_char c);
+void line_add(struct Line *line, t_char c);
 int line_backspace(struct Line *line);
 
 struct Buffer *buffer_new();
 void buffer_free(struct Buffer *buf);
-void buffer_add(struct Buffer *buf, char c);
+void buffer_add(struct Buffer *buf, t_char c);
 void buffer_new_line(struct Buffer *buf);
 int buffer_backspace(struct Buffer *buf);
 int buffer_delete(struct Buffer *buf);
@@ -59,5 +63,7 @@ void buffer_move_forward(struct Buffer *buf);
 void buffer_move_backward(struct Buffer *buf);
 void buffer_move_up(struct Buffer *buf);
 void buffer_move_down(struct Buffer *buf);
+int buffer_save(struct Buffer *buf, char *file);
+int buffer_open(struct Buffer *buf, char *file, int x, int y);
 
 #endif

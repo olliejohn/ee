@@ -21,14 +21,17 @@
  */
 
 #include <ctype.h>
-#include <ncurses.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tui.h>
+#include <wchar.h>
 
 #include "binds.h"
 #include "buffer.h"
 #include "color.h"
 #include "config.h"
+#include "window.h"
 
 #define INFO_NAME 	"ee"
 #define INFO_VERSION 	"0.01"
@@ -37,186 +40,6 @@
 #define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
 #define INFO_DESC	"A simple command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/ee"
-
-#define v_print_to_win(win, msg, ...) vw_printw(win, msg, __VA_ARGS__);
-
-int save(char *file, struct Buffer *buf)
-{
-	FILE *f = fopen(file, "w");
-
-	if (f == NULL) {
-		printw("Error opening file\n");
-		return -1;
-	}
-
-	int i;
-	for (i = 0; i < buf->size; i++)
-		fprintf(f, "%s\n", buf->data[i]->data);
-
-	fclose(f);
-
-	return 0;
-}
-
-int open(char *file, struct Buffer *buf, int x, int y)
-{
-	FILE *f = fopen(file, "r");
-
-	if (f == NULL) {
-		printw("Error opening file\n");
-		return -1;
-	}
-
-	char ch;
-	while ((ch = fgetc(f)) != EOF) {
-		if (ch == '\n') {
-			buffer_new_line(buf);
-			continue;
-		}
-
-		buffer_add(buf, ch);
-	}
-
-	fclose(f);
-
-	buf->pos = y;
-	buf->data[buf->pos]->pos = x;
-
-	return 0;
-}
-
-WINDOW *init_window(int startx, int starty, int width, int height)
-{
-	WINDOW *win = newwin(height, width, starty, startx);
-	keypad(win , TRUE);
-	wrefresh(win);
-	return win;
-}
-
-void destroy_window(WINDOW *win)
-{
-	wborder(win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-	wclear(win);
-	wrefresh(win);
-	delwin(win);
-}
-
-void print_to_win(WINDOW *win, const char *msg, ...)
-{
-	wclear(win);
-
-	va_list arg;
-	va_start(arg, msg);
-	v_print_to_win(win, msg, arg);
-	va_end(arg);
-
-	wrefresh(win);
-}
-
-int run(WINDOW *twin, WINDOW *bwin, WINDOW *cwin)
-{
-	struct Buffer *buf = buffer_new();
-
-	int i;
-	for (i = 0; i < buf->size; i++)
-		mvwprintw(bwin, i, 0, "%s", buf->data[i]->data);
-
-	print_to_win(twin, "TITLE BAR");
-
-	print_to_win(cwin, "L:%d    C:%d    ",
-		     buf->pos, buf->data[buf->pos]->pos);
-
-	wrefresh(twin);
-	wrefresh(cwin);
-
-	wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
-	wrefresh(bwin);
-
-	int ch = wgetch(bwin);
-
-	while (ch != BIND_EXIT && ch != BIND_SAVE_EXIT) {
-		switch (ch) {
-		case KEY_EXIT:
-			//exit(0);
-		case KEY_BACKSPACE:
-			if (buffer_backspace(buf) == 0) {
-				wmove(bwin, buf->pos, 0);
-				wclrtoeol(bwin);
-				wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
-				mvwprintw(bwin, buf->pos, 0, "%s",
-					  buf->data[buf->pos]->data);
-			} else {
-				wclear(bwin);
-				int i;
-				for (i = 0; i < buf->size; i++)
-					mvwprintw(bwin, i, 0, "%s",
-						  buf->data[i]->data);
-			}
-
-			break;
-		case KEY_DC:
-			if (buffer_delete(buf) == 0) {
-				wmove(bwin, buf->pos, 0);
-				wclrtoeol(bwin);
-				wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
-				mvwprintw(bwin, buf->pos, 0, "%s",
-					  buf->data[buf->pos]->data);
-			} else {
-				wclear(bwin);
-				int i;
-				for (i = 0; i < buf->size; i++)
-					mvwprintw(bwin, i, 0, "%s",
-						  buf->data[i]->data);
-			}
-
-			break;
-		case '\n':
-			buffer_new_line(buf);
-			int i;
-			for (i = buf->pos - 1; i < buf->size; i++) {
-				wmove(bwin, i, 0);
-				wclrtoeol(bwin);
-				mvwprintw(bwin, i, 0, "%s", buf->data[i]->data);
-			}
-			break;
-		case KEY_LEFT:
-			buffer_move_backward(buf);
-			break;
-		case KEY_RIGHT:
-			buffer_move_forward(buf);
-			break;
-		case KEY_UP:
-			buffer_move_up(buf);
-			break;
-		case KEY_DOWN:
-			buffer_move_down(buf);
-			break;
-		default:
-			if (isprint(ch)) {
-				buffer_add(buf, ch);
-				mvwprintw(bwin, buf->pos, 0, "%s",
-					  buf->data[buf->pos]->data);
-			} else {
-				ch = wgetch(bwin);
-				continue;
-			}
-		}
-
-		print_to_win(cwin, "L:%d    C:%d    ",
-			     buf->pos, buf->data[buf->pos]->pos);
-		refresh();
-		wmove(bwin, buf->pos, buf->data[buf->pos]->pos);
-		wrefresh(bwin);
-		ch = wgetch(bwin);
-	}
-
-	buffer_free(buf);
-
-	if (ch == BIND_SAVE_EXIT)
-		return 1;
-	else
-		return 0;
-}
 
 void version()
 {
@@ -250,8 +73,155 @@ void usage()
 	exit(0);
 }
 
+void run_cmd_loop(t_window *twin, t_window *bwin, t_window *cwin,
+		  struct Buffer *buf)
+{
+
+}
+
+#define CUR_LINUM	buf->pos
+#define CUR_LINE	buf->data[CUR_LINUM]
+#define CUR_CHAR	CUR_LINE->pos
+#define CSR_X		line_get_cur_pos(CUR_LINE)
+
+void print_info_to_bar(t_window *bar, struct Buffer *buf)
+{
+	print_to_win(bar, L"L:%d/%d    C:%d/%d      ",
+		     CUR_LINUM, buf->size, CUR_CHAR, CUR_LINE->size);
+}
+
+int run_buffer(t_window *twin, t_window *bwin, t_window *cwin, char *filepath)
+{
+	struct Buffer *buf = buffer_new();
+/*
+	int wpathlen = strlen(filepath) + 1;
+	t_char *wpath = calloc(wpathlen, sizeof(t_char));
+	mbstowcs(wpath, filepath, wpathlen);
+
+	if (filepath != NULL) {
+		//buffer_open(buf, filepath, 0, 0);
+		//print_to_win(twin, wpath);
+	} else {
+		//print_to_win(twin, "Untitled");
+	}
+
+	free(wpath);
+*/
+	print_to_win(twin, L"Untitled");
+
+	int i;
+	for (i = 0; i < buf->size; i++)
+		t_mv_wprint(bwin, 0, i, L"%ls", buf->data[i]->data);
+
+	print_info_to_bar(cwin, buf);
+
+	t_wrefresh(twin);
+	t_wrefresh(cwin);
+
+	t_wmove(bwin, CUR_CHAR, CUR_LINUM);
+	t_wrefresh(bwin);
+
+	t_char ch;
+	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
+						ch != BIND_SAVE_EXIT) {
+		switch (ch) {
+		case '^':
+			run_cmd_loop(twin, bwin, cwin, buf);
+			break;
+		case TK_BKSPC:
+			if (buffer_backspace(buf) == 0) {
+				t_wclear(bwin);
+				int i;
+				for (i = 0; i < buf->size; i++)
+					t_mv_wprint(bwin, 0, i, L"%ls",
+						    buf->data[i]->data);
+				/*
+				t_wmove(bwin, 0, CUR_LINUM);
+				t_wclrtoeol(bwin);
+				t_wmove(bwin, CUR_CHAR, CUR_LINUM);
+				t_mv_wprint(bwin, 0, CUR_LINUM, L"%ls",
+					    CUR_LINE->data);
+				*/
+			} else {
+				t_wclear(bwin);
+				int i;
+				for (i = 0; i < buf->size; i++)
+					t_mv_wprint(bwin, 0, i, L"%ls",
+						    buf->data[i]->data);
+			}
+
+			break;
+		case TK_DELETE:
+			if (buffer_delete(buf) == 0) {
+				t_wmove(bwin, 0, CUR_LINUM);
+				t_wclrtoeol(bwin);
+				t_wmove(bwin, CUR_CHAR, CUR_LINUM);
+				t_mv_wprint(bwin, 0, CUR_LINUM, L"%ls",
+					    CUR_LINE->data);
+			} else {
+				t_wclear(bwin);
+				int i;
+				for (i = 0; i < buf->size; i++)
+					t_mv_wprint(bwin, 0, i, L"%ls",
+						    buf->data[i]->data);
+			}
+
+			break;
+		case TK_ENTER:
+			buffer_new_line(buf);
+			t_wclear(bwin);
+			int i;
+			for (i = 0; i < buf->size; i++)
+				t_mv_wprint(bwin, 0, i, L"%ls",
+					    buf->data[i]->data);
+			/*
+			for (i = CUR_LINUM - 1; i < buf->size; i++) {
+				t_wmove(bwin, 0, i);
+				t_wclrtoeol(bwin);
+				t_mv_wprint(bwin, 0, i, L"%ls",
+					    buf->data[i]->data);
+			}*/
+			break;
+		case TK_LEFT:
+			buffer_move_backward(buf);
+			break;
+		case TK_RIGHT:
+			buffer_move_forward(buf);
+			break;
+		case TK_UP:
+			buffer_move_up(buf);
+			break;
+		case TK_DOWN:
+			buffer_move_down(buf);
+			break;
+		default:
+			//if (isprint(ch) || ch == '\t') {
+				buffer_add(buf, ch);
+				t_mv_wprint(bwin, 0, CUR_LINUM, L"%ls",
+					    CUR_LINE->data);
+			//}
+		}
+
+		t_wrefresh(twin);
+		print_info_to_bar(cwin, buf);
+		t_wrefresh(cwin);
+		t_wmove(bwin, CUR_CHAR, CUR_LINUM);
+		t_wrefresh(bwin);
+	}
+
+	buffer_free(buf);
+
+	if (ch == BIND_SAVE_EXIT)
+		return 1;
+	else
+		return 0;
+}
+
 int main(int argc, char **argv)
 {
+	/* Enable unicode */
+	void t_init_unicode();
+
 	/* Parse args */
 	int FLAG_OPEN = 0;
 
@@ -271,51 +241,46 @@ int main(int argc, char **argv)
 		exit(0);
 	}
 
-	/* ncurses init */
-	initscr();
-	raw();
-	cbreak();
-	keypad(stdscr, TRUE);
-	noecho();
-
-	 if(has_colors() == FALSE) {
-		endwin();
-		printf("Your terminal does not support color\n");
-		exit(1);
-	}
-
-	start_color();
-	color_init();
+	/* tui init */
+	t_init(TUI_RAW | TUI_COLOR | TUI_KEYPAD);
 
 	/* Run program */
 	int WIDTH, HEIGHT;
+	t_getmaxxy(WIDTH, HEIGHT);
 
-	refresh();
+	color_init();
 
-	getmaxyx(stdscr, HEIGHT, WIDTH);
+	t_refresh();
 
-	if (config_init() == -1) {
-		// Print message: couldn't load or create cfg, using default
-	}
+	if (config_init() == -1)
+		;// ERR: "Couldn't load or create config - using default"
 
-	WINDOW *title_win = init_window(0, 0, WIDTH, 1);
-	WINDOW *buffer_win = init_window(0, 1, WIDTH, HEIGHT - 2);
-	WINDOW *cmd_win = init_window(0, HEIGHT - 1, WIDTH, 1);
+	t_window *title_win = t_winit(0, 0, WIDTH, 1);
+	t_window *buffer_win = t_winit(0, 1, WIDTH, HEIGHT - 2);
+	t_window *cmd_win = t_winit(0, HEIGHT - 1, WIDTH, 1);
 
-	wbkgd(title_win, COLOR_PAIR(SCH_TITLE_BAR));
-	wbkgd(buffer_win, COLOR_PAIR(SCH_BUFFER));
-	wbkgd(cmd_win, COLOR_PAIR(SCH_CMD_BAR));
+	t_wbkgd(title_win, COLOR_PAIR(SCH_TITLE_BAR));
+	t_wbkgd(buffer_win, COLOR_PAIR(SCH_BUFFER));
+	t_wbkgd(cmd_win, COLOR_PAIR(SCH_CMD_BAR));
 
-	int status = run(title_win, buffer_win, cmd_win);
+	t_wrefresh(title_win);
+	t_wrefresh(buffer_win);
+	t_wrefresh(cmd_win);
 
-	destroy_window(title_win);
-	destroy_window(buffer_win);
-	destroy_window(cmd_win);
+	char *filepath = NULL;
+	if (FLAG_OPEN)
+		filepath = argv[1];
+
+	int status = run_buffer(title_win, buffer_win, cmd_win, filepath);
+
+	t_wdestroy(title_win);
+	t_wdestroy(buffer_win);
+	t_wdestroy(cmd_win);
 
 	config_destroy();
 
-	/* ncurses destroy */
-	endwin();
+	/* tui destroy */
+	t_destroy();
 
 	return status;
 }

@@ -29,17 +29,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #define LINE_INITAL_CAPACITY 128
 #define BUFFER_INITAL_CAPACITY 32
+
+#define TAB_SIZE 8
 
 struct Line *line_new()
 {
 	struct Line *line = malloc(sizeof(struct Line));
 	line->size = 0;
 	line->pos = 0;
+	line->coffs = 0;
 	line->capacity = LINE_INITAL_CAPACITY;
-	line->data = calloc(LINE_INITAL_CAPACITY, sizeof(char));
+	line->data = calloc(LINE_INITAL_CAPACITY, sizeof(t_char));
 	return line;
 }
 
@@ -49,16 +53,21 @@ void line_free(struct Line *line)
 	free(line);
 }
 
+int line_get_cur_pos(struct Line *line)
+{
+	return line->pos + line->coffs;
+}
+
 void line_double_capacity_if_full(struct Line *line)
 {
 	if (line->size < line->capacity)
 		return;
 
 	line->capacity <<= 1;
-	line->data = realloc(line->data, sizeof(char) * line->capacity);
+	line->data = realloc(line->data, sizeof(t_char) * line->capacity);
 }
 
-void line_append(struct Line *line, char c)
+void line_append(struct Line *line, t_char c)
 {
 	line_double_capacity_if_full(line);
 	line->data[line->size++] = c;
@@ -71,6 +80,9 @@ int line_move_forward(struct Line *line)
 		return -1;
 	}
 
+	if (line->data[line->pos] == '\t')
+		line->coffs += TAB_SIZE;
+
 	return 0;
 }
 
@@ -80,16 +92,20 @@ int line_move_backward(struct Line *line)
 		return -1;
 
 	line->pos--;
+
+	if (line->data[line->pos] == '\t')
+		line->coffs -= TAB_SIZE;
+
 	return 0;
 }
 
-void line_set(struct Line *line, int index, char c)
+void line_set(struct Line *line, int index, t_char c)
 {
 	if (index < line->size)
 		line->data[index] = c;
 }
 
-void line_add(struct Line *line, char c)
+void line_add(struct Line *line, t_char c)
 {
 	if (line->pos < 0 || line->pos > line->size)
 		return;
@@ -102,9 +118,9 @@ void line_add(struct Line *line, char c)
 	} else {
 		line->size++;
 
-		memmove(&line->data[line->pos + 1],
-		        &line->data[line->pos],
-		        line->size - 1 - line->pos);
+		wmemmove(&line->data[line->pos + 1],
+		         &line->data[line->pos],
+		         line->size - 1 - line->pos);
 
 		line->data[line->pos++] = c;
 	}
@@ -118,9 +134,9 @@ int line_backspace(struct Line *line)
 	if (line->pos > line->size)
 		return 1;
 
-	memmove(&line->data[line->pos - 1],
-	        &line->data[line->pos],
-	        sizeof(char) * (line->size - line->pos));
+	wmemmove(&line->data[line->pos - 1],
+	         &line->data[line->pos],
+	         sizeof(t_char) * (line->size - line->pos));
 	line->data[line->size - 1] = 0;
 	line->size--;
 	line->pos--;
@@ -135,14 +151,18 @@ struct Buffer *buffer_new()
 	buf->pref_line_pos = 0;
 	buf->capacity = BUFFER_INITAL_CAPACITY;
 	buf->data = malloc(sizeof(struct Line *) * BUFFER_INITAL_CAPACITY);
-	buf->data[buf->pos] = line_new();
+	buf->data[0] = line_new();
 	return buf;
 }
 
 void buffer_free(struct Buffer *buf)
 {
+	/*
+	 * Check this: changed < to <= in the for loop. This fixed a small
+	 * memory leak but may cause a seg fault sometimes?
+	 */
 	int i;
-	for (i = 0; i < buf->size; i++)
+	for (i = 0; i <= buf->size; i++)
 		line_free(buf->data[i]);
 	free(buf->data);
 	free(buf);
@@ -161,7 +181,7 @@ void buffer_double_capacity_if_full(struct Buffer *buf)
 	buf->data = realloc(buf->data, sizeof(struct Line) * buf->capacity);
 }
 
-void buffer_add(struct Buffer *buf, char c)
+void buffer_add(struct Buffer *buf, t_char c)
 {
 	buffer_double_capacity_if_full(buf);
 
@@ -300,4 +320,50 @@ void buffer_move_down(struct Buffer *buf)
 		line->pos = line_pos;
 	else
 		line->pos = line->size;
+}
+
+int buffer_save(struct Buffer *buf, char *file)
+{
+	FILE *f = fopen(file, "w");
+
+	if (f == NULL)
+		return -1;
+
+	int i;
+	for (i = 0; i < buf->size; i++)
+		;//fprintf(f, "%s\n", buf->data[i]->data);
+
+	fclose(f);
+
+	return 0;
+}
+
+/*
+ * Opens a file into buf and places that cursor at (x, y). If the buffer is
+ * already in use, the file will be appended so ensure that it's a new buffer
+ * for normal use. Returns 0 on success or -1 on failiure.
+ */
+int buffer_open(struct Buffer *buf, char *file, int x, int y)
+{
+	FILE *f = fopen(file, "r");
+
+	if (f == NULL)
+		return -1;
+
+	char ch;
+	while ((ch = fgetc(f)) != EOF) {
+		if (ch == '\n') {
+			buffer_new_line(buf);
+			continue;
+		}
+
+		buffer_add(buf, ch);
+	}
+
+	fclose(f);
+
+	buf->pos = y;
+	buf->data[buf->pos]->pos = x;
+
+	return 0;
 }
