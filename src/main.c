@@ -259,9 +259,9 @@ int main(int argc, char **argv)
 	t_window *buffer_win = t_winit(0, 1, WIDTH, HEIGHT - 2);
 	t_window *cmd_win = t_winit(0, HEIGHT - 1, WIDTH, 1);
 
-	t_wbkgd(title_win, COLOR_PAIR(SCH_TITLE_BAR));
-	t_wbkgd(buffer_win, COLOR_PAIR(SCH_BUFFER));
-	t_wbkgd(cmd_win, COLOR_PAIR(SCH_CMD_BAR));
+	t_wbkgd(title_win, CS_TITLE_BAR);
+	t_wbkgd(buffer_win, CS_BUFFER);
+	t_wbkgd(cmd_win, CS_CMD_BAR);
 
 	t_wrefresh(title_win);
 	t_wrefresh(buffer_win);

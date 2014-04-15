@@ -25,22 +25,22 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
-/*
- * Available colors:
- * Black
- * Red
- * Green
- * Blue
- * Magenta
- * Cyan
- * White
- */
-
 void color_init()
 {
-	init_pair(SCH_TITLE_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
-	init_pair(SCH_TITLE_ERR, 	COLOR_RED, 	COLOR_WHITE);
-	init_pair(SCH_BUFFER, 		COLOR_WHITE, 	COLOR_BLACK);
-	init_pair(SCH_CMD_BAR, 		COLOR_BLACK, 	COLOR_WHITE);
-	init_pair(SCH_CMD_ERR, 		COLOR_RED, 	COLOR_WHITE);
+	init_color(COL_BLACK, 	0, 	0, 	0	);
+	init_color(COL_RED, 	1000, 	0, 	0	);
+	init_color(COL_GREEN, 	0, 	1000, 	0	);
+	init_color(COL_BLUE, 	0, 	0, 	1000	);
+	init_color(COL_YELLOW, 	1000, 	1000, 	0	);
+	init_color(COL_MAGENTA,	1000, 	0, 	1000	);
+	init_color(COL_CYAN, 	0, 	1000, 	1000	);
+	init_color(COL_WHITE, 	1000, 	1000, 	1000	);
+	init_color(COL_L_GRAY, 	830, 	830, 	830	);
+	init_color(COL_D_GRAY, 	500, 	500, 	500	);
+
+	init_pair(SCH_TITLE_BAR, 	COL_BLACK, 	COL_L_GRAY);
+	init_pair(SCH_TITLE_ERR, 	COL_RED, 	COL_WHITE);
+	init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
+	init_pair(SCH_CMD_BAR, 		COL_BLACK, 	COL_D_GRAY);
+	init_pair(SCH_CMD_ERR, 		COL_RED, 	COL_WHITE);
 }

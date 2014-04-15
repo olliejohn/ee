@@ -53,7 +53,7 @@ void line_free(struct Line *line)
 	free(line);
 }
 
-int line_get_cur_pos(struct Line *line)
+int line_get_curs_pos(struct Line *line)
 {
 	return line->pos + line->coffs;
 }
@@ -166,6 +166,12 @@ void buffer_free(struct Buffer *buf)
 		line_free(buf->data[i]);
 	free(buf->data);
 	free(buf);
+}
+
+void buffer_go_to(struct Buffer *buf, int x, int y)
+{
+	buf->pos = y;
+	buf->data[buf->pos]->pos = x;
 }
 
 void buffer_double_capacity_if_full(struct Buffer *buf)

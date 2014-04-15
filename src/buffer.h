@@ -45,7 +45,7 @@ struct Buffer {
 
 struct Line *line_new();
 void line_free(struct Line *line);
-int line_get_cur_pos(struct Line *line);
+int line_get_curs_pos(struct Line *line);
 void line_append(struct Line *line, t_char c);
 int line_move_forward(struct Line *line);
 int line_move_backward(struct Line *line);
@@ -55,6 +55,7 @@ int line_backspace(struct Line *line);
 
 struct Buffer *buffer_new();
 void buffer_free(struct Buffer *buf);
+void buffer_go_to(struct Buffer *buf, int x, int y);
 void buffer_add(struct Buffer *buf, t_char c);
 void buffer_new_line(struct Buffer *buf);
 int buffer_backspace(struct Buffer *buf);

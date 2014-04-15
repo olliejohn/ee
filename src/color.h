@@ -23,6 +23,19 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+typedef enum {
+	COL_BLACK = 1,
+	COL_RED,
+	COL_GREEN,
+	COL_BLUE,
+	COL_YELLOW,
+	COL_MAGENTA,
+	COL_CYAN,
+	COL_WHITE,
+	COL_L_GRAY,
+	COL_D_GRAY,
+} Col;
+
 /* Must not be 0 indexed */
 typedef enum {
 	SCH_TITLE_BAR = 1,
@@ -31,6 +44,13 @@ typedef enum {
 	SCH_CMD_BAR,
 	SCH_CMD_ERR,
 } ColScheme;
+
+/* Color schemes */
+#define CS_TITLE_BAR 	COLOR_PAIR(SCH_TITLE_BAR)
+#define CS_TITLE_ERR	COLOR_PAIR(SCH_TITLE_ERR)
+#define CS_BUFFER	COLOR_PAIR(SCH_BUFFER)
+#define CS_CMD_BAR	COLOR_PAIR(SCH_CMD_BAR)
+#define CS_CMD_ERR	COLOR_PAIR(SCH_CMD_ERR)
 
 void color_init();
 
