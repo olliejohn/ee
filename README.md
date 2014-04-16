@@ -1,3 +1,3 @@
-#EE
+#Yaw
 
-Simple command-line text editor
+Simple command-line text editor using the TUI ncurses wrapper

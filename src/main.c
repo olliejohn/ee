@@ -33,7 +33,7 @@
 #define INFO_LICENSE	"GNU GPLv2"
 #define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
 #define INFO_DESC	"A simple command-line text editor"
-#define INFO_WEBSITE	"http://github.com/olliejohn/yaw"
+#define INFO_WEBSITE	"http://github.com/olliejohn/Yaw"
 
 int version()
 {
