@@ -1,6 +1,6 @@
 /*
  * main.c
- * Part of the ee text editor
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -27,13 +27,13 @@
 #include "config.h"
 #include "screen.h"
 
-#define INFO_NAME 	"ee"
+#define INFO_NAME 	"Yaw"
 #define INFO_VERSION 	"0.01"
 #define INFO_AUTHOR 	"Ollie Etherington"
 #define INFO_LICENSE	"GNU GPLv2"
 #define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
 #define INFO_DESC	"A simple command-line text editor"
-#define INFO_WEBSITE	"http://github.com/olliejohn/ee"
+#define INFO_WEBSITE	"http://github.com/olliejohn/yaw"
 
 int version()
 {

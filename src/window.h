@@ -1,6 +1,6 @@
 /*
  * window.h
- * Part of the ee text editor
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.

@@ -1,15 +1,22 @@
+# Yaw Makefile
 
 CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo -ltui
-TARGET=ee
+TARGET=yaw
 OBJECTS=$(shell ls | grep [.*][\.o])
 SOURCES:=$(shell ls | grep [.*][\.c])
 BINDIR=/usr/bin
 LIBDIR=/usr/lib
 
-all: exec
+all: debugExec
 	@echo -- Make Success --
+
+debugExec: debugBuild
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
+
+debugBuild:
+	$(CC) $(CFLAGS) -g $(SOURCES)
 
 exec: build
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)

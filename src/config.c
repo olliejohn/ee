@@ -1,6 +1,6 @@
 /*
  * config.c
- * Part of the ee text editor
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -30,7 +30,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define DEFAULT_CFG_NAME ".ee"
+#define DEFAULT_CFG_NAME ".yaw"
 #define DEFAULT_CFG "usetabs 1\ntabsize 8\nlinnums 1\nbufexpg 0\n"
 #define CONFIG_BLOCK_SIZE 32
 #define MAX_LOAD_ATTEMPTS 3

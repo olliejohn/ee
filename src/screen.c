@@ -1,6 +1,6 @@
 /*
  * screen.c
- * Part of the ee text editor
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -114,9 +114,11 @@ int screen_run(struct Screen *scrn, char *filepath)
 				t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
 					    buf->data[buf->pos]->data);
 			} else {
-				for (i = buf->pos; i <= buf->size; i++)
+				for (i = buf->pos - 1; i <= buf->size; i++)
+					t_wmove(scrn->bwin, 0, i);
+					t_wclrtoeol(scrn->bwin);
 					t_mv_wprint(scrn->bwin, 0, i, L"%ls",
-						   buf->data[i]->data);
+						    buf->data[i]->data);
 				t_wmove(scrn->bwin, 0, buf->size + 1);
 				t_wclrtoeol(scrn->bwin);
 			}
