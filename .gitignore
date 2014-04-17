@@ -22,3 +22,6 @@
 *.x86_64
 *.hex
 yaw
+
+# Output from profiling script
+profile.png
