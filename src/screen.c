@@ -110,11 +110,14 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 		buffer_new_line(buf);
 		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
 		for ( ; i <= buf->size; i++) {
-			t_wmove(scrn->bwin, 0, i);
-			t_wclrtoeol(scrn->bwin);
 			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
 				    buf->data[i]->data);
+			t_wclrtoeol(scrn->bwin);
 		}
+
+		t_wmove(scrn->bwin, 0, buf->size + 1);
+		t_wclrtoeol(scrn->bwin);
+
 		break;
 	case TK_LEFT:
 		buffer_move_backward(buf);
