@@ -82,9 +82,11 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 				    buf->data[buf->pos]->data);
 		} else {
 			int i;
-			for (i = buf->pos; i <= buf->size; i++)
+			for (i = buf->pos; i <= buf->size; i++) {
 				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
 					    buf->data[i]->data);
+				t_wclrtoeol(scrn->bwin);
+			}
 
 			t_wmove(scrn->bwin, 0, buf->size + 1);
 			t_wclrtoeol(scrn->bwin);
@@ -110,9 +112,10 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 		buffer_new_line(buf);
 		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
 		for ( ; i <= buf->size; i++) {
+			t_wmove(scrn->bwin, 0, i);
+			t_wclrtoeol(scrn->bwin);
 			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
 				    buf->data[i]->data);
-			t_wclrtoeol(scrn->bwin);
 		}
 
 		t_wmove(scrn->bwin, 0, buf->size + 1);
@@ -186,6 +189,19 @@ int screen_run(struct Screen *scrn, char *filepath)
 		return 0;
 }
 
+void screen_set_colors(struct Screen *scrn)
+{
+	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
+	t_wbkgd(scrn->bwin, CS_BUFFER);
+	t_wbkgd(scrn->bbar, CS_BOT_BAR);
+	t_wbkgd(scrn->cbar, CS_CMD_BAR);
+
+	t_wrefresh(scrn->tbar);
+	t_wrefresh(scrn->bwin);
+	t_wrefresh(scrn->bbar);
+	t_wrefresh(scrn->cbar);
+}
+
 struct Screen *screen_new()
 {
 	struct Screen *scrn = malloc(sizeof(struct Screen));
@@ -197,15 +213,7 @@ struct Screen *screen_new()
 	scrn->bbar = bar_new(scrn->HEIGHT - 2);
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
-	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
-	t_wbkgd(scrn->bwin, CS_BUFFER);
-	t_wbkgd(scrn->bbar, CS_BOT_BAR);
-	t_wbkgd(scrn->cbar, CS_CMD_BAR);
-
-	t_wrefresh(scrn->tbar);
-	t_wrefresh(scrn->bwin);
-	t_wrefresh(scrn->bbar);
-	t_wrefresh(scrn->cbar);
+	screen_set_colors(scrn);
 
 	scrn->buf = buffer_new();
 

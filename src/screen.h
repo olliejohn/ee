@@ -39,6 +39,7 @@ struct Screen {
 
 struct Screen *screen_new();
 void screen_free(struct Screen *scrn);
+void screen_set_colors(struct Screen *scrn);
 int screen_run(struct Screen *scrn, char *filepath);
 
 #endif
