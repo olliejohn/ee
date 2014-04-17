@@ -157,10 +157,6 @@ struct Buffer *buffer_new()
 
 void buffer_free(struct Buffer *buf)
 {
-	/*
-	 * Check this: changed < to <= in the for loop. This fixed a small
-	 * memory leak but may cause a seg fault sometimes?
-	 */
 	int i;
 	for (i = 0; i <= buf->size; i++)
 		line_free(buf->data[i]);
@@ -257,16 +253,6 @@ int buffer_backspace(struct Buffer *buf)
 	}
 
 	return 0;
-}
-
-int buffer_delete(struct Buffer *buf)
-{
-	struct Line *line = buf->data[buf->pos];
-	if (buf->pos >= buf->size - 1 && line->pos >= line->size)
-		return 0;
-
-	buffer_move_forward(buf);
-	return buffer_backspace(buf);
 }
 
 void buffer_move_forward(struct Buffer *buf)

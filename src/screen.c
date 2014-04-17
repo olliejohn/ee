@@ -94,17 +94,26 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 		break;
 	case TK_DELETE:
-		if (buffer_delete(buf) == 0) {
+		if (buf->pos >= buf->size &&
+		    buf->data[buf->pos]->pos >= buf->data[buf->pos]->size)
+			break;
+
+		buffer_move_forward(buf);
+		if (buffer_backspace(buf) == 0) {
 			t_wmove(scrn->bwin, 0, buf->pos);
 			t_wclrtoeol(scrn->bwin);
 			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
 				    buf->data[buf->pos]->data);
 		} else {
-			t_wclear(scrn->bwin);
 			int i;
-			for (i = 0; i < buf->size; i++)
+			for (i = buf->pos; i <= buf->size; i++) {
 				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
 					    buf->data[i]->data);
+				t_wclrtoeol(scrn->bwin);
+			}
+
+			t_wmove(scrn->bwin, 0, buf->size + 1);
+			t_wclrtoeol(scrn->bwin);
 		}
 
 		break;

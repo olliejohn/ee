@@ -59,7 +59,6 @@ void buffer_go_to(struct Buffer *buf, int x, int y);
 void buffer_add(struct Buffer *buf, t_char c);
 void buffer_new_line(struct Buffer *buf);
 int buffer_backspace(struct Buffer *buf);
-int buffer_delete(struct Buffer *buf);
 void buffer_move_forward(struct Buffer *buf);
 void buffer_move_backward(struct Buffer *buf);
 void buffer_move_up(struct Buffer *buf);
