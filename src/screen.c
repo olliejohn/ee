@@ -68,25 +68,96 @@ void screen_print_ch_info(t_window *bar, struct Buffer *buf)
 		     buf->data[buf->pos]->size + 1);
 }
 
+void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
+{
+	switch (ch) {
+	case L'š':	/* Shift+tab */
+		run_cmd_loop(scrn);
+		break;
+	case TK_BKSPC:
+		if (buffer_backspace(buf) == 0) {
+			t_wmove(scrn->bwin, 0, buf->pos);
+			t_wclrtoeol(scrn->bwin);
+			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		} else {
+			int i;
+			for (i = buf->pos; i <= buf->size; i++)
+				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+					    buf->data[i]->data);
+
+			t_wmove(scrn->bwin, 0, buf->size + 1);
+			t_wclrtoeol(scrn->bwin);
+		}
+
+		break;
+	case TK_DELETE:
+		if (buffer_delete(buf) == 0) {
+			t_wmove(scrn->bwin, 0, buf->pos);
+			t_wclrtoeol(scrn->bwin);
+			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		} else {
+			t_wclear(scrn->bwin);
+			int i;
+			for (i = 0; i < buf->size; i++)
+				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+					    buf->data[i]->data);
+		}
+
+		break;
+	case TK_ENTER:
+		buffer_new_line(buf);
+		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
+		for ( ; i <= buf->size; i++) {
+			t_wmove(scrn->bwin, 0, i);
+			t_wclrtoeol(scrn->bwin);
+			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+				    buf->data[i]->data);
+		}
+		break;
+	case TK_LEFT:
+		buffer_move_backward(buf);
+		break;
+	case TK_RIGHT:
+		buffer_move_forward(buf);
+		break;
+	case TK_UP:
+		buffer_move_up(buf);
+		break;
+	case TK_DOWN:
+		buffer_move_down(buf);
+		break;
+	default:
+		if (iswprint(ch) || ch == L'\t') {
+			buffer_add(buf, ch);
+			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		}
+	}
+
+	t_wrefresh(scrn->tbar);
+
+	screen_print_ch_info(scrn->bbar, buf);
+	t_wrefresh(scrn->bbar);
+
+	t_wrefresh(scrn->cbar);
+
+	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
+	t_wrefresh(scrn->bwin);
+}
+
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 int screen_run(struct Screen *scrn, char *filepath)
 {
 	struct Buffer *buf = scrn->buf;
-/*
-	int wpathlen = strlen(filepath) + 1;
-	t_char *wpath = calloc(wpathlen, sizeof(t_char));
-	mbstowcs(wpath, filepath, wpathlen);
 
-	if (filepath != NULL) {
-		//buffer_open(buf, filepath, 0, 0);
-		//print_to_win(twin, wpath);
+	if (filepath == NULL) {
+		print_to_win(scrn->tbar, L"Untitled");
 	} else {
-		//print_to_win(twin, "Untitled");
+		//buffer_open(buf, filepath, 0, 0);
+		//print_to_win(scrn->tbar, filepath);
 	}
-
-	free(wpath);
-*/
-	print_to_win(scrn->tbar, L"Untitled");
 
 	int i;
 	for (i = 0; i < buf->size; i++)
@@ -101,83 +172,10 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wrefresh(scrn->bwin);
 
 	t_char ch;
-	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
-						ch != BIND_SAVE_EXIT) {
-		switch (ch) {
-		case L'š':	/* Shift+tab */
-			run_cmd_loop(scrn);
-			break;
-		case TK_BKSPC:
-			if (buffer_backspace(buf) == 0) {
-				t_wmove(scrn->bwin, 0, buf->pos);
-				t_wclrtoeol(scrn->bwin);
-				t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
-					    buf->data[buf->pos]->data);
-			} else {
-				for (i = buf->pos - 1; i <= buf->size; i++)
-					t_wmove(scrn->bwin, 0, i);
-					t_wclrtoeol(scrn->bwin);
-					t_mv_wprint(scrn->bwin, 0, i, L"%ls",
-						    buf->data[i]->data);
-				t_wmove(scrn->bwin, 0, buf->size + 1);
-				t_wclrtoeol(scrn->bwin);
-			}
-
-			break;
-		case TK_DELETE:
-			if (buffer_delete(buf) == 0) {
-				t_wmove(scrn->bwin, 0, buf->pos);
-				t_wclrtoeol(scrn->bwin);
-				t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
-					    buf->data[buf->pos]->data);
-			} else {
-				t_wclear(scrn->bwin);
-				for (i = 0; i < buf->size; i++)
-					t_mv_wprint(scrn->bwin, 0, i, L"%ls",
-						    buf->data[i]->data);
-			}
-
-			break;
-		case TK_ENTER:
-			buffer_new_line(buf); /* This function is buggy - fix it */
-			i = (buf->pos == 0) ? 0 : buf->pos - 1;
-			for ( ; i <= buf->size; i++) {
-				t_wmove(scrn->bwin, 0, i);
-				t_wclrtoeol(scrn->bwin);
-				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
-					    buf->data[i]->data);
-			}
-			break;
-		case TK_LEFT:
-			buffer_move_backward(buf);
-			break;
-		case TK_RIGHT:
-			buffer_move_forward(buf);
-			break;
-		case TK_UP:
-			buffer_move_up(buf);
-			break;
-		case TK_DOWN:
-			buffer_move_down(buf);
-			break;
-		default:
-			if (iswprint(ch) || ch == L'\t') {
-				buffer_add(buf, ch);
-				t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
-					    buf->data[buf->pos]->data);
-			}
-		}
-
-		t_wrefresh(scrn->tbar);
-
-		screen_print_ch_info(scrn->bbar, buf);
-		t_wrefresh(scrn->bbar);
-
-		t_wrefresh(scrn->cbar);
-
-		t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
-		t_wrefresh(scrn->bwin);
-	}
+	while (t_getch(&ch) != TUI_ERR &&
+	       ch != BIND_EXIT &&
+	       ch != BIND_SAVE_EXIT)
+		buffer_process_char(scrn, buf, ch);
 
 	if (ch == BIND_SAVE_EXIT)
 		return 1;

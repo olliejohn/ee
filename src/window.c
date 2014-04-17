@@ -40,12 +40,12 @@ void print_to_win_at(t_window *win, const char *msg, ...)
 
 void print_to_win(t_window *win, t_char *msg, ...)
 {
-	wclear(win);
+	t_wclear(win);
 
 	va_list arg;
 	va_start(arg, msg);
 	t_vwprint(win, msg, arg);
 	va_end(arg);
 
-	wrefresh(win);
+	t_wrefresh(win);
 }
