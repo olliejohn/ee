@@ -277,12 +277,8 @@ void buffer_move_forward(struct Buffer *buf)
 {
 	struct Line *line = buf->data[buf->pos];
 
-	if (line_move_forward(line) == -1 && buf->pos < buf->size - 1) {
-		if (buf->pos == buf->size - 1)
-			return;
-
+	if (line_move_forward(line) == -1 && buf->pos < buf->size)
 		buf->data[++buf->pos]->pos = 0;
-	}
 }
 
 void buffer_move_backward(struct Buffer *buf)
