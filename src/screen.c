@@ -24,6 +24,7 @@
 
 #include "binds.h"
 #include "color.h"
+#include "lisp.h"
 #include "window.h"
 
 #include <stdlib.h>
@@ -186,11 +187,16 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
 	t_wrefresh(scrn->bwin);
 
-	t_char ch;
-	while (t_getch(&ch) != TUI_ERR &&
+	t_char ch = 0;  // THIS HAS BEEN CHANGED IDIOT
+/*	while (t_getch(&ch) != TUI_ERR &&
 	       ch != BIND_EXIT &&
 	       ch != BIND_SAVE_EXIT)
 		buffer_process_char(scrn, buf, ch);
+*/
+
+	lisp_init();
+	lisp_run(scrn);
+	lisp_destroy();
 
 	if (ch == BIND_SAVE_EXIT)
 		return 1;

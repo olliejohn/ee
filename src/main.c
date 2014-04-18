@@ -25,6 +25,7 @@
 
 #include "color.h"
 #include "config.h"
+#include "lisp.h"
 #include "screen.h"
 
 #define INFO_NAME 	"Yaw"
