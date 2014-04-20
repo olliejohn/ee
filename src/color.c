@@ -23,25 +23,43 @@
 #include "color.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <tui.h>
+
+#define COLOR_DEFAULT -1
 
 void color_init()
 {
-	init_color(COL_BLACK, 	0, 	0, 	0	);
-	init_color(COL_RED, 	1000, 	0, 	0	);
-	init_color(COL_GREEN, 	0, 	1000, 	0	);
-	init_color(COL_BLUE, 	0, 	0, 	1000	);
-	init_color(COL_YELLOW, 	1000, 	1000, 	0	);
-	init_color(COL_MAGENTA,	1000, 	0, 	1000	);
-	init_color(COL_CYAN, 	0, 	1000, 	1000	);
-	init_color(COL_WHITE, 	1000, 	1000, 	1000	);
-	init_color(COL_L_GRAY, 	830, 	830, 	830	);
-	init_color(COL_D_GRAY, 	500, 	500, 	500	);
+	char *termtype = getenv("TERM");
 
-	init_pair(SCH_TITLE_BAR, 	COL_BLACK, 	COL_D_GRAY);
-	init_pair(SCH_TITLE_ERR, 	COL_RED, 	COL_WHITE);
-	init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
-	init_pair(SCH_BOTTOM_BAR, 	COL_BLACK, 	COL_D_GRAY);
-	init_pair(SCH_BOTTOM_ERR, 	COL_RED, 	COL_WHITE);
-	init_pair(SCH_CMD_BAR, 		COL_WHITE, 	COL_BLACK);
+	if (strcasecmp(termtype, "xterm-256color") == 0) {
+		init_color(COL_BLACK, 	0, 	0, 	0	);
+		init_color(COL_RED, 	1000, 	0, 	0	);
+		init_color(COL_GREEN, 	0, 	1000, 	0	);
+		init_color(COL_BLUE, 	0, 	0, 	1000	);
+		init_color(COL_YELLOW, 	1000, 	1000, 	0	);
+		init_color(COL_MAGENTA,	1000, 	0, 	1000	);
+		init_color(COL_CYAN, 	0, 	1000, 	1000	);
+		init_color(COL_WHITE, 	1000, 	1000, 	1000	);
+		init_color(COL_L_GRAY, 	830, 	830, 	830	);
+		init_color(COL_D_GRAY, 	500, 	500, 	500	);
+
+		init_pair(SCH_TITLE_BAR, 	COL_BLACK, 	COL_D_GRAY);
+		init_pair(SCH_TITLE_ERR, 	COL_RED, 	COL_D_GRAY);
+		init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
+		init_pair(SCH_BOTTOM_BAR, 	COL_BLACK, 	COL_D_GRAY);
+		init_pair(SCH_BOTTOM_ERR, 	COL_RED, 	COL_D_GRAY);
+		init_pair(SCH_CMD_BAR, 		COL_WHITE, 	COL_BLACK);
+	} else {
+		/* Presume we only have the default 8 xterm colors available */
+		start_color();
+		use_default_colors();
+
+		init_pair(SCH_TITLE_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
+		init_pair(SCH_TITLE_ERR, 	COLOR_RED, 	COLOR_WHITE);
+		init_pair(SCH_BUFFER, 		COLOR_DEFAULT, 	COLOR_DEFAULT);
+		init_pair(SCH_BOTTOM_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
+		init_pair(SCH_BOTTOM_ERR, 	COLOR_RED, 	COLOR_WHITE);
+		init_pair(SCH_CMD_BAR, 		COLOR_DEFAULT, 	COLOR_DEFAULT);
+	}
 }
