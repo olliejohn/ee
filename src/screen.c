@@ -49,16 +49,38 @@ void print_to_win(t_window *win, t_char *msg, ...)
 	t_wrefresh(win);
 }
 
-void screen_set_title(struct Screen *scrn, t_char *title)
+void screen_set_title(struct Screen *scrn, t_char *title, ...)
 {
-	t_mv_wprint(scrn->tbar, 0, 0, title);
+	va_list args;
+	va_start(args, title);
+	t_mv_vwprint(scrn->tbar, 0, 0, title, args);
+	va_end(args);
+
 	t_wclrtoeol(scrn->tbar);
 	t_wrefresh(scrn->tbar);
 }
 
-void screen_set_status(struct Screen *scrn, t_char *status)
+void screen_vset_title(struct Screen *scrn, t_char *title, va_list args)
 {
-	t_mv_wprint(scrn->bbar, 0, 0, status);
+	t_mv_vwprint(scrn->tbar, 0, 0, title, args);
+	t_wclrtoeol(scrn->tbar);
+	t_wrefresh(scrn->tbar);
+}
+
+void screen_set_status(struct Screen *scrn, t_char *status, ...)
+{
+	va_list args;
+	va_start(args, status);
+	t_mv_vwprint(scrn->bbar, 0, 0, status, args);
+	va_end(args);
+
+	t_wclrtoeol(scrn->bbar);
+	t_wrefresh(scrn->bbar);
+}
+
+void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
+{
+	t_mv_vwprint(scrn->bbar, 0, 0, status, args);
 	t_wclrtoeol(scrn->bbar);
 	t_wrefresh(scrn->bbar);
 }
