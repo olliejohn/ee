@@ -35,20 +35,6 @@
 
 #define CSR_X line_get_cur_pos(buf->data[buf->pos])
 
-#define v_print_to_win(win, msg, ...) t_vwprint(win, msg, __VA_ARGS__)
-
-void print_to_win(t_window *win, t_char *msg, ...)
-{
-	t_wclear(win);
-
-	va_list arg;
-	va_start(arg, msg);
-	t_vwprint(win, msg, arg);
-	va_end(arg);
-
-	t_wrefresh(win);
-}
-
 void screen_set_title(struct Screen *scrn, t_char *title, ...)
 {
 	va_list args;
