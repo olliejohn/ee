@@ -23,7 +23,7 @@
 #ifndef BINDS_H
 #define BINDS_H
 
-#include <ncurses.h>
+#include <tui.h>
 
 /* Flags to be or'ed in */
 #define KEY_CTRL	0x10000000
