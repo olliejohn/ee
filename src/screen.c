@@ -49,15 +49,47 @@ void print_to_win(t_window *win, t_char *msg, ...)
 	t_wrefresh(win);
 }
 
+void screen_set_title(struct Screen *scrn, t_char *title)
+{
+	t_mv_wprint(scrn->tbar, 0, 0, title);
+	t_wclrtoeol(scrn->tbar);
+	t_wrefresh(scrn->tbar);
+}
+
+void screen_set_status(struct Screen *scrn, t_char *status)
+{
+	t_mv_wprint(scrn->bbar, 0, 0, status);
+	t_wclrtoeol(scrn->bbar);
+	t_wrefresh(scrn->bbar);
+}
+
+/* Prints line number and character number information */
+#define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
+#define CH_INFO_OFFS 24
+void screen_print_ch_info(struct Screen *scrn, struct Buffer *buf)
+{
+	t_mv_wprint(scrn->bbar,
+		    scrn->WIDTH - CH_INFO_OFFS, 0,
+		    CH_INFO_FMT,
+		    buf->pos + 1,
+		    buf->size + 1,
+		    buf->data[buf->pos]->pos + 1,
+		    buf->data[buf->pos]->size + 1);
+}
+
 void run_current_cmd(struct Screen *scrn)
 {
+	/* lisp_run(scrn); */
 
+	struct Line *cur_cmd = scrn->cmds->data[scrn->cmds->pos];
+
+	if (wcscmp(cur_cmd->data, L"w") == 0) {
+
+	}
 }
 
 void cmd_process_char(struct Screen *scrn, t_char ch)
 {
-	/* lisp_run(scrn); */
-
 	struct Line *cur_cmd = scrn->cmds->data[scrn->cmds->pos];
 
 	switch (ch) {
@@ -105,16 +137,6 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 	t_mv_wprint(scrn->cbar, 0, 0, L"%ls", cur_cmd->data);
 	t_wmove(scrn->cbar, cur_cmd->pos, 0);
 	t_wrefresh(scrn->cbar);
-}
-
-/* Prints line number and character number information */
-void screen_print_ch_info(t_window *bar, struct Buffer *buf)
-{
-	print_to_win(bar, L"L:%d/%d    C:%d/%d      ",
-		     buf->pos + 1,
-		     buf->size + 1,
-		     buf->data[buf->pos]->pos + 1,
-		     buf->data[buf->pos]->size + 1);
 }
 
 void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
@@ -199,7 +221,7 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 	t_wrefresh(scrn->tbar);
 
-	screen_print_ch_info(scrn->bbar, buf);
+	screen_print_ch_info(scrn, buf);
 	t_wrefresh(scrn->bbar);
 
 	t_wrefresh(scrn->cbar);
@@ -215,7 +237,8 @@ int screen_run(struct Screen *scrn, char *filepath)
 	int i;
 
 	if (filepath == NULL) {
-		print_to_win(scrn->tbar, L"Untitled");
+		screen_set_title(scrn, L"Untitled");
+		screen_set_status(scrn, L"Created new buffer");
 	} else {
 		buffer_open(buf, filepath, 0, 0);
 
@@ -225,17 +248,19 @@ int screen_run(struct Screen *scrn, char *filepath)
 		for (i = 0; i < pathlen; i++)
 			widepath[i] = filepath[i];
 
-		print_to_win(scrn->tbar, widepath);
+		screen_set_title(scrn, widepath);
 
 		free(widepath);
 
 		for (i = 0; i < buf->size; i++)
-		t_mv_wprint(scrn->bwin, 0, i, L"%ls", buf->data[i]->data);
+			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+				    buf->data[i]->data);
 	}
 
-	screen_print_ch_info(scrn->bbar, buf);
+	screen_print_ch_info(scrn, buf);
 
 	t_wrefresh(scrn->tbar);
+	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
 
 	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
