@@ -25,15 +25,29 @@
 #include "binds.h"
 #include "color.h"
 #include "lisp.h"
-#include "window.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <wchar.h>
 #include <wctype.h>
 
 #define bar_new(y) t_winit(0, y, t_getmaxx(), 1)
 
 #define CSR_X line_get_cur_pos(buf->data[buf->pos])
+
+#define v_print_to_win(win, msg, ...) t_vwprint(win, msg, __VA_ARGS__)
+
+void print_to_win(t_window *win, t_char *msg, ...)
+{
+	t_wclear(win);
+
+	va_list arg;
+	va_start(arg, msg);
+	t_vwprint(win, msg, arg);
+	va_end(arg);
+
+	t_wrefresh(win);
+}
 
 /* This doesn't really work at all yet... */
 void run_cmd_loop(struct Screen *scrn)
@@ -167,17 +181,26 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 int screen_run(struct Screen *scrn, char *filepath)
 {
 	struct Buffer *buf = scrn->buf;
+	int i;
 
 	if (filepath == NULL) {
 		print_to_win(scrn->tbar, L"Untitled");
 	} else {
-		//buffer_open(buf, filepath, 0, 0);
-		//print_to_win(scrn->tbar, filepath);
-	}
+		buffer_open(buf, filepath, 0, 0);
 
-	int i;
-	for (i = 0; i < buf->size; i++)
+		int pathlen = strlen(filepath);
+		t_char *widepath = malloc(sizeof(t_char) * pathlen);
+
+		for (i = 0; i < pathlen; i++)
+			widepath[i] = filepath[i];
+
+		print_to_win(scrn->tbar, widepath);
+
+		free(widepath);
+
+		for (i = 0; i < buf->size; i++)
 		t_mv_wprint(scrn->bwin, 0, i, L"%ls", buf->data[i]->data);
+	}
 
 	screen_print_ch_info(scrn->bbar, buf);
 
@@ -187,16 +210,17 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
 	t_wrefresh(scrn->bwin);
 
-	t_char ch = 0;  // THIS HAS BEEN CHANGED IDIOT
-/*	while (t_getch(&ch) != TUI_ERR &&
+	t_char ch;
+	while (t_getch(&ch) != TUI_ERR &&
 	       ch != BIND_EXIT &&
 	       ch != BIND_SAVE_EXIT)
 		buffer_process_char(scrn, buf, ch);
-*/
 
+/*
 	lisp_init();
 	lisp_run(scrn);
 	lisp_destroy();
+*/
 
 	if (ch == BIND_SAVE_EXIT)
 		return 1;

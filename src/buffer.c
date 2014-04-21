@@ -31,7 +31,7 @@
 #include <string.h>
 #include <wchar.h>
 
-#define LINE_INITAL_CAPACITY 128
+#define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
 
 #define TAB_SIZE 8
