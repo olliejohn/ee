@@ -97,6 +97,7 @@ int main(int argc, char **argv)
 
 	/* Run program */
 	color_init();
+	lisp_init();
 
 	t_refresh();
 
@@ -112,6 +113,7 @@ int main(int argc, char **argv)
 	screen_free(scrn);
 
 	config_destroy();
+	lisp_destroy();
 
 	/* tui destroy */
 	t_destroy();

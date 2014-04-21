@@ -66,5 +66,6 @@
 /* Binds */
 #define BIND_EXIT 	KEY_F(1)
 #define BIND_SAVE_EXIT 	KEY_F(3)
+#define BIND_TOOGLE_CMD	L'š'	/* Shift+tab */
 
 #endif

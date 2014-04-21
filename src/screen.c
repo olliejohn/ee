@@ -49,28 +49,30 @@ void print_to_win(t_window *win, t_char *msg, ...)
 	t_wrefresh(win);
 }
 
-/* This doesn't really work at all yet... */
-void run_cmd_loop(struct Screen *scrn)
+void cmd_process_char(struct Screen *scrn, t_char ch)
 {
-	struct Line *cmd = line_new();
+	/* lisp_run(scrn); */
 
-	t_char ch;
-	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
-						ch != BIND_SAVE_EXIT) {
-		switch (ch) {
-		case L'š':	/* Shift+tab */
-			goto cmd_loop_exit;
+	switch (ch) {
+		case TK_ENTER:
+			break;
+		case TK_LEFT:
+			break;
+		case TK_RIGHT:
+			break;
+		case TK_UP:
+			break;
+		case TK_DOWN:
+			break;
 		default:
-			line_add(cmd, ch);
-		}
-
-		t_wclear(scrn->cbar);
-		t_mv_wprint(scrn->cbar, 0, 0, L"%ls", cmd);
-		t_wrefresh(scrn->cbar);
+			buffer_add(scrn->cmds, ch);
 	}
 
-cmd_loop_exit:
-	line_free(cmd);
+	t_mv_wprint(scrn->cbar, 0, 0, L"%ls",
+		    scrn->cmds->data[scrn->cmds->pos]->data);
+	t_wmove(scrn->cbar, scrn->cmds->data[scrn->cmds->pos]->pos, 0);
+	t_wclrtoeol(scrn->cbar);
+	t_wrefresh(scrn->cbar);
 }
 
 /* Prints line number and character number information */
@@ -86,9 +88,6 @@ void screen_print_ch_info(t_window *bar, struct Buffer *buf)
 void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 {
 	switch (ch) {
-	case L'š':	/* Shift+tab */
-		run_cmd_loop(scrn);
-		break;
 	case TK_BKSPC:
 		if (buffer_backspace(buf) == 0) {
 			t_wmove(scrn->bwin, 0, buf->pos);
@@ -210,17 +209,21 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
 	t_wrefresh(scrn->bwin);
 
-	t_char ch;
-	while (t_getch(&ch) != TUI_ERR &&
-	       ch != BIND_EXIT &&
-	       ch != BIND_SAVE_EXIT)
-		buffer_process_char(scrn, buf, ch);
+	int CMD_LOOP_FLAG = 0;
 
-/*
-	lisp_init();
-	lisp_run(scrn);
-	lisp_destroy();
-*/
+	t_char ch;
+	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
+						ch != BIND_SAVE_EXIT) {
+		if (ch == BIND_TOOGLE_CMD) {
+			CMD_LOOP_FLAG ^= 1;
+			continue;
+		}
+
+		if (CMD_LOOP_FLAG)
+			cmd_process_char(scrn, ch);
+		else
+			buffer_process_char(scrn, buf, ch);
+	}
 
 	if (ch == BIND_SAVE_EXIT)
 		return 1;
@@ -254,6 +257,7 @@ struct Screen *screen_new()
 
 	screen_set_colors(scrn);
 
+	scrn->cmds = buffer_new();
 	scrn->buf = buffer_new();
 
 	return scrn;
@@ -265,6 +269,7 @@ void screen_free(struct Screen *scrn)
 	t_wdestroy(scrn->bwin);
 	t_wdestroy(scrn->bbar);
 	t_wdestroy(scrn->cbar);
+	buffer_free(scrn->cmds);
 	buffer_free(scrn->buf);
 	free(scrn);
 }

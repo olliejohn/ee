@@ -32,6 +32,7 @@ struct Screen {
 	t_window *bwin;	/* Buffer window */
 	t_window *bbar;	/* Bottom bar */
 	t_window *cbar;	/* Command bar */
+	struct Buffer *cmds;
 	struct Buffer *buf;
 	int WIDTH;
 	int HEIGHT;
