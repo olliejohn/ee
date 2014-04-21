@@ -12,14 +12,15 @@ LIBDIR=/usr/lib
 all: debugExec
 	@echo -- Make Success --
 
-debugExec: debugBuild
+debugExec: debugBuild link
+
+exec: build link
+
+link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
 debugBuild:
 	$(CC) $(CFLAGS) -g $(SOURCES)
-
-exec: build
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
 build:
 	$(CC) $(CFLAGS) $(SOURCES)
