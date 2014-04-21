@@ -49,29 +49,61 @@ void print_to_win(t_window *win, t_char *msg, ...)
 	t_wrefresh(win);
 }
 
+void run_current_cmd(struct Screen *scrn)
+{
+
+}
+
 void cmd_process_char(struct Screen *scrn, t_char ch)
 {
 	/* lisp_run(scrn); */
 
+	struct Line *cur_cmd = scrn->cmds->data[scrn->cmds->pos];
+
 	switch (ch) {
 		case TK_ENTER:
+			run_current_cmd(scrn);
+			buffer_new_line(scrn->cmds);
+			cur_cmd = scrn->cmds->data[scrn->cmds->pos];
+			t_wclear(scrn->cbar);
+			break;
+		case TK_BKSPC:
+			line_backspace(cur_cmd);
+			t_wclear(scrn->cbar);
+			break;
+		case TK_DELETE:
+			if (line_move_forward(cur_cmd) == 0) {
+				line_backspace(cur_cmd);
+				t_wclear(scrn->cbar);
+			}
+
 			break;
 		case TK_LEFT:
+			line_move_backward(cur_cmd);
 			break;
 		case TK_RIGHT:
+			line_move_forward(cur_cmd);
 			break;
 		case TK_UP:
+			if (scrn->cmds->pos > 0) {
+				cur_cmd = scrn->cmds->data[--scrn->cmds->pos];
+				t_wclear(scrn->cbar);
+			}
+
 			break;
 		case TK_DOWN:
+			if (scrn->cmds->pos < scrn->cmds->size) {
+				cur_cmd = scrn->cmds->data[++scrn->cmds->pos];
+				t_wclear(scrn->cbar);
+			}
+
 			break;
 		default:
 			buffer_add(scrn->cmds, ch);
 	}
 
-	t_mv_wprint(scrn->cbar, 0, 0, L"%ls",
-		    scrn->cmds->data[scrn->cmds->pos]->data);
-	t_wmove(scrn->cbar, scrn->cmds->data[scrn->cmds->pos]->pos, 0);
-	t_wclrtoeol(scrn->cbar);
+	t_mv_wprint(scrn->cbar, 0, 0, L"%ls", cur_cmd->data);
+	t_wmove(scrn->cbar, cur_cmd->pos, 0);
 	t_wrefresh(scrn->cbar);
 }
 
@@ -215,7 +247,11 @@ int screen_run(struct Screen *scrn, char *filepath)
 	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
 						ch != BIND_SAVE_EXIT) {
 		if (ch == BIND_TOOGLE_CMD) {
-			CMD_LOOP_FLAG ^= 1;
+			if(CMD_LOOP_FLAG ^= 1)
+				t_wrefresh(scrn->cbar);
+			else
+				t_wrefresh(scrn->bwin);
+
 			continue;
 		}
 
