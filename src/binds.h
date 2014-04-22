@@ -25,9 +25,33 @@
 
 #include <tui.h>
 
-/* Binds */
-#define BIND_EXIT 	KEY_F(1)
-#define BIND_SAVE_EXIT 	KEY_F(3)
-#define BIND_TOOGLE_CMD	L'š'	/* Shift+tab */
+typedef void (*cb_ptr)();
+
+struct Bind {
+	int key;
+	cb_ptr callback;
+};
+
+void binds_init();
+void binds_destroy();
+int bind(int key, void (*callback)());
+void unbind(int key);
+cb_ptr binds_get_callback_for(int key);
+struct Bind *bind_new(int key, cb_ptr callback);
+void bind_free(struct Bind *b);
+
+#define BIND_EXIT 	TK_F(1)
+#define BIND_SAVE_EXIT 	TK_F(3)
+#define BIND_TOOGLE_CMD	TK_CTRL_B
+#define BIND_SAVE	TK_CTRL_S
+#define BIND_CUT	TK_CTRL_X
+#define BIND_COPY	TK_CTRL_C
+#define BIND_PASTE	TK_CTRL_V
+#define BIND_SELECT_ALL	TK_CTRL_A
+#define BIND_UNDEF_1	TK_CTRL_2
+#define BIND_UNDEF_2	TK_CTRL_4
+#define BIND_UNDEF_3	TK_CTRL_5
+#define BIND_UNDEF_4	TK_CTRL_6
+#define BIND_UNDEF_5	TK_CTRL_7
 
 #endif

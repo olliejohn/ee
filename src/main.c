@@ -23,6 +23,7 @@
 #include <string.h>
 #include <tui.h>
 
+#include "binds.h"
 #include "color.h"
 #include "config.h"
 #include "lisp.h"
@@ -96,6 +97,7 @@ int main(int argc, char **argv)
 	t_init(TUI_RAW | TUI_COLOR | TUI_KEYPAD);
 
 	/* Run program */
+	binds_init();
 	lisp_init();
 
 	if (config_init() == -1)
@@ -115,6 +117,7 @@ int main(int argc, char **argv)
 
 	config_destroy();
 	lisp_destroy();
+	binds_destroy();
 
 	/* tui destroy */
 	t_destroy();
