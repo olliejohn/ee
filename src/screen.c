@@ -250,7 +250,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	} else {
 		buffer_open(buf, filepath, 0, 0);
 
-		int pathlen = strlen(filepath);
+		int pathlen = strlen(filepath) + 1;
 		t_char *widepath = malloc(sizeof(t_char) * pathlen);
 
 		for (i = 0; i < pathlen; i++)
