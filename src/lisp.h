@@ -25,12 +25,10 @@
 
 #include <tui.h>
 
-#include "buffer.h"
 #include "screen.h"
 
-t_char *lisp_eval(struct Line *ln);
-int lisp_run(struct Screen *scrn);
 void lisp_init();
 void lisp_destroy();
+int lisp_run(struct Screen *scrn);
 
 #endif
