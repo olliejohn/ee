@@ -96,13 +96,14 @@ int main(int argc, char **argv)
 	t_init(TUI_RAW | TUI_COLOR | TUI_KEYPAD);
 
 	/* Run program */
-	color_init();
 	lisp_init();
-
-	t_refresh();
 
 	if (config_init() == -1)
 		;// ERR: "Couldn't load or create config - using default"
+
+	color_init();
+
+	t_refresh();
 
 	char *filepath = NULL;
 	if (FLAG_OPEN)
