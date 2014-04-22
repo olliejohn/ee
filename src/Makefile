@@ -2,7 +2,7 @@
 
 CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3
-LDFLAGS=-lncursesw -ltinfo -ltui
+LDFLAGS=-lncursesw -ltinfo -ltui -ltermkey
 TARGET=yaw
 OBJECTS=$(shell ls | grep [.*][\.o])
 SOURCES:=$(shell ls | grep [.*][\.c])
