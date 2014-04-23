@@ -39,12 +39,10 @@ enum Screen_Flag {
 
 struct Screen {
 	t_window *tbar;	/* Tab bar */
-	//t_window *bwin;	/* Buffer window */
 	t_window *bbar;	/* Bottom bar */
 	t_window *cbar;	/* Command bar */
 	struct BufWin *bw;
 	struct Buffer *cmds;
-	//struct Buffer *buf;
 	unsigned int WIDTH;
 	unsigned int HEIGHT;
 	unsigned int FLAGS;

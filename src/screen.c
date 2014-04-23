@@ -190,7 +190,6 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 int screen_run(struct Screen *scrn, char *filepath)
 {
-
 	t_window *win = scrn->bw->win;
 	struct Buffer *buf = scrn->bw->curbuf;
 	int i;
@@ -267,13 +266,11 @@ int screen_run(struct Screen *scrn, char *filepath)
 void screen_set_colors(struct Screen *scrn)
 {
 	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
-	//t_wbkgd(scrn->bwin, CS_BUFFER);
 	t_wbkgd(scrn->bbar, CS_BOT_BAR);
 	t_wbkgd(scrn->cbar, CS_CMD_BAR);
 	bufwin_set_bkgrd(scrn->bw, CS_BUFFER);
 
 	t_wrefresh(scrn->tbar);
-	//t_wrefresh(scrn->bwin);
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
 	bufwin_refresh(scrn->bw);
@@ -286,7 +283,6 @@ struct Screen *screen_new()
 	t_getmaxxy(scrn->WIDTH, scrn->HEIGHT);
 
 	scrn->tbar = bar_new(0);
-	//scrn->bwin = t_winit(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
 	scrn->bbar = bar_new(scrn->HEIGHT - 2);
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
@@ -297,7 +293,6 @@ struct Screen *screen_new()
 	screen_set_colors(scrn);
 
 	scrn->cmds = buffer_new();
-	//scrn->buf = buffer_new();
 
 	scrn->FLAGS = 0;
 
@@ -307,12 +302,10 @@ struct Screen *screen_new()
 void screen_free(struct Screen *scrn)
 {
 	t_wdestroy(scrn->tbar);
-	//t_wdestroy(scrn->bwin);
 	t_wdestroy(scrn->bbar);
 	t_wdestroy(scrn->cbar);
 	bufwin_free(scrn->bw);
 
 	buffer_free(scrn->cmds);
-	//buffer_free(scrn->buf);
 	free(scrn);
 }
