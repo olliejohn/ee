@@ -343,7 +343,7 @@ int lisp_run(struct Screen *scrn)
 	struct Line *ln = line_new();
 	t_char ch;
 	int y = 0;
-	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT) {
+	while (t_getch(&ch) != TUI_ERR) {// && ch != BIND_EXIT) {
 		/* Read */
 		switch (ch) {
 		case TK_ENTER:

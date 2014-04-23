@@ -43,6 +43,7 @@ cb_ptr binds_get_callback_for(int key);
 struct Bind *bind_new(int key, cb_ptr callback);
 void bind_free(struct Bind *b);
 
+/*
 #define BIND_EXIT 	TK_F(1)
 #define BIND_SAVE_EXIT 	TK_F(3)
 #define BIND_TOOGLE_CMD	TK_CTRL_B
@@ -56,5 +57,6 @@ void bind_free(struct Bind *b);
 #define BIND_UNDEF_3	TK_CTRL_5
 #define BIND_UNDEF_4	TK_CTRL_6
 #define BIND_UNDEF_5	TK_CTRL_7
+*/
 
 #endif

@@ -305,15 +305,6 @@ int screen_run(struct Screen *scrn, char *filepath)
 	while (t_getch(&ch) != TUI_ERR) {
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
-			if (ch == BIND_TOOGLE_CMD) {
-				if (CMD_LOOP_FLAG ^= 1)
-					t_wrefresh(scrn->cbar);
-				else
-					t_wrefresh(scrn->bwin);
-
-				continue;
-			}
-
 			if (CMD_LOOP_FLAG)
 				cmd_process_char(scrn, ch);
 			else
@@ -327,27 +318,32 @@ int screen_run(struct Screen *scrn, char *filepath)
 		}
 
 		if (screen_get_flag(scrn, SF_EXIT)) {
-			break;
+			return 0;
 		}
 
 		if (screen_get_flag(scrn, SF_SAVE_EXIT)) {
-			ch = BIND_SAVE_EXIT;
-			break;
+			return 1;
 		}
 
 		if (screen_get_flag(scrn, SF_CLI)) {
-			/* Switch to cli */
+			if (CMD_LOOP_FLAG ^= 1)
+				t_wrefresh(scrn->cbar);
+			else
+				t_wrefresh(scrn->bwin);
+
+			screen_unset_flag(scrn, SF_CLI);
+
+			continue;
 		}
 
 		if (screen_get_flag(scrn, SF_TERM)) {
 			/* Switch to terminal */
+			screen_unset_flag(scrn, SF_TERM);
 		}
 	}
 
-	if (ch == BIND_SAVE_EXIT)
-		return 1;
-	else
-		return 0;
+	/* This should never be reached */
+	return 0;
 }
 
 void screen_set_colors(struct Screen *scrn)
