@@ -28,6 +28,7 @@
 void cb_exit(struct Screen *scrn);
 void cb_save_exit(struct Screen *scrn);
 void cb_save(struct Screen *scrn);
+void cb_save_as(struct Screen *scrn);
 void cb_toggle_cli(struct Screen *scrn);
 void cb_toggle_term(struct Screen *scrn);
 void cb_cut(struct Screen *scrn);

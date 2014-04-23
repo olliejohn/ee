@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
+/*
 #include "lisp.h"
 
 #include "binds.h"
@@ -29,9 +29,9 @@
 #include <wctype.h>
 
 enum Atom_Type {
-	A_INT,	/* Integer */
-	A_DBL,	/* Double */
-	A_SYM,	/* Symbol */
+	A_INT,	// Integer
+	A_DBL,	// Double
+	A_SYM,	// Symbol
 };
 
 union Atom_Value {
@@ -255,11 +255,11 @@ enum BuildListVal {
 int BUILD_LIST_ERRNO = 0;
 
 #define lisp_build_list_err(x) BUILD_LIST_ERRNO = x
-
+*/
 /*
  * Recursively build lists from tkns between start and end inclusive.
  * If end == -1 then the entire token stream is evaluated
- */
+ *//*
 struct List *lisp_build_list(struct Buffer *tkns, int start, int end)
 {
 	struct List *l = list_new();
@@ -274,8 +274,8 @@ struct List *lisp_build_list(struct Buffer *tkns, int start, int end)
 
 	for ( ; start <= end; start++) {
 		t_char *tok = tkns->data[start]->data;
-		list_add_elem(l, atom_as_elem(lisp_get_atom(tok)));
-/*
+		list_add_elem(l, atom_as_elem(lisp_get_atom(tok)));*/
+/* THIS ISN'T NEEDED
 		if (wcscmp(tok, L"(") == 0) {
 			int new_start = start;
 			int new_end = start;
@@ -294,7 +294,7 @@ struct List *lisp_build_list(struct Buffer *tkns, int start, int end)
 			list_add_elem(l, atom_as_elem(lisp_get_atom(tok)));
 		}
 		* */
-	}
+/*	}
 
 	return l;
 }
@@ -343,8 +343,8 @@ int lisp_run(struct Screen *scrn)
 	struct Line *ln = line_new();
 	t_char ch;
 	int y = 0;
-	while (t_getch(&ch) != TUI_ERR) {// && ch != BIND_EXIT) {
-		/* Read */
+	while (t_getch(&ch) != TUI_ERR) {// && ch != BIND_EXIT) { */
+		/* Read *//*
 		switch (ch) {
 		case TK_ENTER:
 			break;
@@ -382,15 +382,15 @@ int lisp_run(struct Screen *scrn)
 			t_wrefresh(scrn->bwin);
 			continue;
 		};
-
+*/
 		/* Eval */
-		t_char *value = lisp_eval(ln);
+//		t_char *value = lisp_eval(ln);
 
 		/* Print */
-		t_mv_wprint(scrn->bwin, 0, ++y, value);
+//		t_mv_wprint(scrn->bwin, 0, ++y, value);
 
 		/* Reset */
-		line_free(ln);
+/*		line_free(ln);
 		ln = line_new();
 		t_wmove(scrn->bwin, 0, ++y);
 		t_wrefresh(scrn->bwin);
@@ -399,7 +399,7 @@ int lisp_run(struct Screen *scrn)
 	line_free(ln);
 
 	return 0;
-}
+}*/
 
 void lisp_init()
 {

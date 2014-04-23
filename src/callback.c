@@ -34,6 +34,11 @@ void cb_save_exit(struct Screen *scrn)
 
 void cb_save(struct Screen *scrn)
 {
+	//buffer_save(scrn->buf);
+}
+
+void cb_save_as(struct Screen *scrn)
+{
 
 }
 

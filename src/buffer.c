@@ -33,7 +33,7 @@
 
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
-#define DEFAULT_BUFFER_FILENAME L"Untitled"
+#define DEFAULT_BUFFER_FILENAME "Untitled"
 #define TAB_SIZE 8
 
 struct Line *line_new()
@@ -154,6 +154,7 @@ struct Buffer *buffer_new()
 	buf->data[0] = line_new();
 	/* We init filename instead of setting it to NULL so we know it's
 	 * always safe to free it, whether or not it's been used */
+	buf->filename = NULL;
 	buffer_set_filename(buf, DEFAULT_BUFFER_FILENAME);
 	return buf;
 }
@@ -169,22 +170,22 @@ void buffer_free(struct Buffer *buf)
 }
 
 /*
- * TODO: Both of these filename functions will crash the program when the
- * buffer is destroyed if the reallocs fail - they could be made safer
+ * TODO: These filename functions will crash the program when the buffer is
+ * destroyed if the reallocs fail - they could be made safer
  */
-void buffer_set_filename_from_short(struct Buffer *buf, char *filename)
-{
-	int len = strlen(filename) + 1;
-	buf->filename = realloc(buf->filename, sizeof(t_char) * len);
-	mbstowcs(buf->filename, filename, len);
-}
-
-void buffer_set_filename(struct Buffer *buf, t_char *filename)
+void buffer_set_filename(struct Buffer *buf, char *filename)
 {
 	buf->filename = realloc(buf->filename,
-				sizeof(t_char) * (wcslen(filename) + 1));
+				sizeof(char) * (strlen(filename) + 1));
 
-	wcscpy(buf->filename, filename);
+	strcpy(buf->filename, filename);
+}
+
+void buffer_set_filename_from_wide(struct Buffer *buf, t_char *filename)
+{
+	int len = wcslen(filename) + 1;
+	buf->filename = realloc(buf->filename, sizeof(char) * len);
+	wcstombs(buf->filename, filename, len);
 }
 
 void buffer_go_to(struct Buffer *buf, int x, int y)
@@ -329,7 +330,23 @@ void buffer_move_down(struct Buffer *buf)
 		line->pos = line->size;
 }
 
-int buffer_save(struct Buffer *buf, char *file)
+int buffer_save(struct Buffer *buf)
+{
+	FILE *f = fopen(buf->filename, "w");
+
+	if (f == NULL)
+		return -1;
+
+	int i;
+	for (i = 0; i < buf->size; i++)
+		fwprintf(f, L"%s\n", buf->data[i]->data);
+
+	fclose(f);
+
+	return 0;
+}
+
+int buffer_save_as(struct Buffer *buf, char *file)
 {
 	FILE *f = fopen(file, "w");
 
@@ -338,7 +355,7 @@ int buffer_save(struct Buffer *buf, char *file)
 
 	int i;
 	for (i = 0; i < buf->size; i++)
-		;//fprintf(f, "%s\n", buf->data[i]->data);
+		fwprintf(f, L"%s\n", buf->data[i]->data);
 
 	fclose(f);
 

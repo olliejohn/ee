@@ -174,23 +174,25 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 
 void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 {
+	t_window *win = scrn->bw->win;
+
 	switch (ch) {
 	case TK_BKSPC:
 		if (buffer_backspace(buf) == 0) {
-			t_wmove(scrn->bwin, 0, buf->pos);
-			t_wclrtoeol(scrn->bwin);
-			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+			t_wmove(win, 0, buf->pos);
+			t_wclrtoeol(win);
+			t_mv_wprint(win, 0, buf->pos, L"%ls",
 				    buf->data[buf->pos]->data);
 		} else {
 			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+				t_mv_wprint(win, 0, i, L"%ls",
 					    buf->data[i]->data);
-				t_wclrtoeol(scrn->bwin);
+				t_wclrtoeol(win);
 			}
 
-			t_wmove(scrn->bwin, 0, buf->size + 1);
-			t_wclrtoeol(scrn->bwin);
+			t_wmove(win, 0, buf->size + 1);
+			t_wclrtoeol(win);
 		}
 
 		break;
@@ -201,20 +203,20 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 		buffer_move_forward(buf);
 		if (buffer_backspace(buf) == 0) {
-			t_wmove(scrn->bwin, 0, buf->pos);
-			t_wclrtoeol(scrn->bwin);
-			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+			t_wmove(win, 0, buf->pos);
+			t_wclrtoeol(win);
+			t_mv_wprint(win, 0, buf->pos, L"%ls",
 				    buf->data[buf->pos]->data);
 		} else {
 			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+				t_mv_wprint(win, 0, i, L"%ls",
 					    buf->data[i]->data);
-				t_wclrtoeol(scrn->bwin);
+				t_wclrtoeol(win);
 			}
 
-			t_wmove(scrn->bwin, 0, buf->size + 1);
-			t_wclrtoeol(scrn->bwin);
+			t_wmove(win, 0, buf->size + 1);
+			t_wclrtoeol(win);
 		}
 
 		break;
@@ -222,14 +224,14 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 		buffer_new_line(buf);
 		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
 		for ( ; i <= buf->size; i++) {
-			t_wmove(scrn->bwin, 0, i);
-			t_wclrtoeol(scrn->bwin);
-			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
+			t_wmove(win, 0, i);
+			t_wclrtoeol(win);
+			t_mv_wprint(win, 0, i, L"%ls",
 				    buf->data[i]->data);
 		}
 
-		t_wmove(scrn->bwin, 0, buf->size + 1);
-		t_wclrtoeol(scrn->bwin);
+		t_wmove(win, 0, buf->size + 1);
+		t_wclrtoeol(win);
 
 		break;
 	case TK_LEFT:
@@ -247,7 +249,7 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 	default:
 		if (iswprint(ch) || ch == L'\t') {
 			buffer_add(buf, ch);
-			t_mv_wprint(scrn->bwin, 0, buf->pos, L"%ls",
+			t_mv_wprint(win, 0, buf->pos, L"%ls",
 				    buf->data[buf->pos]->data);
 		}
 	}
@@ -259,14 +261,16 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 	t_wrefresh(scrn->cbar);
 
-	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
-	t_wrefresh(scrn->bwin);
+	t_wmove(win, buf->data[buf->pos]->pos, buf->pos);
+	t_wrefresh(win);
 }
 
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 int screen_run(struct Screen *scrn, char *filepath)
 {
-	struct Buffer *buf = scrn->buf;
+
+	t_window *win = scrn->bw->win;
+	struct Buffer *buf = scrn->bw->curbuf;
 	int i;
 
 	if (filepath == NULL) {
@@ -274,14 +278,13 @@ int screen_run(struct Screen *scrn, char *filepath)
 	} else {
 		buffer_open(buf, filepath, 0, 0);
 
-		buffer_set_filename_from_short(buf, filepath);
+		buffer_set_filename(buf, filepath);
 
 		for (i = 0; i < buf->size; i++)
-			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
-				    buf->data[i]->data);
+			t_mv_wprint(win, 0, i, L"%ls", buf->data[i]->data);
 	}
 
-	screen_set_title(scrn, buf->filename);
+	/* Update tabs */
 
 	screen_print_ch_info(scrn, buf);
 
@@ -289,8 +292,8 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
 
-	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
-	t_wrefresh(scrn->bwin);
+	t_wmove(win, buf->data[buf->pos]->pos, buf->pos);
+	t_wrefresh(win);
 
 	int IN_CMD_LOOP = 0;
 
@@ -322,7 +325,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 			if (IN_CMD_LOOP ^= 1)
 				t_wrefresh(scrn->cbar);
 			else
-				t_wrefresh(scrn->bwin);
+				t_wrefresh(win);
 
 			screen_unset_flag(scrn, SF_CLI);
 
@@ -330,7 +333,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 		}
 
 		if (screen_get_flag(scrn, SF_TERM)) {
-			/* Switch to terminal */
+			// Switch to terminal
 			screen_unset_flag(scrn, SF_TERM);
 		}
 	}
@@ -342,14 +345,16 @@ int screen_run(struct Screen *scrn, char *filepath)
 void screen_set_colors(struct Screen *scrn)
 {
 	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
-	t_wbkgd(scrn->bwin, CS_BUFFER);
+	//t_wbkgd(scrn->bwin, CS_BUFFER);
 	t_wbkgd(scrn->bbar, CS_BOT_BAR);
 	t_wbkgd(scrn->cbar, CS_CMD_BAR);
+	bufwin_set_bkgrd(scrn->bw, CS_BUFFER);
 
 	t_wrefresh(scrn->tbar);
-	t_wrefresh(scrn->bwin);
+	//t_wrefresh(scrn->bwin);
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
+	bufwin_refresh(scrn->bw);
 }
 
 struct Screen *screen_new()
@@ -359,14 +364,18 @@ struct Screen *screen_new()
 	t_getmaxxy(scrn->WIDTH, scrn->HEIGHT);
 
 	scrn->tbar = bar_new(0);
-	scrn->bwin = t_winit(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
+	//scrn->bwin = t_winit(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
 	scrn->bbar = bar_new(scrn->HEIGHT - 2);
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
+
+	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
+	bufwin_add_buffer(scrn->bw);
+	bufwin_set_active_buffer(scrn->bw, 0);
 
 	screen_set_colors(scrn);
 
 	scrn->cmds = buffer_new();
-	scrn->buf = buffer_new();
+	//scrn->buf = buffer_new();
 
 	scrn->FLAGS = 0;
 
@@ -376,10 +385,12 @@ struct Screen *screen_new()
 void screen_free(struct Screen *scrn)
 {
 	t_wdestroy(scrn->tbar);
-	t_wdestroy(scrn->bwin);
+	//t_wdestroy(scrn->bwin);
 	t_wdestroy(scrn->bbar);
 	t_wdestroy(scrn->cbar);
+	bufwin_free(scrn->bw);
+
 	buffer_free(scrn->cmds);
-	buffer_free(scrn->buf);
+	//buffer_free(scrn->buf);
 	free(scrn);
 }
