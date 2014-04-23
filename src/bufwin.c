@@ -23,6 +23,7 @@
 #include "bufwin.h"
 
 #include <stdlib.h>
+#include <wctype.h>
 
 struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
@@ -36,6 +37,8 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 
 	bw->active_bufs = 0;
 	bw->curbuf = NULL;
+	bw->WIDTH = w;
+	bw->HEIGHT = h;
 	return bw;
 }
 
@@ -50,6 +53,89 @@ void bufwin_free(struct BufWin *bufwin)
 	free(bufwin->buffers);
 	free(bufwin);
 }
+
+#define buf bw->curbuf
+void bufwin_process_char(struct BufWin *bw, t_char ch)
+{
+	switch (ch) {
+	case TK_BKSPC:
+		if (buffer_backspace(buf) == 0) {
+			t_wmove(bw->win, 0, buf->pos);
+			t_wclrtoeol(bw->win);
+			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		} else {
+			int i;
+			for (i = buf->pos; i <= buf->size; i++) {
+				t_mv_wprint(bw->win, 0, i, L"%ls",
+					    buf->data[i]->data);
+				t_wclrtoeol(bw->win);
+			}
+
+			t_wmove(bw->win, 0, buf->size + 1);
+			t_wclrtoeol(bw->win);
+		}
+
+		break;
+	case TK_DELETE:
+		if (buf->pos >= buf->size &&
+		    buf->data[buf->pos]->pos >= buf->data[buf->pos]->size)
+			break;
+
+		buffer_move_forward(buf);
+		if (buffer_backspace(buf) == 0) {
+			t_wmove(bw->win, 0, buf->pos);
+			t_wclrtoeol(bw->win);
+			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		} else {
+			int i;
+			for (i = buf->pos; i <= buf->size; i++) {
+				t_mv_wprint(bw->win, 0, i, L"%ls",
+					    buf->data[i]->data);
+				t_wclrtoeol(bw->win);
+			}
+
+			t_wmove(bw->win, 0, buf->size + 1);
+			t_wclrtoeol(bw->win);
+		}
+
+		break;
+	case TK_ENTER:
+		buffer_new_line(buf);
+		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
+		for ( ; i <= buf->size; i++) {
+			t_wmove(bw->win, 0, i);
+			t_wclrtoeol(bw->win);
+			t_mv_wprint(bw->win, 0, i, L"%ls",
+				    buf->data[i]->data);
+		}
+
+		t_wmove(bw->win, 0, buf->size + 1);
+		t_wclrtoeol(bw->win);
+
+		break;
+	case TK_LEFT:
+		buffer_move_backward(buf);
+		break;
+	case TK_RIGHT:
+		buffer_move_forward(buf);
+		break;
+	case TK_UP:
+		buffer_move_up(buf);
+		break;
+	case TK_DOWN:
+		buffer_move_down(buf);
+		break;
+	default:
+		if (iswprint(ch) || ch == L'\t') {
+			buffer_add(buf, ch);
+			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
+				    buf->data[buf->pos]->data);
+		}
+	}
+}
+#undef buf
 
 void bufwin_refresh(struct BufWin *bufwin)
 {

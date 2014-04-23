@@ -174,85 +174,7 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 
 void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 {
-	t_window *win = scrn->bw->win;
-
-	switch (ch) {
-	case TK_BKSPC:
-		if (buffer_backspace(buf) == 0) {
-			t_wmove(win, 0, buf->pos);
-			t_wclrtoeol(win);
-			t_mv_wprint(win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
-		} else {
-			int i;
-			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(win, 0, i, L"%ls",
-					    buf->data[i]->data);
-				t_wclrtoeol(win);
-			}
-
-			t_wmove(win, 0, buf->size + 1);
-			t_wclrtoeol(win);
-		}
-
-		break;
-	case TK_DELETE:
-		if (buf->pos >= buf->size &&
-		    buf->data[buf->pos]->pos >= buf->data[buf->pos]->size)
-			break;
-
-		buffer_move_forward(buf);
-		if (buffer_backspace(buf) == 0) {
-			t_wmove(win, 0, buf->pos);
-			t_wclrtoeol(win);
-			t_mv_wprint(win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
-		} else {
-			int i;
-			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(win, 0, i, L"%ls",
-					    buf->data[i]->data);
-				t_wclrtoeol(win);
-			}
-
-			t_wmove(win, 0, buf->size + 1);
-			t_wclrtoeol(win);
-		}
-
-		break;
-	case TK_ENTER:
-		buffer_new_line(buf);
-		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
-		for ( ; i <= buf->size; i++) {
-			t_wmove(win, 0, i);
-			t_wclrtoeol(win);
-			t_mv_wprint(win, 0, i, L"%ls",
-				    buf->data[i]->data);
-		}
-
-		t_wmove(win, 0, buf->size + 1);
-		t_wclrtoeol(win);
-
-		break;
-	case TK_LEFT:
-		buffer_move_backward(buf);
-		break;
-	case TK_RIGHT:
-		buffer_move_forward(buf);
-		break;
-	case TK_UP:
-		buffer_move_up(buf);
-		break;
-	case TK_DOWN:
-		buffer_move_down(buf);
-		break;
-	default:
-		if (iswprint(ch) || ch == L'\t') {
-			buffer_add(buf, ch);
-			t_mv_wprint(win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
-		}
-	}
+	bufwin_process_char(scrn->bw, ch);
 
 	t_wrefresh(scrn->tbar);
 
@@ -261,8 +183,8 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 	t_wrefresh(scrn->cbar);
 
-	t_wmove(win, buf->data[buf->pos]->pos, buf->pos);
-	t_wrefresh(win);
+	t_wmove(scrn->bw->win, buf->data[buf->pos]->pos, buf->pos);
+	t_wrefresh(scrn->bw->win);
 }
 
 /* Returns 1 if a save is requested or 0 if we just want to exit */
@@ -284,7 +206,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 			t_mv_wprint(win, 0, i, L"%ls", buf->data[i]->data);
 	}
 
-	/* Update tabs */
+	/* Update tabs here */
 
 	screen_print_ch_info(scrn, buf);
 

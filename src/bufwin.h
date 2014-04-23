@@ -33,10 +33,13 @@ struct BufWin {
 	struct Buffer **buffers;
 	int active_bufs;
 	struct Buffer *curbuf;
+	int WIDTH;
+	int HEIGHT;
 };
 
 struct BufWin *bufwin_new(int x, int y, int w, int h);
 void bufwin_free(struct BufWin *bufwin);
+void bufwin_process_char(struct BufWin *bw, t_char ch);
 void bufwin_refresh(struct BufWin *bufwin);
 void bufwin_set_bkgrd(struct BufWin *bufwin, int colpair);
 int bufwin_add_buffer(struct BufWin *bufwin);
