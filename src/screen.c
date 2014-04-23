@@ -35,6 +35,31 @@
 
 #define CSR_X line_get_cur_pos(buf->data[buf->pos])
 
+void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag)
+{
+	scrn->FLAGS |= 1 << flag;
+}
+
+void screen_unset_flag(struct Screen *scrn, enum Screen_Flag flag)
+{
+	scrn->FLAGS &= ~(1 << flag);
+}
+
+void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag)
+{
+	scrn->FLAGS ^= 1 << flag;
+}
+
+int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag)
+{
+	return scrn->FLAGS & (1 << flag);
+}
+
+void screen_clear_flags(struct Screen *scrn)
+{
+	scrn->FLAGS ^= scrn->FLAGS;
+}
+
 void screen_set_title(struct Screen *scrn, t_char *title, ...)
 {
 	va_list args;
@@ -277,21 +302,46 @@ int screen_run(struct Screen *scrn, char *filepath)
 	int CMD_LOOP_FLAG = 0;
 
 	t_char ch;
-	while (t_getch(&ch) != TUI_ERR && ch != BIND_EXIT &&
-						ch != BIND_SAVE_EXIT) {
-		if (ch == BIND_TOOGLE_CMD) {
-			if(CMD_LOOP_FLAG ^= 1)
-				t_wrefresh(scrn->cbar);
-			else
-				t_wrefresh(scrn->bwin);
+	while (t_getch(&ch) != TUI_ERR) {
+		cb_ptr callback;
+		if ((callback = binds_get_callback_for(ch)) == NULL) {
+			if (ch == BIND_TOOGLE_CMD) {
+				if (CMD_LOOP_FLAG ^= 1)
+					t_wrefresh(scrn->cbar);
+				else
+					t_wrefresh(scrn->bwin);
 
-			continue;
+				continue;
+			}
+
+			if (CMD_LOOP_FLAG)
+				cmd_process_char(scrn, ch);
+			else
+				buffer_process_char(scrn, buf, ch);
+		} else {
+			callback(scrn);
 		}
 
-		if (CMD_LOOP_FLAG)
-			cmd_process_char(scrn, ch);
-		else
-			buffer_process_char(scrn, buf, ch);
+		if (screen_get_flag(scrn, SF_CLEAR_FLGS)) {
+			screen_clear_flags(scrn);
+		}
+
+		if (screen_get_flag(scrn, SF_EXIT)) {
+			break;
+		}
+
+		if (screen_get_flag(scrn, SF_SAVE_EXIT)) {
+			ch = BIND_SAVE_EXIT;
+			break;
+		}
+
+		if (screen_get_flag(scrn, SF_CLI)) {
+			/* Switch to cli */
+		}
+
+		if (screen_get_flag(scrn, SF_TERM)) {
+			/* Switch to terminal */
+		}
 	}
 
 	if (ch == BIND_SAVE_EXIT)
@@ -328,6 +378,8 @@ struct Screen *screen_new()
 
 	scrn->cmds = buffer_new();
 	scrn->buf = buffer_new();
+
+	scrn->FLAGS = 0;
 
 	return scrn;
 }

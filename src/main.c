@@ -24,6 +24,7 @@
 #include <tui.h>
 
 #include "binds.h"
+#include "callback.h"
 #include "color.h"
 #include "config.h"
 #include "lisp.h"
@@ -69,6 +70,19 @@ int usage()
 	return 0;
 }
 
+void register_default_binds()
+{
+	bind(TK_F(1), 	cb_exit		);
+	bind(TK_F(3), 	cb_save_exit	);
+	bind(TK_CTRL_S, cb_save		);
+	bind(TK_CTRL_B, cb_toggle_cli	);
+	bind(TK_CTRL_T, cb_toggle_term	);
+	bind(TK_CTRL_X, cb_cut		);
+	bind(TK_CTRL_C, cb_copy		);
+	bind(TK_CTRL_V, cb_paste	);
+	bind(TK_CTRL_A, cb_select_all	);
+}
+
 int main(int argc, char **argv)
 {
 	/* Enable unicode */
@@ -112,6 +126,10 @@ int main(int argc, char **argv)
 		filepath = argv[1];
 
 	struct Screen *scrn = screen_new();
+
+	binds_set_current_screen(scrn);
+	register_default_binds();
+
 	int status = screen_run(scrn, filepath);
 	screen_free(scrn);
 

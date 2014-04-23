@@ -27,6 +27,15 @@
 
 #include "buffer.h"
 
+/* Flags are stored in an unsigned int allowing up to 32 */
+enum Screen_Flag {
+	SF_CLEAR_FLGS,
+	SF_EXIT,
+	SF_SAVE_EXIT,
+	SF_CLI,
+	SF_TERM,
+};
+
 struct Screen {
 	t_window *tbar;	/* Top bar */
 	t_window *bwin;	/* Buffer window */
@@ -34,13 +43,18 @@ struct Screen {
 	t_window *cbar;	/* Command bar */
 	struct Buffer *cmds;
 	struct Buffer *buf;
-	int WIDTH;
-	int HEIGHT;
+	unsigned int WIDTH;
+	unsigned int HEIGHT;
+	unsigned int FLAGS;
 };
 
 struct Screen *screen_new();
 void screen_free(struct Screen *scrn);
 void screen_set_colors(struct Screen *scrn);
 int screen_run(struct Screen *scrn, char *filepath);
+void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag);
+void screen_unset_flag(struct Screen *scrn, enum Screen_Flag flag);
+void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag);
+int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag);
 
 #endif

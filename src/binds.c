@@ -27,7 +27,8 @@
 
 #define MAX_BINDS 128
 
-struct Bind *keytab[128];
+struct Screen *curscrn;
+struct Bind *keytab[MAX_BINDS];
 int NUM_BINDS;
 
 struct Bind *bind_new(int key, cb_ptr callback)
@@ -53,6 +54,11 @@ void binds_destroy()
 	int i;
 	for (i = 0; i < NUM_BINDS; i++)
 		bind_free(keytab[i]);
+}
+
+void binds_set_current_screen(struct Screen *scrn)
+{
+	curscrn = scrn;
 }
 
 int binds_get_index_of(int key)
