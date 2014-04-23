@@ -26,6 +26,7 @@
 #include <tui.h>
 
 #include "buffer.h"
+#include "bufwin.h"
 
 /* Flags are stored in an unsigned int allowing up to 32 */
 enum Screen_Flag {
@@ -37,12 +38,13 @@ enum Screen_Flag {
 };
 
 struct Screen {
-	t_window *tbar;	/* Top bar */
-	t_window *bwin;	/* Buffer window */
+	t_window *tbar;	/* Tab bar */
+	//t_window *bwin;	/* Buffer window */
 	t_window *bbar;	/* Bottom bar */
 	t_window *cbar;	/* Command bar */
+	struct BufWin *bw;
 	struct Buffer *cmds;
-	struct Buffer *buf;
+	//struct Buffer *buf;
 	unsigned int WIDTH;
 	unsigned int HEIGHT;
 	unsigned int FLAGS;

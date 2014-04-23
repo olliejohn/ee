@@ -1,5 +1,5 @@
 /*
- * callback.h
+ * bufwin.h
  * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,20 +20,27 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef CALLBACK_H
-#define CALLBACK_H
+#ifndef BUFWIN_H
+#define BUFWIN_H
 
-#include "screen.h"
+#include <tui.h>
+#include "buffer.h"
 
-void cb_exit(struct Screen *scrn);
-void cb_save_exit(struct Screen *scrn);
-void cb_save(struct Screen *scrn);
-void cb_save_as(struct Screen *scrn);
-void cb_toggle_cli(struct Screen *scrn);
-void cb_toggle_term(struct Screen *scrn);
-void cb_cut(struct Screen *scrn);
-void cb_copy(struct Screen *scrn);
-void cb_paste(struct Screen *scrn);
-void cb_select_all(struct Screen *scrn);
+#define MAX_BUFS 64
+
+struct BufWin {
+	t_window *win;
+	struct Buffer **buffers;
+	int active_bufs;
+	struct Buffer *curbuf;
+};
+
+struct BufWin *bufwin_new(int x, int y, int w, int h);
+void bufwin_free(struct BufWin *bufwin);
+void bufwin_refresh(struct BufWin *bufwin);
+void bufwin_set_bkgrd(struct BufWin *bufwin, int colpair);
+int bufwin_add_buffer(struct BufWin *bufwin);
+int bufwin_add_buffer_from_file(struct BufWin *bufwin, char *file);
+void bufwin_set_active_buffer(struct BufWin *bufwin, int index);
 
 #endif
