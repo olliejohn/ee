@@ -41,6 +41,7 @@ struct Buffer {
 	int pref_line_pos;
 	int capacity;
 	struct Line **data;
+	t_char *filename;
 };
 
 struct Line *line_new();
@@ -55,6 +56,8 @@ int line_backspace(struct Line *line);
 
 struct Buffer *buffer_new();
 void buffer_free(struct Buffer *buf);
+void buffer_set_filename_from_short(struct Buffer *buf, char *filename);
+void buffer_set_filename(struct Buffer *buf, t_char *filename);
 void buffer_go_to(struct Buffer *buf, int x, int y);
 void buffer_add(struct Buffer *buf, t_char c);
 void buffer_new_line(struct Buffer *buf);

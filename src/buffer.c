@@ -33,7 +33,7 @@
 
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
-
+#define DEFAULT_BUFFER_FILENAME L"Untitled"
 #define TAB_SIZE 8
 
 struct Line *line_new()
@@ -152,6 +152,9 @@ struct Buffer *buffer_new()
 	buf->capacity = BUFFER_INITAL_CAPACITY;
 	buf->data = malloc(sizeof(struct Line *) * BUFFER_INITAL_CAPACITY);
 	buf->data[0] = line_new();
+	/* We init filename instead of setting it to NULL so we know it's
+	 * always safe to free it, whether or not it's been used */
+	buffer_set_filename(buf, DEFAULT_BUFFER_FILENAME);
 	return buf;
 }
 
@@ -161,7 +164,27 @@ void buffer_free(struct Buffer *buf)
 	for (i = 0; i <= buf->size; i++)
 		line_free(buf->data[i]);
 	free(buf->data);
+	free(buf->filename);
 	free(buf);
+}
+
+/*
+ * TODO: Both of these filename functions will crash the program when the
+ * buffer is destroyed if the reallocs fail - they could be made safer
+ */
+void buffer_set_filename_from_short(struct Buffer *buf, char *filename)
+{
+	int len = strlen(filename) + 1;
+	buf->filename = realloc(buf->filename, sizeof(t_char) * len);
+	mbstowcs(buf->filename, filename, len);
+}
+
+void buffer_set_filename(struct Buffer *buf, t_char *filename)
+{
+	buf->filename = realloc(buf->filename,
+				sizeof(t_char) * (wcslen(filename) + 1));
+
+	wcscpy(buf->filename, filename);
 }
 
 void buffer_go_to(struct Buffer *buf, int x, int y)

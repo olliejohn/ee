@@ -270,25 +270,18 @@ int screen_run(struct Screen *scrn, char *filepath)
 	int i;
 
 	if (filepath == NULL) {
-		screen_set_title(scrn, L"Untitled");
 		screen_set_status(scrn, L"Created new buffer");
 	} else {
 		buffer_open(buf, filepath, 0, 0);
 
-		int pathlen = strlen(filepath) + 1;
-		t_char *widepath = malloc(sizeof(t_char) * pathlen);
-
-		for (i = 0; i < pathlen; i++)
-			widepath[i] = filepath[i];
-
-		screen_set_title(scrn, widepath);
-
-		free(widepath);
+		buffer_set_filename_from_short(buf, filepath);
 
 		for (i = 0; i < buf->size; i++)
 			t_mv_wprint(scrn->bwin, 0, i, L"%ls",
 				    buf->data[i]->data);
 	}
+
+	screen_set_title(scrn, buf->filename);
 
 	screen_print_ch_info(scrn, buf);
 
@@ -299,13 +292,13 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wmove(scrn->bwin, buf->data[buf->pos]->pos, buf->pos);
 	t_wrefresh(scrn->bwin);
 
-	int CMD_LOOP_FLAG = 0;
+	int IN_CMD_LOOP = 0;
 
 	t_char ch;
 	while (t_getch(&ch) != TUI_ERR) {
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
-			if (CMD_LOOP_FLAG)
+			if (IN_CMD_LOOP)
 				cmd_process_char(scrn, ch);
 			else
 				buffer_process_char(scrn, buf, ch);
@@ -326,7 +319,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 		}
 
 		if (screen_get_flag(scrn, SF_CLI)) {
-			if (CMD_LOOP_FLAG ^= 1)
+			if (IN_CMD_LOOP ^= 1)
 				t_wrefresh(scrn->cbar);
 			else
 				t_wrefresh(scrn->bwin);
