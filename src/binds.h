@@ -37,7 +37,7 @@ struct Bind {
 void binds_init();
 void binds_destroy();
 void binds_set_current_screen(struct Screen *scrn);
-int bind(int key, void (*callback)());
+int bind(int key, cb_ptr callback);
 void unbind(int key);
 cb_ptr binds_get_callback_for(int key);
 struct Bind *bind_new(int key, cb_ptr callback);

@@ -78,16 +78,56 @@ void screen_vset_title(struct Screen *scrn, t_char *title, va_list args)
 	t_wrefresh(scrn->tbar);
 }
 
+/* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
+int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
+			int xoffs, int active)
+{
+	if (active)
+		t_wattron(scrn->tbar, CS_TAB_ACTIVE);
+	else
+		t_wattron(scrn->tbar, CS_TAB_INACTIVE);
+
+	t_mv_wprint(scrn->tbar, xoffs, 0, L"%d - %s", num, filename);
+
+	if (active)
+		t_wattroff(scrn->tbar, CS_TAB_ACTIVE);
+	else
+		t_wattroff(scrn->tbar, CS_TAB_INACTIVE);
+
+	t_wattron(scrn->tbar, CS_TAB_SPACE);
+	t_wprint(scrn->tbar, L" ");
+	t_wattroff(scrn->tbar, CS_TAB_SPACE);
+
+	return t_wgetcurx(scrn->tbar);
+}
+
 void screen_draw_tabs(struct Screen *scrn)
 {
-	/*
-	int i;
-	for (i = 0; i < scrn->bw->active_bufs; i++) {
+	t_wattrend(scrn->tbar);
 
+	int i, nextx, active;
+	for (i = nextx = 0; i < scrn->bw->active_bufs; i++) {
+		active = (scrn->bw->buffers[i] == scrn->bw->curbuf) ? 1 : 0;
+		nextx = screen_draw_tab_at(scrn, i,
+					   scrn->bw->buffers[i]->filename,
+					   nextx, active);
 	}
-	* */
 
+	t_wclrtoeol(scrn->tbar);
+	t_wrefresh(scrn->tbar);
+}
 
+void screen_change_to_buffer(struct Screen *scrn, int newtab)
+{
+	if (newtab >= scrn->bw->active_bufs)
+		return;
+
+	scrn->bw->curbuf = scrn->bw->buffers[newtab];
+	screen_draw_tabs(scrn);
+
+	/* Repaint the buffer here */
+
+	screen_set_status(scrn, L"Changed to buffer %d", newtab);
 }
 
 void screen_set_status(struct Screen *scrn, t_char *status, ...)
@@ -126,11 +166,22 @@ void run_current_cmd(struct Screen *scrn)
 {
 	/* lisp_run(scrn); */
 
-	struct Line *cur_cmd = scrn->cmds->data[scrn->cmds->pos];
+	struct Line *curln = scrn->cmds->data[scrn->cmds->pos];
 
-	if (wcscmp(cur_cmd->data, L"w") == 0) {
+	t_char *curcmd = malloc(sizeof(t_char) * (curln->size + 1));
+	wcscpy(curcmd, curln->data);
 
+	if (wcscmp(curcmd, L"save") == 0) {
+
+	} else if (wcscmp(curcmd, L"new") == 0) {
+		bufwin_add_buffer(scrn->bw);
+		screen_change_to_buffer(scrn, scrn->bw->active_bufs - 1);
+	} else if (iswdigit(curcmd[0])) {
+		t_char *pEnd = NULL;
+		screen_change_to_buffer(scrn, wcstol(curcmd, &pEnd, 10));
 	}
+
+	free(curcmd);
 }
 
 void cmd_process_char(struct Screen *scrn, t_char ch)
@@ -220,6 +271,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	}
 
 	/* Update tabs here */
+	screen_draw_tabs(scrn);
 
 	screen_print_ch_info(scrn, buf);
 
@@ -279,7 +331,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 void screen_set_colors(struct Screen *scrn)
 {
-	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
+	t_wbkgd(scrn->tbar, CS_TAB_SPACE);
 	t_wbkgd(scrn->bbar, CS_BOT_BAR);
 	t_wbkgd(scrn->cbar, CS_CMD_BAR);
 	bufwin_set_color_scheme(scrn->bw, CS_BUFFER);
@@ -301,6 +353,8 @@ struct Screen *screen_new()
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
 	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
+	bufwin_add_buffer(scrn->bw);
+	bufwin_add_buffer(scrn->bw);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_set_active_buffer(scrn->bw, 0);
 

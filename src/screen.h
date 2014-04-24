@@ -50,12 +50,12 @@ struct Screen {
 
 struct Screen *screen_new();
 void screen_free(struct Screen *scrn);
-void screen_set_colors(struct Screen *scrn);
 int screen_run(struct Screen *scrn, char *filepath);
 void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag);
 void screen_unset_flag(struct Screen *scrn, enum Screen_Flag flag);
 void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag);
 int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag);
+void screen_change_to_buffer(struct Screen *scrn, int newtab);
 void screen_set_status(struct Screen *scrn, t_char *status, ...);
 void screen_vset_status(struct Screen *scrn, t_char *status, va_list args);
 
