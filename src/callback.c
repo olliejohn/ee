@@ -22,6 +22,8 @@
 
 #include "callback.h"
 
+#include "bufwin.h"
+
 void cb_exit(struct Screen *scrn)
 {
 	screen_set_flag(scrn, SF_EXIT);
@@ -32,10 +34,25 @@ void cb_save_exit(struct Screen *scrn)
 	screen_set_flag(scrn, SF_SAVE_EXIT);
 }
 
+#define buf scrn->bw->curbuf
 void cb_save(struct Screen *scrn)
 {
-	//buffer_save(scrn->buf);
+	if (buffer_save(buf) == 0) {
+		screen_set_status(scrn, L"Wrote file to %s", buf->filename);
+	} else {
+		screen_set_status(scrn, L"Couldn't write to %s", buf->filename);
+	}
+
+	/* Put the cursor back where it was */
+	if (screen_get_flag(scrn, SF_CLI))
+		t_wrefresh(scrn->cbar);
+	else if (screen_get_flag(scrn, SF_TERM))
+		/* THIS NEEDS TO CHANGE WHEN TERM IS IMPLAMENTED */
+		t_wrefresh(scrn->cbar);
+	else
+		bufwin_refresh(scrn->bw);
 }
+#undef buf
 
 void cb_save_as(struct Screen *scrn)
 {

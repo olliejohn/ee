@@ -339,7 +339,7 @@ int buffer_save(struct Buffer *buf)
 
 	int i;
 	for (i = 0; i < buf->size; i++)
-		fwprintf(f, L"%s\n", buf->data[i]->data);
+		fwprintf(f, L"%ls\n", buf->data[i]->data);
 
 	fclose(f);
 

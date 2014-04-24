@@ -51,12 +51,17 @@ void color_init()
 		init_pair(SCH_BOTTOM_ERR, 	COL_RED, 	COL_D_GRAY);
 		init_pair(SCH_CMD_BAR, 		COL_WHITE, 	COL_BLACK);
 	} else {
-		/* Presume we only have the default 8 xterm colors available */
+		/* Presume we only have the default 8 term colors available */
 		start_color();
 		use_default_colors();
 
 		init_pair(SCH_TITLE_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_TITLE_ERR, 	COLOR_RED, 	COLOR_WHITE);
+
+		init_pair(SCH_TAB_ACTIVE, 	COLOR_WHITE, 	COLOR_BLACK);
+		init_pair(SCH_TAB_INACTIVE, 	COLOR_BLACK, 	COLOR_WHITE);
+		init_pair(SCH_TAB_SPACE, 	COLOR_BLACK, 	COLOR_BLACK);
+
 		init_pair(SCH_BUFFER, 		COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_BOTTOM_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_BOTTOM_ERR, 	COLOR_RED, 	COLOR_WHITE);

@@ -142,7 +142,7 @@ void bufwin_refresh(struct BufWin *bufwin)
 	t_wrefresh(bufwin->win);
 }
 
-void bufwin_set_bkgrd(struct BufWin *bufwin, int colpair)
+void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair)
 {
 	t_wbkgd(bufwin->win, colpair);
 }

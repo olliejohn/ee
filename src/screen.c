@@ -78,6 +78,18 @@ void screen_vset_title(struct Screen *scrn, t_char *title, va_list args)
 	t_wrefresh(scrn->tbar);
 }
 
+void screen_draw_tabs(struct Screen *scrn)
+{
+	/*
+	int i;
+	for (i = 0; i < scrn->bw->active_bufs; i++) {
+
+	}
+	* */
+
+
+}
+
 void screen_set_status(struct Screen *scrn, t_char *status, ...)
 {
 	va_list args;
@@ -203,6 +215,8 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 		for (i = 0; i < buf->size; i++)
 			t_mv_wprint(win, 0, i, L"%ls", buf->data[i]->data);
+
+		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}
 
 	/* Update tabs here */
@@ -268,7 +282,7 @@ void screen_set_colors(struct Screen *scrn)
 	t_wbkgd(scrn->tbar, CS_TITLE_BAR);
 	t_wbkgd(scrn->bbar, CS_BOT_BAR);
 	t_wbkgd(scrn->cbar, CS_CMD_BAR);
-	bufwin_set_bkgrd(scrn->bw, CS_BUFFER);
+	bufwin_set_color_scheme(scrn->bw, CS_BUFFER);
 
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);
