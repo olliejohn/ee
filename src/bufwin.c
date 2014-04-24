@@ -22,8 +22,12 @@
 
 #include "bufwin.h"
 
+#include "color.h"
+
 #include <stdlib.h>
 #include <wctype.h>
+
+#define DRAW_LINE_NUMS 1
 
 struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
@@ -40,8 +44,8 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	bw->curbuf = NULL;
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
-	bw->xcursoffs = 0;
 	bw->ywinoffs = 0;
+	bw->linumoffs = 0;
 
 	return bw;
 }
@@ -58,14 +62,33 @@ void bufwin_free(struct BufWin *bw)
 	free(bw);
 }
 
+void bufwin_render_line(struct BufWin *bw, int line)
+{
+	int x = 0;
+
+	if (DRAW_LINE_NUMS) {
+		int space = buffer_get_size_of_linums(bw->curbuf);
+		t_wattron(bw->win, CS_LINE_NUM);
+		t_mv_wprint(bw->win, 0, line, L" %*d %n", space,
+			    line + bw->ywinoffs + 1, &x);
+		t_wattroff(bw->win, CS_LINE_NUM);
+	}
+
+	bw->linumoffs = x;
+
+	t_mv_wprint(bw->win, x, line, L"%ls",
+		    bw->curbuf->data[line + bw->ywinoffs]->data);
+}
+
 void bufwin_redraw(struct BufWin *bw)
 {
 	t_wclear(bw->win);
 
 	int i;
 	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
-		t_mv_wprint(bw->win, 0, i,
-			    bw->curbuf->data[i + bw->ywinoffs]->data);
+		bufwin_render_line(bw, i);
+		//t_mv_wprint(bw->win, 0, i,
+		//	    bw->curbuf->data[i + bw->ywinoffs]->data);
 
 	t_wmove(bw->win,
 		bw->curbuf->data[bw->curbuf->pos]->pos,
@@ -115,13 +138,11 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 		if (buffer_backspace(buf) == 0) {
 			t_wmove(bw->win, 0, buf->pos);
 			t_wclrtoeol(bw->win);
-			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
+			bufwin_render_line(bw, buf->pos);
 		} else {
 			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(bw->win, 0, i, L"%ls",
-					    buf->data[i]->data);
+				bufwin_render_line(bw, i);
 				t_wclrtoeol(bw->win);
 			}
 
@@ -139,13 +160,11 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 		if (buffer_backspace(buf) == 0) {
 			t_wmove(bw->win, 0, buf->pos);
 			t_wclrtoeol(bw->win);
-			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
+			bufwin_render_line(bw, buf->pos);
 		} else {
 			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
-				t_mv_wprint(bw->win, 0, i, L"%ls",
-					    buf->data[i]->data);
+				bufwin_render_line(bw, i);
 				t_wclrtoeol(bw->win);
 			}
 
@@ -160,8 +179,7 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 		for ( ; i <= buf->size; i++) {
 			t_wmove(bw->win, 0, i);
 			t_wclrtoeol(bw->win);
-			t_mv_wprint(bw->win, 0, i, L"%ls",
-				    buf->data[i]->data);
+			bufwin_render_line(bw, i);
 		}
 
 		t_wmove(bw->win, 0, buf->size + 1);
@@ -183,8 +201,7 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 	default:
 		if (iswprint(ch) || ch == L'\t') {
 			buffer_add(buf, ch);
-			t_mv_wprint(bw->win, 0, buf->pos, L"%ls",
-				    buf->data[buf->pos]->data);
+			bufwin_render_line(bw, buf->pos);
 		}
 	}
 }

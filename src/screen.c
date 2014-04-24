@@ -155,9 +155,9 @@ void run_current_cmd(struct Screen *scrn)
 	t_char *curcmd = malloc(sizeof(t_char) * (curln->size + 1));
 	wcscpy(curcmd, curln->data);
 
-	if (wcscmp(curcmd, L"save") == 0) {
+	if (wcscmp(curcmd, L"save") == 0 || wcscmp(curcmd, L"s") == 0) {
 
-	} else if (wcscmp(curcmd, L"new") == 0) {
+	} else if (wcscmp(curcmd, L"new") == 0 || wcscmp(curcmd, L"n") == 0) {
 		bufwin_add_buffer(scrn->bw);
 		screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
 	} else if (iswdigit(curcmd[0])) {
@@ -224,15 +224,13 @@ void buffer_process_char(struct Screen *scrn, t_char ch)
 {
 	bufwin_process_char(scrn->bw, ch);
 
-	t_wrefresh(scrn->tbar);
-
 	screen_print_ch_info(scrn);
 	t_wrefresh(scrn->bbar);
 
-	t_wrefresh(scrn->cbar);
-
-	t_wmove(scrn->bw->win, buf->data[buf->pos]->pos,
+	t_wmove(scrn->bw->win,
+		buf->data[buf->pos]->pos + scrn->bw->linumoffs,
 		buf->pos - scrn->bw->ywinoffs);
+
 	t_wrefresh(scrn->bw->win);
 }
 #undef buf
@@ -248,30 +246,23 @@ enum Focus {
 #define win scrn->bw->win
 int screen_run(struct Screen *scrn, char *filepath)
 {
-	int i;
-
 	if (filepath == NULL) {
 		screen_set_status(scrn, L"Created new buffer");
 	} else {
 		buffer_open(buf, filepath, 0, 0);
-
 		buffer_set_filename(buf, filepath);
-
-		for (i = 0; i < buf->size; i++)
-			t_mv_wprint(win, 0, i, L"%ls", buf->data[i]->data);
-
 		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}
 
 	screen_draw_tabs(scrn);
-
+	bufwin_redraw(scrn->bw);
 	screen_print_ch_info(scrn);
 
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
 
-	t_wmove(win, buf->data[buf->pos]->pos, buf->pos);
+	t_wmove(win, buf->data[buf->pos]->pos + scrn->bw->linumoffs, buf->pos);
 	t_wrefresh(win);
 
 	int FOCUS = FOCUS_BUF;
