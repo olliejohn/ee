@@ -75,8 +75,9 @@ void register_default_binds()
 	bind(TK_F(1), 	cb_exit		);
 	bind(TK_F(3), 	cb_save_exit	);
 	bind(TK_CTRL_S, cb_save		);
-	bind(TK_CTRL_B, cb_toggle_cli	);
-	bind(TK_CTRL_T, cb_toggle_term	);
+	bind(TK_CTRL_B, cb_visit_buf	);
+	bind(TK_CTRL_G, cb_visit_cli	);
+	bind(TK_CTRL_T, cb_visit_term	);
 	bind(TK_CTRL_X, cb_cut		);
 	bind(TK_CTRL_C, cb_copy		);
 	bind(TK_CTRL_V, cb_paste	);

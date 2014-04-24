@@ -279,27 +279,23 @@ int screen_run(struct Screen *scrn, char *filepath)
 			callback(scrn);
 		}
 
-		if (screen_get_flag(scrn, SF_CLEAR_FLGS)) {
+		if (screen_get_flag(scrn, SF_CLEAR_FLGS))
 			screen_clear_flags(scrn);
-		}
 
-		if (screen_get_flag(scrn, SF_EXIT)) {
+		if (screen_get_flag(scrn, SF_EXIT))
 			return 0;
-		}
 
-		if (screen_get_flag(scrn, SF_SAVE_EXIT)) {
+		if (screen_get_flag(scrn, SF_SAVE_EXIT))
 			return 1;
+
+		if (screen_get_flag(scrn, SF_BUF)) {
+			t_wrefresh(win);
+			screen_unset_flag(scrn, SF_BUF);
 		}
 
 		if (screen_get_flag(scrn, SF_CLI)) {
-			if (IN_CMD_LOOP ^= 1)
-				t_wrefresh(scrn->cbar);
-			else
-				t_wrefresh(win);
-
+			t_wrefresh(scrn->cbar);
 			screen_unset_flag(scrn, SF_CLI);
-
-			continue;
 		}
 
 		if (screen_get_flag(scrn, SF_TERM)) {

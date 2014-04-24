@@ -59,14 +59,19 @@ void cb_save_as(struct Screen *scrn)
 
 }
 
-void cb_toggle_cli(struct Screen *scrn)
+void cb_visit_buf(struct Screen *scrn)
 {
-	screen_toggle_flag(scrn, SF_CLI);
+	screen_set_flag(scrn, SF_BUF);
 }
 
-void cb_toggle_term(struct Screen *scrn)
+void cb_visit_cli(struct Screen *scrn)
 {
-	screen_toggle_flag(scrn, SF_TERM);
+	screen_set_flag(scrn, SF_CLI);
+}
+
+void cb_visit_term(struct Screen *scrn)
+{
+	screen_set_flag(scrn, SF_TERM);
 }
 
 void cb_cut(struct Screen *scrn)

@@ -30,11 +30,12 @@
 
 /* Flags are stored in an unsigned int allowing up to 32 */
 enum Screen_Flag {
-	SF_CLEAR_FLGS,
-	SF_EXIT,
-	SF_SAVE_EXIT,
-	SF_CLI,
-	SF_TERM,
+	SF_CLEAR_FLGS,	/* Clear all flags */
+	SF_EXIT,	/* Exit the program */
+	SF_SAVE_EXIT,	/* Save and then exit the program */
+	SF_BUF,		/* Move focus to the current active buffer */
+	SF_CLI,		/* Move focus to the command line */
+	SF_TERM,	/* Move focus to the terminal */
 };
 
 struct Screen {
