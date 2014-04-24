@@ -60,24 +60,6 @@ void screen_clear_flags(struct Screen *scrn)
 	scrn->FLAGS ^= scrn->FLAGS;
 }
 
-void screen_set_title(struct Screen *scrn, t_char *title, ...)
-{
-	va_list args;
-	va_start(args, title);
-	t_mv_vwprint(scrn->tbar, 0, 0, title, args);
-	va_end(args);
-
-	t_wclrtoeol(scrn->tbar);
-	t_wrefresh(scrn->tbar);
-}
-
-void screen_vset_title(struct Screen *scrn, t_char *title, va_list args)
-{
-	t_mv_vwprint(scrn->tbar, 0, 0, title, args);
-	t_wclrtoeol(scrn->tbar);
-	t_wrefresh(scrn->tbar);
-}
-
 /* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
 int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
 			int xoffs, int active)
@@ -106,7 +88,7 @@ void screen_draw_tabs(struct Screen *scrn)
 	t_wattrend(scrn->tbar);
 
 	int i, nextx, active;
-	for (i = nextx = 0; i < scrn->bw->active_bufs; i++) {
+	for (i = nextx = 0; i < scrn->bw->num_bufs; i++) {
 		active = (scrn->bw->buffers[i] == scrn->bw->curbuf) ? 1 : 0;
 		nextx = screen_draw_tab_at(scrn, i,
 					   scrn->bw->buffers[i]->filename,
@@ -117,17 +99,17 @@ void screen_draw_tabs(struct Screen *scrn)
 	t_wrefresh(scrn->tbar);
 }
 
-void screen_change_to_buffer(struct Screen *scrn, int newtab)
+void screen_change_to_buffer(struct Screen *scrn, int new)
 {
-	if (newtab >= scrn->bw->active_bufs)
+	if (new >= scrn->bw->num_bufs)
 		return;
 
-	scrn->bw->curbuf = scrn->bw->buffers[newtab];
+	scrn->bw->curbuf = scrn->bw->buffers[new];
 	screen_draw_tabs(scrn);
 
-	/* Repaint the buffer here */
-
-	screen_set_status(scrn, L"Changed to buffer %d", newtab);
+	bufwin_redraw(scrn->bw);
+	screen_print_ch_info(scrn);
+	screen_set_status(scrn, L"Changed to buffer %d", new);
 }
 
 void screen_set_status(struct Screen *scrn, t_char *status, ...)
@@ -151,7 +133,8 @@ void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
 /* Prints line number and character number information */
 #define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
 #define CH_INFO_OFFS 24
-void screen_print_ch_info(struct Screen *scrn, struct Buffer *buf)
+#define buf scrn->bw->curbuf
+void screen_print_ch_info(struct Screen *scrn)
 {
 	t_mv_wprint(scrn->bbar,
 		    scrn->WIDTH - CH_INFO_OFFS, 0,
@@ -161,6 +144,7 @@ void screen_print_ch_info(struct Screen *scrn, struct Buffer *buf)
 		    buf->data[buf->pos]->pos + 1,
 		    buf->data[buf->pos]->size + 1);
 }
+#undef buf
 
 void run_current_cmd(struct Screen *scrn)
 {
@@ -175,7 +159,7 @@ void run_current_cmd(struct Screen *scrn)
 
 	} else if (wcscmp(curcmd, L"new") == 0) {
 		bufwin_add_buffer(scrn->bw);
-		screen_change_to_buffer(scrn, scrn->bw->active_bufs - 1);
+		screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
 	} else if (iswdigit(curcmd[0])) {
 		t_char *pEnd = NULL;
 		screen_change_to_buffer(scrn, wcstol(curcmd, &pEnd, 10));
@@ -241,7 +225,7 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 	t_wrefresh(scrn->tbar);
 
-	screen_print_ch_info(scrn, buf);
+	screen_print_ch_info(scrn);
 	t_wrefresh(scrn->bbar);
 
 	t_wrefresh(scrn->cbar);
@@ -251,10 +235,10 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 }
 
 /* Returns 1 if a save is requested or 0 if we just want to exit */
+#define buf scrn->bw->curbuf
+#define win scrn->bw->win
 int screen_run(struct Screen *scrn, char *filepath)
 {
-	t_window *win = scrn->bw->win;
-	struct Buffer *buf = scrn->bw->curbuf;
 	int i;
 
 	if (filepath == NULL) {
@@ -270,10 +254,9 @@ int screen_run(struct Screen *scrn, char *filepath)
 		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}
 
-	/* Update tabs here */
 	screen_draw_tabs(scrn);
 
-	screen_print_ch_info(scrn, buf);
+	screen_print_ch_info(scrn);
 
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);
@@ -328,6 +311,8 @@ int screen_run(struct Screen *scrn, char *filepath)
 	/* This should never be reached */
 	return 0;
 }
+#undef buf
+#undef win
 
 void screen_set_colors(struct Screen *scrn)
 {
@@ -352,7 +337,7 @@ struct Screen *screen_new()
 	scrn->bbar = bar_new(scrn->HEIGHT - 2);
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
-	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 2);
+	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 3);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_add_buffer(scrn->bw);

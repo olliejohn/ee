@@ -31,7 +31,7 @@
 struct BufWin {
 	t_window *win;
 	struct Buffer **buffers;
-	int active_bufs;
+	int num_bufs;
 	struct Buffer *curbuf;
 	int WIDTH;
 	int HEIGHT;
@@ -39,7 +39,8 @@ struct BufWin {
 
 struct BufWin *bufwin_new(int x, int y, int w, int h);
 void bufwin_free(struct BufWin *bufwin);
-void bufwin_process_char(struct BufWin *bw, t_char ch);
+void bufwin_redraw(struct BufWin *bufwin);
+void bufwin_process_char(struct BufWin *bufwin, t_char ch);
 void bufwin_refresh(struct BufWin *bufwin);
 void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair);
 int bufwin_add_buffer(struct BufWin *bufwin);

@@ -35,23 +35,38 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	for (i = 0; i < MAX_BUFS; i++)
 		bw->buffers[i] = NULL;
 
-	bw->active_bufs = 0;
+	bw->num_bufs = 0;
 	bw->curbuf = NULL;
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
 	return bw;
 }
 
-void bufwin_free(struct BufWin *bufwin)
+void bufwin_free(struct BufWin *bw)
 {
 	int i;
-	for (i = 0; i < bufwin->active_bufs; i++)
-		buffer_free(bufwin->buffers[i]);
+	for (i = 0; i < bw->num_bufs; i++)
+		buffer_free(bw->buffers[i]);
 
-	t_wdestroy(bufwin->win);
-	bufwin->curbuf = NULL;
-	free(bufwin->buffers);
-	free(bufwin);
+	t_wdestroy(bw->win);
+	bw->curbuf = NULL;
+	free(bw->buffers);
+	free(bw);
+}
+
+void bufwin_redraw(struct BufWin *bw)
+{
+	t_wclear(bw->win);
+
+	int i;
+	for (i = 0; i <= bw->curbuf->size; i++)
+		t_mv_wprint(bw->win, 0, i, bw->curbuf->data[i]->data);
+
+	t_wmove(bw->win,
+		bw->curbuf->data[bw->curbuf->pos]->pos,
+		bw->curbuf->pos);
+
+	t_wrefresh(bw->win);
 }
 
 #define buf bw->curbuf
@@ -142,26 +157,26 @@ void bufwin_refresh(struct BufWin *bufwin)
 	t_wrefresh(bufwin->win);
 }
 
-void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair)
+void bufwin_set_color_scheme(struct BufWin *bw, int colpair)
 {
-	t_wbkgd(bufwin->win, colpair);
+	t_wbkgd(bw->win, colpair);
 }
 
-int bufwin_add_buffer(struct BufWin *bufwin)
+int bufwin_add_buffer(struct BufWin *bw)
 {
-	if (bufwin->active_bufs >= MAX_BUFS)
+	if (bw->num_bufs >= MAX_BUFS)
 		return -1;
 
-	bufwin->buffers[bufwin->active_bufs++] = buffer_new();
+	bw->buffers[bw->num_bufs++] = buffer_new();
 	return 0;
 }
 
-int bufwin_add_buffer_from_file(struct BufWin *bufwin, char *file)
+int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 {
 	return 0;
 }
 
-void bufwin_set_active_buffer(struct BufWin *bufwin, int index)
+void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
-	bufwin->curbuf = bufwin->buffers[index];
+	bw->curbuf = bw->buffers[index];
 }
