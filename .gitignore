@@ -25,3 +25,7 @@ yaw
 
 # Output from profiling script
 profile.png
+
+# Test files
+testfile*
+tf*
