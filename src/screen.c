@@ -219,7 +219,8 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 	t_wrefresh(scrn->cbar);
 }
 
-void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
+#define buf scrn->bw->curbuf
+void buffer_process_char(struct Screen *scrn, t_char ch)
 {
 	bufwin_process_char(scrn->bw, ch);
 
@@ -230,9 +231,17 @@ void buffer_process_char(struct Screen *scrn, struct Buffer *buf, t_char ch)
 
 	t_wrefresh(scrn->cbar);
 
-	t_wmove(scrn->bw->win, buf->data[buf->pos]->pos, buf->pos);
+	t_wmove(scrn->bw->win, buf->data[buf->pos]->pos,
+		buf->pos - scrn->bw->ywinoffs);
 	t_wrefresh(scrn->bw->win);
 }
+#undef buf
+
+enum Focus {
+	FOCUS_BUF,
+	FOCUS_CLI,
+	FOCUS_TERM,
+};
 
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 #define buf scrn->bw->curbuf
@@ -265,16 +274,22 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wmove(win, buf->data[buf->pos]->pos, buf->pos);
 	t_wrefresh(win);
 
-	int IN_CMD_LOOP = 0;
+	int FOCUS = FOCUS_BUF;
 
 	t_char ch;
 	while (t_getch(&ch) != TUI_ERR) {
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
-			if (IN_CMD_LOOP)
+			if (FOCUS == FOCUS_BUF)
+				buffer_process_char(scrn, ch);
+			else if (FOCUS == FOCUS_CLI)
 				cmd_process_char(scrn, ch);
-			else
-				buffer_process_char(scrn, buf, ch);
+			else if (FOCUS == FOCUS_TERM)
+				;// Process the char for the term
+			else {
+				FOCUS = FOCUS_BUF;
+				buffer_process_char(scrn, ch);
+			}
 		} else {
 			callback(scrn);
 		}
@@ -289,17 +304,20 @@ int screen_run(struct Screen *scrn, char *filepath)
 			return 1;
 
 		if (screen_get_flag(scrn, SF_BUF)) {
+			FOCUS = FOCUS_BUF;
 			t_wrefresh(win);
 			screen_unset_flag(scrn, SF_BUF);
 		}
 
 		if (screen_get_flag(scrn, SF_CLI)) {
+			FOCUS = FOCUS_CLI;
 			t_wrefresh(scrn->cbar);
 			screen_unset_flag(scrn, SF_CLI);
 		}
 
 		if (screen_get_flag(scrn, SF_TERM)) {
-			// Switch to terminal
+			FOCUS = FOCUS_TERM;
+			// Refresh term window here
 			screen_unset_flag(scrn, SF_TERM);
 		}
 	}
@@ -334,8 +352,6 @@ struct Screen *screen_new()
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
 	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 3);
-	bufwin_add_buffer(scrn->bw);
-	bufwin_add_buffer(scrn->bw);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_set_active_buffer(scrn->bw, 0);
 

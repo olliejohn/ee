@@ -300,10 +300,10 @@ void buffer_move_backward(struct Buffer *buf)
 	}
 }
 
-void buffer_move_up(struct Buffer *buf)
+int buffer_move_up(struct Buffer *buf)
 {
 	if (buf->pos <= 0)
-		return;
+		return -1;
 
 	int old_line_pos = buf->data[buf->pos]->pos;
 	buf->pos--;
@@ -313,12 +313,14 @@ void buffer_move_up(struct Buffer *buf)
 		new_line->pos = old_line_pos;
 	else
 		new_line->pos = (new_line->size == 0) ? 0 : new_line->size - 1;
+
+	return 0;
 }
 
-void buffer_move_down(struct Buffer *buf)
+int buffer_move_down(struct Buffer *buf)
 {
 	if (buf->pos >= buf->size)
-		return;
+		return -1;
 
 	int line_pos = buf->data[buf->pos]->pos;
 	buf->pos++;
@@ -328,6 +330,8 @@ void buffer_move_down(struct Buffer *buf)
 		line->pos = line_pos;
 	else
 		line->pos = line->size;
+
+	return 0;
 }
 
 int buffer_save(struct Buffer *buf)

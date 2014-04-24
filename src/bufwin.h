@@ -35,6 +35,8 @@ struct BufWin {
 	struct Buffer *curbuf;
 	int WIDTH;
 	int HEIGHT;
+	int xcursoffs;
+	int ywinoffs;
 };
 
 struct BufWin *bufwin_new(int x, int y, int w, int h);

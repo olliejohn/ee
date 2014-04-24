@@ -29,6 +29,7 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 	bw->win = t_winit(x, y, w, h);
+
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
 	int i;
@@ -39,6 +40,9 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	bw->curbuf = NULL;
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
+	bw->xcursoffs = 0;
+	bw->ywinoffs = 0;
+
 	return bw;
 }
 
@@ -59,14 +63,48 @@ void bufwin_redraw(struct BufWin *bw)
 	t_wclear(bw->win);
 
 	int i;
-	for (i = 0; i <= bw->curbuf->size; i++)
-		t_mv_wprint(bw->win, 0, i, bw->curbuf->data[i]->data);
+	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
+		t_mv_wprint(bw->win, 0, i,
+			    bw->curbuf->data[i + bw->ywinoffs]->data);
 
 	t_wmove(bw->win,
 		bw->curbuf->data[bw->curbuf->pos]->pos,
 		bw->curbuf->pos);
 
 	t_wrefresh(bw->win);
+}
+
+void bufwin_move_left(struct BufWin *bw)
+{
+	buffer_move_backward(bw->curbuf);
+}
+
+void bufwin_move_right(struct BufWin *bw)
+{
+	buffer_move_forward(bw->curbuf);
+}
+
+void bufwin_move_up(struct BufWin *bw)
+{
+	if (buffer_move_up(bw->curbuf) == -1)
+		return;
+
+	if (t_wgetcury(bw->win) == 0 && bw->curbuf->pos >= 0) {
+		bw->ywinoffs--;
+		bufwin_redraw(bw);
+	}
+}
+
+void bufwin_move_down(struct BufWin *bw)
+{
+	if (buffer_move_down(bw->curbuf) == -1)
+		return;
+
+	if (t_wgetcury(bw->win) >= bw->HEIGHT - 1 &&
+	    bw->curbuf->pos < bw->curbuf->size) {
+		bw->ywinoffs++;
+		bufwin_redraw(bw);
+	}
 }
 
 #define buf bw->curbuf
@@ -131,16 +169,16 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 
 		break;
 	case TK_LEFT:
-		buffer_move_backward(buf);
+		bufwin_move_left(bw);
 		break;
 	case TK_RIGHT:
-		buffer_move_forward(buf);
+		bufwin_move_right(bw);
 		break;
 	case TK_UP:
-		buffer_move_up(buf);
+		bufwin_move_up(bw);
 		break;
 	case TK_DOWN:
-		buffer_move_down(buf);
+		bufwin_move_down(bw);
 		break;
 	default:
 		if (iswprint(ch) || ch == L'\t') {

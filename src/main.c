@@ -75,13 +75,14 @@ void register_default_binds()
 	bind(TK_F(1), 	cb_exit		);
 	bind(TK_F(3), 	cb_save_exit	);
 	bind(TK_CTRL_S, cb_save		);
+	bind(TK_CTRL_N, cb_new		);
+	bind(TK_CTRL_O, cb_open		);
 	bind(TK_CTRL_B, cb_visit_buf	);
 	bind(TK_CTRL_G, cb_visit_cli	);
 	bind(TK_CTRL_T, cb_visit_term	);
 	bind(TK_CTRL_X, cb_cut		);
 	bind(TK_CTRL_C, cb_copy		);
 	bind(TK_CTRL_V, cb_paste	);
-	bind(TK_CTRL_A, cb_select_all	);
 }
 
 int main(int argc, char **argv)

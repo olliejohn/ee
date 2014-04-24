@@ -29,12 +29,13 @@ void cb_exit(struct Screen *scrn);
 void cb_save_exit(struct Screen *scrn);
 void cb_save(struct Screen *scrn);
 void cb_save_as(struct Screen *scrn);
+void cb_new(struct Screen *scrn);
+void cb_open(struct Screen *scrn);
 void cb_visit_buf(struct Screen *scrn);
 void cb_visit_cli(struct Screen *scrn);
 void cb_visit_term(struct Screen *scrn);
 void cb_cut(struct Screen *scrn);
 void cb_copy(struct Screen *scrn);
 void cb_paste(struct Screen *scrn);
-void cb_select_all(struct Screen *scrn);
 
 #endif
