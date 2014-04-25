@@ -279,7 +279,6 @@ int screen_run(struct Screen *scrn, char *filepath)
 				cmd_process_char(scrn, ch);
 			} else if (FOCUS == FOCUS_TERM) {
 				vte_process_char(scrn->bw->vte, ch);
-				FOCUS = FOCUS_BUF;
 			} else {
 				FOCUS = FOCUS_BUF;
 				buffer_process_char(scrn, ch);
