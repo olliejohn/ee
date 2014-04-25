@@ -31,7 +31,6 @@
 struct VTE {
 	t_window *divider;
 	t_window *win;
-	char *ps1;
 };
 
 void vte_draw_divider(struct VTE *vte)
@@ -45,41 +44,6 @@ void vte_draw_divider(struct VTE *vte)
 	t_wrefresh(vte->divider);
 }
 
-int check_substring_at_start(char *substring, char *tocheck)
-{
-	int substringlen = strlen(substring);
-
-	if (strlen(tocheck) < substringlen)
-		return -1;
-
-	int i;
-	for (i = 0; i < substringlen; i++)
-		if (substring[i] != tocheck[i])
-			return -1;
-
-	return 0;
-}
-
-void vte_get_ps1(struct VTE *vte)
-{
-	char *pwd = getenv("PS1");
-	char *home = getenv("HOME");
-
-	if (check_substring_at_start(home, pwd) == 0) {
-		int pwdlen = strlen(pwd);
-		int homlen = strlen(home);
-		int size = sizeof(char) * (pwdlen - homlen + 3);
-		vte->ps1 = realloc(vte->ps1, size);
-		strcat(vte->ps1, "~");
-		strcat(vte->ps1, pwd + homlen);
-	} else {
-		vte->ps1 = realloc(vte->ps1, sizeof(char) * (strlen(pwd) + 3));
-		strcpy(vte->ps1, pwd);
-	}
-
-	strcat(vte->ps1, "> ");
-}
-
 void vte_refresh(struct VTE *vte)
 {
 	t_wrefresh(vte->win);
@@ -87,7 +51,18 @@ void vte_refresh(struct VTE *vte)
 
 void vte_put_prompt(struct VTE *vte)
 {
-	t_mv_wprint(vte->win, 0, 0, L"%ls", vte->ps1);
+	char *pwd = getenv("PWD");
+	char *home = getenv("HOME");
+	int l = home ? strlen(home) : 0;
+
+	if (l > 1 &&
+	    strncmp(home, pwd, l) == 0 &&
+	    (!pwd[l] || pwd[l] == '/')) {
+		pwd += l - 1;
+		pwd[0] = '~';
+	}
+
+	t_mv_wprint(vte->win, 0, 0, L"%s> ", pwd);
 	vte_refresh(vte);
 }
 
@@ -101,12 +76,9 @@ struct VTE *vte_new(int x, int y, int w, int h)
 	struct VTE *vte = malloc(sizeof(struct VTE));
 	vte->divider = t_winit(x, y, 1, h);
 	vte->win = t_winit(x + 1, y, w - 1, h);
-	vte->ps1 = NULL;
 
 	vte_draw_divider(vte);
-	//vte_get_ps1(vte);
-
-	//vte_put_prompt(vte);
+	vte_put_prompt(vte);
 
 	return vte;
 }
@@ -115,6 +87,5 @@ void vte_free(struct VTE *vte)
 {
 	t_wdestroy(vte->divider);
 	t_wdestroy(vte->win);
-	free(vte->ps1);
 	free(vte);
 }

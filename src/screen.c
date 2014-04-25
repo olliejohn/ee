@@ -133,7 +133,7 @@ void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
 }
 
 /* Prints line number and character number information */
-#define CH_INFO_FMT L"L:%d/%d    C:%d/%d  %d      "
+#define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
 #define CH_INFO_OFFS 24
 #define buf scrn->bw->curbuf
 void screen_print_ch_info(struct Screen *scrn)
@@ -144,8 +144,7 @@ void screen_print_ch_info(struct Screen *scrn)
 		    buf->pos + 1,
 		    buf->size + 1,
 		    buf->data[buf->pos]->pos + 1,
-		    buf->data[buf->pos]->size + 1,
-		    buf->data[buf->pos]->capacity);
+		    buf->data[buf->pos]->size + 1);
 }
 #undef buf
 
