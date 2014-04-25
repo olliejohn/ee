@@ -299,6 +299,9 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 		if (screen_get_flag(scrn, SF_BUF)) {
 			FOCUS = FOCUS_BUF;
+			t_wmove(win,
+				buf->data[buf->pos]->pos + scrn->bw->linumoffs,
+				buf->pos);
 			t_wrefresh(win);
 			screen_unset_flag(scrn, SF_BUF);
 		}
