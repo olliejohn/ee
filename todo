@@ -1,5 +1,4 @@
-
-Scrolling
+Finish the terminal
 
 Undo/redo
 
@@ -14,14 +13,10 @@ Config
 
 Grep (search/replace)
 
-Multiple buffers
-
 Clipboard with xsel
 
 UI
 	Better saving
-	Multiple windows
-	Console access
 
 Git integration
 
