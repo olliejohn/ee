@@ -1,5 +1,5 @@
 /*
- * bufwin.h
+ * vte.h
  * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,36 +20,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef BUFWIN_H
-#define BUFWIN_H
+#ifndef VTE_H
+#define VTE_H
 
 #include <tui.h>
-#include "buffer.h"
-#include "vte.h"
 
-#define MAX_BUFS 64
+struct VTE;
 
-struct BufWin {
-	t_window *win;
-	struct VTE *vte;
-	struct Buffer **buffers;
-	int num_bufs;
-	struct Buffer *curbuf;
-	int WIDTH;
-	int HEIGHT;
-	int ywinoffs;
-	int linumoffs;
-};
-
-struct BufWin *bufwin_new(int x, int y, int w, int h);
-void bufwin_free(struct BufWin *bufwin);
-void bufwin_redraw(struct BufWin *bufwin);
-void bufwin_process_char(struct BufWin *bufwin, t_char ch);
-void bufwin_refresh(struct BufWin *bufwin);
-void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair);
-int bufwin_add_buffer(struct BufWin *bufwin);
-int bufwin_add_buffer_from_file(struct BufWin *bufwin, char *file);
-void bufwin_set_active_buffer(struct BufWin *bufwin, int index);
-void bufwin_toggle_draw_linums(struct BufWin *bw);
+struct VTE *vte_new(int x, int y, int w, int h);
+void vte_free(struct VTE *vte);
+void vte_refresh(struct VTE *vte);
+void vte_process_char(struct VTE *vte, t_char ch);
 
 #endif

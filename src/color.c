@@ -26,8 +26,6 @@
 #include <string.h>
 #include <tui.h>
 
-#define COLOR_DEFAULT -1
-
 void color_init()
 {
 	char *termtype = getenv("TERM");
@@ -53,6 +51,8 @@ void color_init()
 		init_pair(SCH_TAB_SPACE, 	COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
 		init_pair(SCH_LINE_NUM, 	COLOR_YELLOW, 	COLOR_DEFAULT);
+		init_pair(SCH_TERM, 		TERM_FG, 	TERM_BG);
+		init_pair(SCH_TERM_DIV,		COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_BOTTOM_BAR, 	COL_BLACK, 	COL_D_GRAY);
 		init_pair(SCH_BOTTOM_ERR, 	COL_RED, 	COL_D_GRAY);
 		init_pair(SCH_CMD_BAR, 		COL_WHITE, 	COL_BLACK);
@@ -66,6 +66,8 @@ void color_init()
 		init_pair(SCH_TAB_SPACE, 	COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_BUFFER, 		COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_LINE_NUM, 	COLOR_YELLOW, 	COLOR_DEFAULT);
+		init_pair(SCH_TERM, 		TERM_FG, 	TERM_BG);
+		init_pair(SCH_TERM_DIV,		COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_BOTTOM_BAR, 	COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_BOTTOM_ERR, 	COLOR_RED, 	COLOR_WHITE);
 		init_pair(SCH_CMD_BAR, 		COLOR_DEFAULT, 	COLOR_DEFAULT);

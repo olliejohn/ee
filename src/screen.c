@@ -60,6 +60,8 @@ void screen_clear_flags(struct Screen *scrn)
 	scrn->FLAGS ^= scrn->FLAGS;
 }
 
+/* TODO: readjusting line numbers when the number of digits in the number changes */
+
 /* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
 int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
 			int xoffs, int active)
@@ -69,7 +71,7 @@ int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
 	else
 		t_wattron(scrn->tbar, CS_TAB_INACTIVE);
 
-	t_mv_wprint(scrn->tbar, xoffs, 0, L"%d - %s", num, filename);
+	t_mv_wprint(scrn->tbar, xoffs, 0, L" %d - %s ", num, filename);
 
 	if (active)
 		t_wattroff(scrn->tbar, CS_TAB_ACTIVE);
@@ -131,7 +133,7 @@ void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
 }
 
 /* Prints line number and character number information */
-#define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
+#define CH_INFO_FMT L"L:%d/%d    C:%d/%d  %d      "
 #define CH_INFO_OFFS 24
 #define buf scrn->bw->curbuf
 void screen_print_ch_info(struct Screen *scrn)
@@ -142,7 +144,8 @@ void screen_print_ch_info(struct Screen *scrn)
 		    buf->pos + 1,
 		    buf->size + 1,
 		    buf->data[buf->pos]->pos + 1,
-		    buf->data[buf->pos]->size + 1);
+		    buf->data[buf->pos]->size + 1,
+		    buf->data[buf->pos]->capacity);
 }
 #undef buf
 
@@ -271,13 +274,14 @@ int screen_run(struct Screen *scrn, char *filepath)
 	while (t_getch(&ch) != TUI_ERR) {
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
-			if (FOCUS == FOCUS_BUF)
+			if (FOCUS == FOCUS_BUF) {
 				buffer_process_char(scrn, ch);
-			else if (FOCUS == FOCUS_CLI)
+			} else if (FOCUS == FOCUS_CLI) {
 				cmd_process_char(scrn, ch);
-			else if (FOCUS == FOCUS_TERM)
-				;// Process the char for the term
-			else {
+			} else if (FOCUS == FOCUS_TERM) {
+				vte_process_char(scrn->bw->vte, ch);
+				FOCUS = FOCUS_BUF;
+			} else {
 				FOCUS = FOCUS_BUF;
 				buffer_process_char(scrn, ch);
 			}
@@ -308,7 +312,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 		if (screen_get_flag(scrn, SF_TERM)) {
 			FOCUS = FOCUS_TERM;
-			// Refresh term window here
+			vte_refresh(scrn->bw->vte);
 			screen_unset_flag(scrn, SF_TERM);
 		}
 	}

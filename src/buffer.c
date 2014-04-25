@@ -62,11 +62,14 @@ int line_get_curs_pos(struct Line *line)
 
 void line_double_capacity_if_full(struct Line *line)
 {
-	if (line->size < line->capacity)
+	if (line->size < line->capacity - 1)
 		return;
 
+	int oldcap = line->capacity;
 	line->capacity <<= 1;
 	line->data = realloc(line->data, sizeof(t_char) * line->capacity);
+	memset(line->data + oldcap, 0,
+	       sizeof(t_char) * (line->capacity - oldcap));
 }
 
 void line_append(struct Line *line, t_char c)
@@ -109,10 +112,10 @@ void line_set(struct Line *line, int index, t_char c)
 
 void line_add(struct Line *line, t_char c)
 {
+	line_double_capacity_if_full(line);
+
 	if (line->pos < 0 || line->pos > line->size)
 		return;
-
-	line_double_capacity_if_full(line);
 
 	if (line->pos == line->size) {
 		line->size++;

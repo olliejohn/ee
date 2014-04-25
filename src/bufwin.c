@@ -27,12 +27,16 @@
 #include <stdlib.h>
 #include <wctype.h>
 
-#define DRAW_LINE_NUMS 1
+int DRAW_LINE_NUMS = 1;
+int SHOW_VTE = 1;
 
 struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
-	bw->win = t_winit(x, y, w, h);
+
+	int termx = (w - x) / 2;
+	bw->win = t_winit(x, y, termx - 1, h);
+	bw->vte = vte_new(termx, y, w - termx, h);
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
@@ -57,6 +61,7 @@ void bufwin_free(struct BufWin *bw)
 		buffer_free(bw->buffers[i]);
 
 	t_wdestroy(bw->win);
+	vte_free(bw->vte);
 	bw->curbuf = NULL;
 	free(bw->buffers);
 	free(bw);
@@ -76,7 +81,7 @@ void bufwin_render_line(struct BufWin *bw, int line)
 
 	bw->linumoffs = x;
 
-	t_mv_wprint(bw->win, x, line, L"%ls",
+	t_mv_wprint(bw->win, x, line,
 		    bw->curbuf->data[line + bw->ywinoffs]->data);
 }
 
@@ -87,8 +92,6 @@ void bufwin_redraw(struct BufWin *bw)
 	int i;
 	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
 		bufwin_render_line(bw, i);
-		//t_mv_wprint(bw->win, 0, i,
-		//	    bw->curbuf->data[i + bw->ywinoffs]->data);
 
 	t_wmove(bw->win,
 		bw->curbuf->data[bw->curbuf->pos]->pos,
@@ -226,6 +229,7 @@ int bufwin_add_buffer(struct BufWin *bw)
 	return 0;
 }
 
+/* TODO: Implement this */
 int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 {
 	return 0;
@@ -234,4 +238,10 @@ int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
 	bw->curbuf = bw->buffers[index];
+}
+
+void bufwin_toggle_draw_linums(struct BufWin *bw)
+{
+	DRAW_LINE_NUMS ^= 1;
+	bufwin_redraw(bw);
 }
