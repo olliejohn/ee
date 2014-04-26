@@ -25,10 +25,8 @@
 
 #include <tui.h>
 
-#include "screen.h"
+#include "buffer.h"
 
-void lisp_init();
-void lisp_destroy();
-int lisp_run(struct Screen *scrn);
+struct Buffer *lisp_tokenize(struct Line *ln);
 
 #endif
