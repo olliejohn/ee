@@ -38,7 +38,7 @@ struct Settings {
 	int bufexpg;
 };
 
-struct Settings *CFG;
+extern struct Settings *CFG;
 
 int config_init();
 int config_refresh();

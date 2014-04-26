@@ -35,6 +35,8 @@
 #define CONFIG_BLOCK_SIZE 32
 #define MAX_LOAD_ATTEMPTS 3
 
+struct Settings *CFG;
+
 struct Settings *settings_new()
 {
 	struct Settings *settings = malloc(sizeof(struct Settings));
@@ -48,6 +50,11 @@ struct Settings *settings_new()
 void settings_free(struct Settings *settings)
 {
 	free(settings);
+}
+
+void parse_lisp_config(struct Settings *settings, char *cfg)
+{
+
 }
 
 void parse_config(struct Settings *settings, char *cfg)
