@@ -36,6 +36,7 @@ enum Screen_Flag {
 	SF_BUF,		/* Move focus to the current active buffer */
 	SF_CLI,		/* Move focus to the command line */
 	SF_TERM,	/* Move focus to the terminal */
+	SF_NO_CONFIG,	/* Couldn't load the config on program start */
 };
 
 struct Screen {

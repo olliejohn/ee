@@ -30,6 +30,7 @@ struct VTE;
 struct VTE *vte_new(int x, int y, int w, int h);
 void vte_free(struct VTE *vte);
 void vte_refresh(struct VTE *vte);
+void vte_run(struct VTE *vte);
 void vte_process_char(struct VTE *vte, t_char ch);
 
 #endif

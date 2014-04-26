@@ -27,7 +27,6 @@
 #include "callback.h"
 #include "color.h"
 #include "config.h"
-#include "lisp.h"
 #include "screen.h"
 
 #define INFO_NAME 	"Yaw"
@@ -114,10 +113,8 @@ int main(int argc, char **argv)
 
 	/* Run program */
 	binds_init();
-	lisp_init();
 
-	if (config_init() == -1)
-		;// ERR: "Couldn't load or create config - using default"
+	int cfgstatus = config_init();
 
 	color_init();
 
@@ -132,11 +129,13 @@ int main(int argc, char **argv)
 	binds_set_current_screen(scrn);
 	register_default_binds();
 
+	if (cfgstatus == -1)
+		screen_set_flag(scrn, SF_NO_CONFIG);
+
 	int status = screen_run(scrn, filepath);
 	screen_free(scrn);
 
 	config_destroy();
-	lisp_destroy();
 	binds_destroy();
 
 	/* tui destroy */

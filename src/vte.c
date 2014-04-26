@@ -22,19 +22,16 @@
 
 #include "vte.h"
 
-#include "buffer.h"
 #include "color.h"
 
 #include <stdlib.h>
-#include <string.h>
 #include <tui.h>
+#include <vterm.h>
 
 struct VTE {
 	t_window *divider;
 	t_window *win;
-	struct Buffer *buf;
-	int x;
-	int y;
+	vterm_t *vterm;
 };
 
 void vte_draw_divider(struct VTE *vte)
@@ -52,104 +49,67 @@ void vte_refresh(struct VTE *vte)
 {
 	t_wrefresh(vte->win);
 }
-
-void vte_put_prompt(struct VTE *vte, int x, int y)
+/*
+void vte_refresh(struct VTE *vte)
 {
-	char *pwd = getenv("PWD");
-	char *home = getenv("HOME");
-	int l = home ? strlen(home) : 0;
-
-	if (l > 1 &&
-	    strncmp(home, pwd, l) == 0 &&
-	    (!pwd[l] || pwd[l] == '/')) {
-		pwd += l - 1;
-		pwd[0] = '~';
+	if (vterm_read_pipe(vte->vterm) > 0) {
+		vterm_wnd_update(vte->vterm);
+		wrefresh(vte->win);
 	}
 
-	t_mv_wprint(vte->win, x, y, L"%s> %n", pwd, &vte->x);
-	vte_refresh(vte);
-}
-
-void vte_execute_current_cmd(struct VTE *vte)
-{
-
-}
-
-#define buf vte->buf
-void vte_process_char(struct VTE *vte, t_char ch)
-{
-	switch (ch) {
-	case TK_LEFT:
-		line_move_backward(buf->data[buf->pos]);
-		break;
-	case TK_RIGHT:
-		line_move_forward(buf->data[buf->pos]);
-		break;
-	case TK_UP:
-		if (buf->pos > 0)
-			buf->pos--;
-		break;
-	case TK_DOWN:
-		if (buf->pos < buf->size)
-			buf->pos++;
-		break;
-	case TK_BKSPC:
-		line_backspace(buf->data[buf->pos]);
-		break;
-	case TK_DELETE:
-		if (line_move_forward(buf->data[buf->pos]) == 0)
-			line_backspace(buf->data[buf->pos]);
-		break;
-	case TK_ENTER:
-		vte_execute_current_cmd(vte);
-
-		if (buf->pos < buf->size &&
-		    wcscmp(buf->data[buf->pos]->data,
-			   buf->data[buf->size - 1]->data) != 0) {
-			line_free(buf->data[buf->size - 1]);
-			buf->data[buf->size - 1] = line_new();
-
-			int i;
-			for (i = 0; i < buf->data[buf->pos]->size; i++) {
-				line_add(buf->data[buf->size - 1],
-					buf->data[buf->pos]->data[i]);
-			}
-
-			buf->pos = buf->size - 1;
-		}
-
-		buffer_new_line(buf);
-		break;
-	default:
-		buffer_add(buf, ch);
-	}
-
-	t_mv_wprint(vte->win, vte->x, vte->y, buf->data[buf->pos]->data);
-	t_wclrtoeol(vte->win);
-	t_wmove(vte->win, buf->data[buf->pos]->pos + vte->x, vte->y);
 	t_wrefresh(vte->win);
 }
-#undef buf
-
+*/
 struct VTE *vte_new(int x, int y, int w, int h)
 {
 	struct VTE *vte = malloc(sizeof(struct VTE));
-	vte->divider = t_winit(x, y, 1, h);
-	vte->win = t_winit(x + 1, y, w - 1, h);
-	vte->buf = buffer_new();
-	vte->x = 0;
-	vte->y = 0;
 
+	vte->divider = t_winit(x, y, 1, h);
 	vte_draw_divider(vte);
-	vte_put_prompt(vte, vte->x, vte->y);
+	vte->win = t_winit(x + 1, y, w - 1, h);
+	vte->vterm = vterm_create(w - 1, h, VTERM_FLAG_VT100);
+
+	vterm_set_colors(vte->vterm, TERM_FG, TERM_BG);
+	vterm_wnd_set(vte->vterm, vte->win);
+	vte_refresh(vte);
 
 	return vte;
 }
 
 void vte_free(struct VTE *vte)
 {
-	buffer_free(vte->buf);
 	t_wdestroy(vte->divider);
 	t_wdestroy(vte->win);
+	vterm_destroy(vte->vterm);
 	free(vte);
+}
+
+void vte_process_char(struct VTE *vte, t_char ch)
+{
+	ssize_t bytes;
+
+	while (ch != '3') {
+		bytes = vterm_read_pipe(vte->vterm);
+
+		if (bytes > 0) {
+			vterm_wnd_update(vte->vterm);
+			touchwin(vte->win);
+			wrefresh(vte->win);
+			refresh();
+		}
+
+		if (bytes == -1)
+			break;
+
+		t_getch(&ch);
+
+		if (ch != ERR)
+			vterm_write_pipe(vte->vterm, ch);
+	}
+	/*
+	vterm_read_pipe(vte->vterm);
+	vterm_write_pipe(vte->vterm, ch);
+	vterm_wnd_update(vte->vterm);
+	vte_refresh(vte);
+	*/
 }

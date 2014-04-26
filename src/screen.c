@@ -256,6 +256,12 @@ int screen_run(struct Screen *scrn, char *filepath)
 		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}
 
+	if (screen_get_flag(scrn, SF_NO_CONFIG)) {
+		screen_set_status(scrn,
+			L"Error: Couldn't load config - using default");
+		screen_unset_flag(scrn, SF_NO_CONFIG);
+	}
+
 	screen_draw_tabs(scrn);
 	bufwin_redraw(scrn->bw);
 	screen_print_ch_info(scrn);
@@ -263,6 +269,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
+	vte_refresh(scrn->bw->vte);
 
 	t_wmove(win, buf->data[buf->pos]->pos + scrn->bw->linumoffs, buf->pos);
 	t_wrefresh(win);
@@ -270,6 +277,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	int FOCUS = FOCUS_BUF;
 
 	t_char ch;
+run_loop:
 	while (t_getch(&ch) != TUI_ERR) {
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
@@ -318,8 +326,9 @@ int screen_run(struct Screen *scrn, char *filepath)
 		}
 	}
 
-	/* This should never be reached */
-	return 0;
+	/* This should never be reached - it means the input was TUI_ERR */
+	screen_set_status(scrn, L"ERROR: Unrecognized input");
+	goto run_loop;
 }
 #undef buf
 #undef win
