@@ -271,6 +271,8 @@ int buffer_backspace(struct Buffer *buf)
 		buf->data[buf->pos - 1]->pos = buf->data[buf->pos - 1]->size -
 						buf->data[buf->pos]->size;
 
+		line_free(buf->data[buf->pos]);
+
 		memmove(&buf->data[buf->pos],
 			&buf->data[buf->pos + 1],
 			sizeof(struct Line *) * (buf->size - buf->pos));
