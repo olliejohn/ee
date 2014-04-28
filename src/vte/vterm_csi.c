@@ -28,7 +28,7 @@
 #include "vterm_private.h"
 #include "vterm_csi.h"
 #include "vterm_colors.h"
-#include "vterm_misc.h"
+#include "vterm_clamp_cursor.h"
 
 void vterm_interpret_csi(vterm_t *vterm)
 {

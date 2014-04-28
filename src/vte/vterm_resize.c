@@ -31,7 +31,7 @@
 
 #include "vterm.h"
 #include "vterm_private.h"
-#include "vterm_misc.h"
+#include "vterm_clamp_cursor.h"
 
 void vterm_resize(vterm_t *vterm,unsigned int width,unsigned int height)
 {

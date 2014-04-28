@@ -23,19 +23,12 @@
  */
 
 #include "vterm.h"
-#include "vterm_misc.h"
-
-
+#include "vterm_clamp_cursor.h"
 
 void clamp_cursor_to_bounds(vterm_t *vterm)
 {
    if(vterm->crow < 0) vterm->crow=0;
-
    if(vterm->ccol < 0) vterm->ccol=0;
-
    if(vterm->crow >= vterm->rows) vterm->crow=vterm->rows-1;
-
    if(vterm->ccol >= vterm->cols) vterm->ccol=vterm->cols-1;
-
-   return;
 }
