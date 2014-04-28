@@ -1,11 +1,11 @@
 # Yaw Makefile
 
 CC=gcc
-CFLAGS=-c -Wall -std=gnu99 -O3 `pkg-config --cflags glib-2.0`
-LDFLAGS=-lncursesw -ltinfo -ltui -lvterm `pkg-config --libs glib-2.0`
+CFLAGS=-c -Wall -std=gnu99 -O3
+LDFLAGS=-lncursesw -ltinfo -ltui -lvterm
 TARGET=yaw
-OBJECTS=$(shell ls | grep [.*][\.o])
-SOURCES:=$(shell ls | grep [.*][\.c])
+OBJECTS=*.o
+SOURCES=*.c
 BINDIR=/usr/bin
 LIBDIR=/usr/lib
 
@@ -19,11 +19,14 @@ exec: build link
 link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
-debugBuild:
+debugBuild: buildvte
 	$(CC) $(CFLAGS) -g $(SOURCES)
 
-build:
+build: buildvte
 	$(CC) $(CFLAGS) $(SOURCES)
+
+buildvte:
+	$(MAKE) -C vte
 
 clean:
 	rm -rf *.o
