@@ -12,17 +12,17 @@ LIBDIR=/usr/lib
 all: debugExec
 	@echo -- Make Success --
 
-debugExec: debugBuild link
+debugExec: buildtui buildvte debugBuild link
 
-exec: build link
+exec: buildtui buildvte build link
 
 link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
-debugBuild: buildtui buildvte
+debugBuild:
 	$(CC) $(CFLAGS) -g $(SOURCES)
 
-build: buildtui buildvte
+build:
 	$(CC) $(CFLAGS) $(SOURCES)
 
 buildvte:
