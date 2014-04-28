@@ -67,6 +67,7 @@ struct VTE *vte_new(int x, int y, int w, int h)
 	vte->divider = t_winit(x, y, 1, h);
 	vte_draw_divider(vte);
 	vte->win = t_winit(x + 1, y, w - 1, h);
+	t_wrefresh(vte->win);
 	vte->vterm = vterm_create(w - 1, h, VTERM_FLAG_VT100);
 
 	vterm_set_colors(vte->vterm, TERM_FG, TERM_BG);
@@ -86,7 +87,7 @@ void vte_free(struct VTE *vte)
 
 void vte_process_char(struct VTE *vte, t_char ch)
 {
-	ssize_t bytes;
+/*	ssize_t bytes;
 
 	while (ch != '3') {
 		bytes = vterm_read_pipe(vte->vterm);
@@ -106,10 +107,11 @@ void vte_process_char(struct VTE *vte, t_char ch)
 		if (ch != ERR)
 			vterm_write_pipe(vte->vterm, ch);
 	}
-	/*
-	vterm_read_pipe(vte->vterm);
+	*/
+
 	vterm_write_pipe(vte->vterm, ch);
+	vterm_read_pipe(vte->vterm);
 	vterm_wnd_update(vte->vterm);
 	vte_refresh(vte);
-	*/
+
 }
