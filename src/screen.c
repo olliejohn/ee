@@ -278,7 +278,10 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 	t_char ch;
 run_loop:
-	while (t_getch(&ch) != TUI_ERR) {
+//	while (t_getch(&ch) != TUI_ERR) {
+	while (1) {
+		t_getch(&ch);
+
 		cb_ptr callback;
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
 			if (FOCUS == FOCUS_BUF) {
@@ -306,6 +309,7 @@ run_loop:
 
 		if (screen_get_flag(scrn, SF_BUF)) {
 			FOCUS = FOCUS_BUF;
+			t_nodelay(FALSE);
 			t_wmove(win,
 				buf->data[buf->pos]->pos + scrn->bw->linumoffs,
 				buf->pos);
@@ -315,12 +319,14 @@ run_loop:
 
 		if (screen_get_flag(scrn, SF_CLI)) {
 			FOCUS = FOCUS_CLI;
+			t_nodelay(FALSE);
 			t_wrefresh(scrn->cbar);
 			screen_unset_flag(scrn, SF_CLI);
 		}
 
 		if (screen_get_flag(scrn, SF_TERM)) {
 			FOCUS = FOCUS_TERM;
+			t_nodelay(TRUE);
 			vte_refresh(scrn->bw->vte);
 			screen_unset_flag(scrn, SF_TERM);
 		}

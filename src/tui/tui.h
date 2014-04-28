@@ -191,6 +191,10 @@ void t_wbkgrndset(WINDOW *win, cchar_t *data);
 int t_wgetbkgrnd(WINDOW *win, cchar_t *data);
 */
 
+inline int t_wnodelay(t_window *win, TUI_BOOL value) {
+	return (value) ? nodelay(win, TRUE) : nodelay(win, FALSE);
+}
+
 inline int t_wmove(WINDOW *win, int x, int y) { return wmove(win, y, x); }
 inline int t_wrefresh(WINDOW *win) { return wrefresh(win); }
 
@@ -320,6 +324,7 @@ inline int t_mv_wchgat(t_window *win, int x, int y, int n, t_attrib attr,
 #define t_getbkgrnd(data) t_wgetbkgrnd(stdscr, data)
 
 #define t_set_scroll(v) t_wset_scroll(stdscr, v)
+#define t_nodelay(value) t_wnodelay(stdscr, value)
 #define t_move(x, y) t_wmove(stdscr, x, y)
 #define t_refresh() t_wrefresh(stdscr)
 
