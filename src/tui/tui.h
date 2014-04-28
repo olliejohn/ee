@@ -82,6 +82,7 @@ enum TUI_FLAG {
 	TUI_COOKED = 4,
 	TUI_KEYPAD = 8,
 	TUI_RAW = 16,
+	TUI_NO_DELAY = 32,
 };
 
 /*

@@ -358,6 +358,9 @@ int t_set_flags(int flags)
 	if (flags & TUI_KEYPAD)
 		keypad(stdscr, TRUE);
 
+	if (flags & TUI_NO_DELAY)
+		nodelay(stdscr, TRUE);
+
 	if (flags & TUI_ECHO)
 		echo();
 
@@ -378,6 +381,9 @@ void t_unset_flags(int flags)
 {
 	if (flags & TUI_KEYPAD)
 		keypad(stdscr, FALSE);
+
+	if (flags & TUI_NO_DELAY)
+		nodelay(stdscr, FALSE);
 
 	if (flags & TUI_ECHO)
 		noecho();
