@@ -23,9 +23,9 @@
 #ifndef BUFWIN_H
 #define BUFWIN_H
 
-#include <tui.h>
 #include "buffer.h"
-#include "vte.h"
+#include "tui/tui.h"
+#include "vte/vte_driver.h"
 
 #define MAX_BUFS 64
 

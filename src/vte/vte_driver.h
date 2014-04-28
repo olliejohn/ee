@@ -1,6 +1,6 @@
 /*
- * vte.h
- * Part of the Yaw text editor
+ * vte_driver.h
+ * Part of the Yaw text editor VTE subsystem
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef VTE_H
-#define VTE_H
+#ifndef VTE_DRIVER_H
+#define VTE_DRIVER_H
 
 #include <tui.h>
 
