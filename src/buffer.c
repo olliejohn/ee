@@ -226,18 +226,21 @@ void buffer_add(struct Buffer *buf, t_char c)
 
 void buffer_new_line(struct Buffer *buf)
 {
-	buffer_double_capacity_if_full(buf);
 	buf->size++;
+	buffer_double_capacity_if_full(buf);
 
-	memmove(&buf->data[buf->pos + 2],
+	if (buf->pos < buf->size - 1) {
+		memmove(&buf->data[buf->pos + 2],
 		&buf->data[buf->pos + 1],
 		sizeof(struct Line) * (buf->size - 1 - buf->pos));
 
-	buf->data[buf->pos + 1] = line_new();
+		buf->data[buf->pos + 1] = line_new();
+	} else {
+		buf->data[buf->pos + 1] = line_new();
+	}
 
-	struct Line *cur_line = buf->data[buf->pos];
-	if (cur_line->pos <= cur_line->size - 1) {
-		struct Line *new_line = buf->data[buf->pos + 1];
+#define cur_line buf->data[buf->pos]
+#define new_line buf->data[buf->pos + 1]
 		int i, diff = 0;
 		for (i = cur_line->pos; i < cur_line->size; i++) {
 			line_add(new_line, cur_line->data[i]);
@@ -245,7 +248,8 @@ void buffer_new_line(struct Buffer *buf)
 			diff++;
 		}
 		cur_line->size -= diff;
-	}
+#undef cur_line
+#undef new_line
 
 	buf->pos++;
 	buf->data[buf->pos]->pos = 0;
