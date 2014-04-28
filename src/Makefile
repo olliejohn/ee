@@ -2,7 +2,7 @@
 
 CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3
-LDFLAGS=-lncursesw -ltinfo -ltui -lvterm
+LDFLAGS=-lncursesw -ltinfo -ltui vte/libvterm.so
 TARGET=yaw
 OBJECTS=*.o
 SOURCES=*.c
