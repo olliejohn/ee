@@ -61,7 +61,7 @@ int about()
 int usage()
 {
 	printf("Usage:\n"
-		"ee [filename | flag]\n\n"
+		"yaw [filename | flag]\n\n"
 		"Flags:\n"
 		"--about     Display the about dialog\n"
 		"--version   Display version information\n"
@@ -71,7 +71,7 @@ int usage()
 
 void register_default_binds()
 {
-	bind(TK_F(1), 	cb_exit		);
+	bind(TK_CTRL_Q,	cb_exit		);
 	bind(TK_F(3), 	cb_save_exit	);
 	bind(TK_CTRL_S, cb_save		);
 	bind(TK_CTRL_N, cb_new		);
@@ -93,11 +93,11 @@ int main(int argc, char **argv)
 	int FLAG_OPEN = 0;
 
 	if (argc == 2) {
-		if (strcmp(argv[1], "--version") == 0)
+		if (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))
 			return version();
-		else if (strcmp(argv[1], "--about") == 0)
+		else if (!strcmp(argv[1], "-a") || !strcmp(argv[1], "--about"))
 			return about();
-		else if (strcmp(argv[1], "--help") == 0)
+		else if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
 			return usage();
 		else
 			FLAG_OPEN++;
