@@ -24,8 +24,7 @@
 #define BUFFER_H
 
 #include "config.h"
-
-#include <tui.h>
+#include "tui/tui.h"
 
 struct Line {
 	int size;

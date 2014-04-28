@@ -23,9 +23,8 @@
 #ifndef BINDS_H
 #define BINDS_H
 
-#include <tui.h>
-
 #include "screen.h"
+#include "tui/tui.h"
 
 typedef void (*cb_ptr)(struct Screen *scrn);
 

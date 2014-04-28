@@ -1,7 +1,7 @@
 # Yaw Makefile
 
 CC=gcc
-CFLAGS=-c -Wall -std=gnu99 -O3 -Itui
+CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo -lutil
 TARGET=yaw
 OBJECTS=*.o vte/*.o tui/*.o

@@ -23,9 +23,8 @@
 #ifndef LISP_H
 #define LISP_H
 
-#include <tui.h>
-
 #include "buffer.h"
+#include "tui/tui.h"
 
 struct Buffer *lisp_tokenize(struct Line *ln);
 

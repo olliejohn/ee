@@ -21,13 +21,13 @@
  */
 
 #include <string.h>
-#include <tui.h>
 
 #include "binds.h"
 #include "callback.h"
 #include "color.h"
 #include "config.h"
 #include "screen.h"
+#include "tui/tui.h"
 
 #define INFO_NAME 	"Yaw"
 #define INFO_VERSION 	"0.01"

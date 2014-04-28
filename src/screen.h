@@ -23,10 +23,9 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include <tui.h>
-
 #include "buffer.h"
 #include "bufwin.h"
+#include "tui/tui.h"
 
 /* Flags are stored in an unsigned int allowing up to 32 */
 enum Screen_Flag {

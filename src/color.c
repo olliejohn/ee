@@ -22,9 +22,10 @@
 
 #include "color.h"
 
+#include "tui/tui.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include <tui.h>
 
 void color_init()
 {
