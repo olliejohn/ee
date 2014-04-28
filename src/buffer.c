@@ -23,6 +23,9 @@
  /*
   * Found another bug: Sometimes longer lines appear to end 6 chars
   * early, but only when the file is loaded - not when it's typed
+  *
+  * Update:
+  * This is because the cursor position doesn't account for tab size...
   */
 
 #include "buffer.h"
@@ -386,7 +389,7 @@ int buffer_save_as(struct Buffer *buf, char *file)
 
 	int i;
 	for (i = 0; i < buf->size; i++)
-		fwprintf(f, L"%s\n", buf->data[i]->data);
+		fwprintf(f, L"%ls\n", buf->data[i]->data);
 
 	fclose(f);
 
@@ -398,7 +401,7 @@ int buffer_save_as(struct Buffer *buf, char *file)
  * already in use, the file will be appended so ensure that it's a new buffer
  * for normal use. Returns 0 on success or -1 on failiure.
  */
-int buffer_open(struct Buffer *buf, char *file, int x, int y)
+int buffer_open_at(struct Buffer *buf, char *file, int x, int y)
 {
 	FILE *f = fopen(file, "r");
 

@@ -251,7 +251,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	if (filepath == NULL) {
 		screen_set_status(scrn, L"Created new buffer");
 	} else {
-		buffer_open(buf, filepath, 0, 0);
+		buffer_open(buf, filepath);
 		buffer_set_filename(buf, filepath);
 		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}

@@ -68,6 +68,10 @@ int buffer_move_down(struct Buffer *buf);
 int buffer_get_size_of_linums(struct Buffer *buf);
 int buffer_save(struct Buffer *buf);
 int buffer_save_as(struct Buffer *buf, char *file);
-int buffer_open(struct Buffer *buf, char *file, int x, int y);
+int buffer_open_at(struct Buffer *buf, char *file, int x, int y);
+inline int buffer_open(struct Buffer *buf, char *file)
+{
+	return buffer_open_at(buf, file, 0, 0);
+}
 
 #endif
