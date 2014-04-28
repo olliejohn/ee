@@ -25,41 +25,40 @@
 #ifndef _VTERM_H_
 #define _VTERM_H_
 
+#include <curses.h>
 #include <sys/types.h>
 
-#include <curses.h>
+#define	LIBVTERM_VERSION "0.99.7"
 
-#define	LIBVTERM_VERSION		"0.99.7"
+#define VTERM_FLAG_VT100 (1<<1)
+#define VTERM_FLAG_RXVT 0
 
-#define  VTERM_FLAG_VT100     (1<<1)
+typedef struct _vterm_s vterm_t;
 
-typedef struct _vterm_s		   vterm_t;
+vterm_t *vterm_create(int width, int height, int flags);
+void vterm_destroy(vterm_t *vterm);
+pid_t vterm_get_pid(vterm_t *vterm);
+int vterm_get_pty_fd(vterm_t *vterm);
+const char *vterm_get_ttyname(vterm_t *vterm);
 
-vterm_t*       vterm_create(int width, int height, int flags);
-void           vterm_destroy(vterm_t *vterm);
-pid_t          vterm_get_pid(vterm_t *vterm);
-int            vterm_get_pty_fd(vterm_t *vterm);
-const char*    vterm_get_ttyname(vterm_t *vterm);
+ssize_t vterm_read_pipe(vterm_t *vterm);
+void vterm_write_pipe(vterm_t *vterm, unsigned int keycode);
 
-ssize_t        vterm_read_pipe(vterm_t *vterm);
-void           vterm_write_pipe(vterm_t *vterm,unsigned int keycode);
+void vterm_wnd_set(vterm_t *vterm, WINDOW *window);
+WINDOW *vterm_wnd_get(vterm_t *vterm);
+void vterm_wnd_update(vterm_t *vterm);
 
-void           vterm_wnd_set(vterm_t *vterm,WINDOW *window);
-WINDOW*        vterm_wnd_get(vterm_t *vterm);
-void           vterm_wnd_update(vterm_t *vterm);
+int vterm_set_colors(vterm_t *vterm, short fg, short bg);
+short vterm_get_colors(vterm_t *vterm);
 
-int            vterm_set_colors(vterm_t *vterm,short fg,short bg);
-short          vterm_get_colors(vterm_t *vterm);
+void vterm_erase(vterm_t *vterm);
+void vterm_erase_row(vterm_t *vterm, int row);
+void vterm_erase_rows(vterm_t *vterm, int start_row);
+void vterm_erase_col(vterm_t *vterm, int col);
+void vterm_erase_cols(vterm_t *vterm, int start_cols);
+void vterm_scroll_up(vterm_t *vterm);
+void vterm_scroll_down(vterm_t *vterm);
 
-void           vterm_erase(vterm_t *vterm);
-void           vterm_erase_row(vterm_t *vterm,int row);
-void           vterm_erase_rows(vterm_t *vterm,int start_row);
-void           vterm_erase_col(vterm_t *vterm,int col);
-void           vterm_erase_cols(vterm_t *vterm,int start_cols);
-void           vterm_scroll_up(vterm_t *vterm);
-void           vterm_scroll_down(vterm_t *vterm);
-
-void           vterm_resize(vterm_t *vterm,unsigned int width,
-                            unsigned int height);
+void vterm_resize(vterm_t *vterm, unsigned int width, unsigned int height);
 
 #endif

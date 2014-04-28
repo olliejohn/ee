@@ -46,17 +46,7 @@ void vte_refresh(struct VTE *vte)
 {
 	t_wrefresh(vte->win);
 }
-/*
-void vte_refresh(struct VTE *vte)
-{
-	if (vterm_read_pipe(vte->vterm) > 0) {
-		vterm_wnd_update(vte->vterm);
-		wrefresh(vte->win);
-	}
 
-	t_wrefresh(vte->win);
-}
-*/
 struct VTE *vte_new(int x, int y, int w, int h)
 {
 	struct VTE *vte = malloc(sizeof(struct VTE));
@@ -84,31 +74,8 @@ void vte_free(struct VTE *vte)
 
 void vte_process_char(struct VTE *vte, t_char ch)
 {
-/*	ssize_t bytes;
-
-	while (ch != '3') {
-		bytes = vterm_read_pipe(vte->vterm);
-
-		if (bytes > 0) {
-			vterm_wnd_update(vte->vterm);
-			touchwin(vte->win);
-			wrefresh(vte->win);
-			refresh();
-		}
-
-		if (bytes == -1)
-			break;
-
-		t_getch(&ch);
-
-		if (ch != ERR)
-			vterm_write_pipe(vte->vterm, ch);
-	}
-	*/
-
 	vterm_write_pipe(vte->vterm, ch);
 	vterm_read_pipe(vte->vterm);
 	vterm_wnd_update(vte->vterm);
 	vte_refresh(vte);
-
 }

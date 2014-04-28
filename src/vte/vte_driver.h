@@ -23,7 +23,7 @@
 #ifndef VTE_DRIVER_H
 #define VTE_DRIVER_H
 
-#include <tui.h>
+#include "../tui/tui.h"
 
 struct VTE;
 

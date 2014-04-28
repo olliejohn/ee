@@ -22,157 +22,143 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <stdlib.h>
 #include <pty.h>
+#include <pwd.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pwd.h>
-#include <utmp.h>
-#include <termios.h>
-#include <signal.h>
-
 #include <sys/types.h>
+#include <termios.h>
+#include <utmp.h>
 
 #include "vterm.h"
 #include "vterm_private.h"
 #include "vterm_write.h"
 
-vterm_t* vterm_create(int width, int height, int flags)
+vterm_t *vterm_create(int width, int height, int flags)
 {
-   vterm_t        *vterm;
-   struct passwd  *user_profile;
-   char           *user_shell=NULL;
-   pid_t          child_pid;
-   int            master_fd;
-   struct winsize ws={.ws_xpixel=0,.ws_ypixel=0};
-   int            i;
+	vterm_t        *vterm;
+	struct passwd  *user_profile;
+	char           *user_shell = NULL;
+	pid_t          child_pid;
+	int            master_fd;
+	struct winsize ws = { .ws_xpixel = 0, .ws_ypixel = 0 };
+	int            i;
 
-   if(height <= 0 || width <= 0) return NULL;
+	if (height <= 0 || width <= 0)
+		return NULL;
 
-   vterm = calloc(1, sizeof(vterm_t));
+	vterm = calloc(1, sizeof(vterm_t));
 
-   /* record dimensions */
-   vterm->rows=height;
-   vterm->cols=width;
+	/* Record dimensions */
+	vterm->rows=height;
+	vterm->cols=width;
 
-   /* create the cell matrix */
-   vterm->cells = calloc(height, sizeof(vterm_cell_t *));
+	/* Create the cell matrix */
+	vterm->cells = calloc(height, sizeof(vterm_cell_t *));
 
-   for(i=0;i < height;i++) {
-      vterm->cells[i]=calloc(width, sizeof(vterm_cell_t));
-   }
+	for(i = 0; i < height; i++)
+		vterm->cells[i] = calloc(width, sizeof(vterm_cell_t));
 
-   // initialize all cells with defaults
-   vterm_erase(vterm);
+	/* Initialize all cells with defaults */
+	vterm_erase(vterm);
 
-   // initialization of other public fields
-   vterm->crow=0;
-   vterm->ccol=0;
+	/* Initialization of other public fields */
+	vterm->crow = 0;
+	vterm->ccol = 0;
 
-   // default active colors
-   vterm->colors = 0;
-   vterm->curattr=COLOR_PAIR(vterm->colors);
+	/* Default active colors */
+	vterm->colors = 0;
+	vterm->curattr = COLOR_PAIR(vterm->colors);
 
-   // initial scrolling area is the whole window
-   vterm->scroll_min=0;
-   vterm->scroll_max=height-1;
+	/* Initial scrolling area is the whole window */
+	vterm->scroll_min = 0;
+	vterm->scroll_max = height - 1;
 
-   vterm->flags=flags;
+	vterm->flags = flags;
 
-   memset(&ws,0,sizeof(ws));
-   ws.ws_row=height;
-   ws.ws_col=width;
+	memset(&ws, 0, sizeof(ws));
+	ws.ws_row = height;
+	ws.ws_col = width;
 
-   child_pid=forkpty(&master_fd,NULL,NULL,&ws);
-   vterm->pty_fd=master_fd;
+	child_pid = forkpty(&master_fd, NULL, NULL, &ws);
+	vterm->pty_fd = master_fd;
 
-   if(child_pid < 0)
-   {
-      vterm_destroy(vterm);
-      return NULL;
-   }
+	if (child_pid < 0) {
+		vterm_destroy(vterm);
+		return NULL;
+	}
 
-   if(child_pid==0)
-   {
-      signal(SIGINT,SIG_DFL);
+	if (child_pid == 0) {
+		signal(SIGINT, SIG_DFL);
 
-      // default is rxvt emulation
-      setenv("TERM","rxvt",1);
+		if (flags & VTERM_FLAG_VT100)
+			setenv("TERM", "vt100", 1);
+		else
+			setenv("TERM", "rxvt", 1);
 
-      if(flags & VTERM_FLAG_VT100)
-      {
-         setenv("TERM","vt100",1);
-      }
+		user_profile=getpwuid(getuid());
 
-      user_profile=getpwuid(getuid());
-      if(user_profile==NULL) user_shell="/bin/sh";
-      else if(user_profile->pw_shell==NULL) user_shell="/bin/sh";
-      else user_shell=user_profile->pw_shell;
+		if (user_profile == NULL)
+			user_shell = "/bin/sh";
+		else if (user_profile->pw_shell == NULL)
+			user_shell = "/bin/sh";
+		else
+			user_shell = user_profile->pw_shell;
 
-      if(user_shell==NULL) user_shell="/bin/sh";
+		if (user_shell == NULL)
+			user_shell = "/bin/sh";
 
-      // start the shell
-      if(execl(user_shell,user_shell,"-l",NULL)==-1)
-      {
-         exit(EXIT_FAILURE);
-      }
+		/* Start the shell */
+		if (execl(user_shell, user_shell, "-l", NULL) == -1)
+			exit(EXIT_FAILURE);
 
-      exit(EXIT_SUCCESS);
-   }
+		exit(EXIT_SUCCESS);
+	}
 
-   vterm->child_pid=child_pid;
+	vterm->child_pid = child_pid;
 
-   if(ttyname_r(master_fd,vterm->ttyname,sizeof(vterm->ttyname)-1) !=0)
-   {
-      snprintf(vterm->ttyname,sizeof(vterm->ttyname)-1,"vterm");
-   }
+	if (ttyname_r(master_fd, vterm->ttyname, sizeof(vterm->ttyname)-1) != 0)
+		snprintf(vterm->ttyname, sizeof(vterm->ttyname) - 1, "vterm");
 
-   if(flags & VTERM_FLAG_VT100) vterm->write=vterm_write_vt100;
-   else vterm->write=vterm_write_rxvt;
+	vterm->write = (flags & VTERM_FLAG_VT100)
+			? vterm_write_vt100
+			: vterm_write_rxvt;
 
-   vterm->fg = -1;
-   vterm->bg = -1;
-   vterm->state = 0;
-   vterm->saved_x = 0;
-   vterm->saved_y = 0;
-
-   vterm->window = NULL;
-
-   return vterm;
+	return vterm;
 }
 
 void vterm_destroy(vterm_t *vterm)
 {
-   int   i;
+	int i;
 
-   if(vterm==NULL) return;
+	if (vterm == NULL)
+		return;
 
-   for(i=0;i < vterm->rows;i++) free(vterm->cells[i]);
-   free(vterm->cells);
-
-   free(vterm);
-
-   return;
+	for (i = 0; i < vterm->rows; i++)
+		free(vterm->cells[i]);
+	free(vterm->cells);
+	free(vterm);
 }
 
 pid_t vterm_get_pid(vterm_t *vterm)
 {
-   if(vterm==NULL) return -1;
-
-   return vterm->child_pid;
+	if (vterm == NULL)
+		return -1;
+	return vterm->child_pid;
 }
 
 int vterm_get_pty_fd(vterm_t *vterm)
 {
-   if(vterm==NULL) return -1;
-
-   return vterm->pty_fd;
+	if (vterm == NULL)
+		return -1;
+	return vterm->pty_fd;
 }
 
-const char* vterm_get_ttyname(vterm_t *vterm)
+const char *vterm_get_ttyname(vterm_t *vterm)
 {
-   if(vterm == NULL) return NULL;
-
-   return (const char*)vterm->ttyname;
+	if (vterm == NULL)
+		return NULL;
+	return (const char *) vterm->ttyname;
 }
