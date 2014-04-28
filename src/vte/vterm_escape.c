@@ -33,7 +33,16 @@
 #include "vterm_private.h"
 #include "vterm_csi.h"
 #include "vterm_render.h"
-#include "vterm_misc.h"
+
+bool validate_escape_suffix(char c)
+{
+   if(c >= 'a' && c <= 'z') return TRUE;
+   if(c >= 'A' && c <= 'Z') return TRUE;
+   if(c == '@') return TRUE;
+   if(c == '`') return TRUE;
+
+   return FALSE;
+}
 
 void vterm_escape_start(vterm_t *vterm)
 {

@@ -27,7 +27,6 @@
 
 #include "vterm_private.h"
 
-bool  validate_escape_suffix(char c);
 void  clamp_cursor_to_bounds(vterm_t *vterm);
 
 #endif
