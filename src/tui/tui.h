@@ -158,51 +158,51 @@ void t_half_delay_end(TUI_BOOL cooked);
  * character or TUI_ERR otherwise.
  */
 int t_getch(t_char *ch);
-int t_wgetch(WINDOW *win, t_char *ch);
+int t_wgetch(t_window *win, t_char *ch);
 int t_mv_getch(int x, int y, t_char *ch);
-int t_mv_wgetch(WINDOW *win, int x, int y, t_char *ch);
+int t_mv_wgetch(t_window *win, int x, int y, t_char *ch);
 
 /*
  * Window constructor and destructor. As well as making the window, the
  * constructor also sets keypad to true by default. This can be disabled on a
  * per window basis with calls to t_unset_flags(TUI_KEYPAD)
  */
-WINDOW *t_winit(int x, int y, int width, int height);
-int t_wdestroy(WINDOW *win);
+t_window *t_winit(int x, int y, int width, int height);
+int t_wdestroy(t_window *win);
 
 /* Window functions */
-int t_vwprint_ascii(WINDOW *win, char *fmt, va_list args);
-int t_wprint_ascii(WINDOW *win, char *fmt, ...);
-int t_mv_wprint_ascii(WINDOW *win, int x, int y, char *fmt, ...);
+int t_vwprint_ascii(t_window *win, char *fmt, va_list args);
+int t_wprint_ascii(t_window *win, char *fmt, ...);
+int t_mv_wprint_ascii(t_window *win, int x, int y, char *fmt, ...);
 
-int t_wprint(WINDOW *win, t_char *fmt, ...);
-int t_wprintn(WINDOW *win, int n, t_char *fmt, ...);
-int t_mv_wprint(WINDOW *win, int x, int y, t_char *fmt, ...);
-int t_mv_wprintn(WINDOW *win, int x, int y, int n, t_char *fmt, ...);
-int t_vwprint(WINDOW *win, t_char *fmt, va_list args);
-int t_vwprintn(WINDOW *win, int n, t_char *fmt, va_list args);
-int t_mv_vwprint(WINDOW *win, int x, int y, t_char *fmt, va_list args);
-int t_mv_vwprintn(WINDOW *win, int x, int y, int n, t_char *fmt, va_list args);
+int t_wprint(t_window *win, t_char *fmt, ...);
+int t_wprintn(t_window *win, int n, t_char *fmt, ...);
+int t_mv_wprint(t_window *win, int x, int y, t_char *fmt, ...);
+int t_mv_wprintn(t_window *win, int x, int y, int n, t_char *fmt, ...);
+int t_vwprint(t_window *win, t_char *fmt, va_list args);
+int t_vwprintn(t_window *win, int n, t_char *fmt, va_list args);
+int t_mv_vwprint(t_window *win, int x, int y, t_char *fmt, va_list args);
+int t_mv_vwprintn(t_window *win, int x, int y, int n, t_char *fmt, va_list args);
 
-int t_wbkgd(WINDOW *win, int data);
+int t_wbkgd(t_window *win, int data);
 /*
-int t_wbkgrnd(WINDOW *win, cchar_t *data);
-void t_wbkgrndset(WINDOW *win, cchar_t *data);
-int t_wgetbkgrnd(WINDOW *win, cchar_t *data);
+int t_wbkgrnd(t_window *win, cchar_t *data);
+void t_wbkgrndset(t_window *win, cchar_t *data);
+int t_wgetbkgrnd(t_window *win, cchar_t *data);
 */
 
 inline int t_wnodelay(t_window *win, TUI_BOOL value) {
 	return (value) ? nodelay(win, TRUE) : nodelay(win, FALSE);
 }
 
-inline int t_wmove(WINDOW *win, int x, int y) { return wmove(win, y, x); }
-inline int t_wrefresh(WINDOW *win) { return wrefresh(win); }
+inline int t_wmove(t_window *win, int x, int y) { return wmove(win, y, x); }
+inline int t_wrefresh(t_window *win) { return wrefresh(win); }
 
-inline int t_wclear(WINDOW *win) { return wclear(win); }
-inline int t_wclrtobot(WINDOW *win) { return wclrtobot(win); }
-inline int t_wclrtoeol(WINDOW *win) { return wclrtoeol(win); }
+inline int t_wclear(t_window *win) { return wclear(win); }
+inline int t_wclrtobot(t_window *win) { return wclrtobot(win); }
+inline int t_wclrtoeol(t_window *win) { return wclrtoeol(win); }
 
-int t_wborder(WINDOW *win, t_char ts, t_char rs, t_char bs, t_char ls,
+int t_wborder(t_window *win, t_char ts, t_char rs, t_char bs, t_char ls,
 	      t_char tl, t_char tr, t_char br, t_char bl);
 
 inline int t_touchwin(t_window *win) { return touchwin(win); }
@@ -231,7 +231,7 @@ enum T_SCRL_DIR {
 };
 
 int t_enable_scroll(TUI_BOOL value);
-int t_wenable_scroll(WINDOW *win, TUI_BOOL value);
+int t_wenable_scroll(t_window *win, TUI_BOOL value);
 int t_setscrreg(int top, int bottom);
 int t_wsetscrreg(t_window *win, int top, int bottom);
 int t_scrl(enum T_SCRL_DIR dir);
