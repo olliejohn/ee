@@ -404,7 +404,7 @@ inline int t_getpary() 			{ return getpary(stdscr); }
 #define TK_CTRL_X 	0x18
 #define TK_CTRL_Y 	0x19
 #define TK_CTRL_Z 	0x1A
-#define TK_ESC		0x1B // NOTE: This a ey is pressed with alt it send out
+#define TK_ESC		0x1B // NOTE: If a key is pressed with alt it sends out
 			     // two chars - first esc and then the key pressed
 			     // with it
 #define TK_CTRL_LSQBKT 	0x1B // Left square bracket - clash with 'ESC'
