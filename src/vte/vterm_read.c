@@ -1,6 +1,7 @@
 /*
- * Modifed to remove glib2.0 dependency by Ollie Etherington (C) Copyright 2014
+ * Part of the Yaw text editor virtual terminal emulator
  *
+ * Based on the no-glib fork of libvte by Ollie Etherington (C) Copyright 2014
  * libvterm Copyright (C) 2009 Bryan Christ
  * libvterm is based on ROTE written by Bruno Takahashi C. de Oliveira
  *
