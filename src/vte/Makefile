@@ -1,6 +1,6 @@
 # Yaw VTE makefile
 
-CFLAGS=-c -Wall -O2 -std=gnu99 -I../tui
+CFLAGS=-c -Wall -O2 -std=gnu99
 DEFS=-D_REENTRANT
 
 all:
