@@ -182,7 +182,7 @@ int t_mv_wprintn(t_window *win, int x, int y, int n, t_char *fmt, ...);
 int t_vwprint(t_window *win, t_char *fmt, va_list args);
 int t_vwprintn(t_window *win, int n, t_char *fmt, va_list args);
 int t_mv_vwprint(t_window *win, int x, int y, t_char *fmt, va_list args);
-int t_mv_vwprintn(t_window *win, int x, int y, int n, t_char *fmt, va_list args);
+int t_mv_vwprintn(t_window *win, int x, int y, int n, t_char *fmt,va_list args);
 
 int t_wbkgd(t_window *win, int data);
 /*
