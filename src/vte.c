@@ -23,10 +23,10 @@
 #include "vte.h"
 
 #include "color.h"
+#include "vte/vterm.h"
 
 #include <stdlib.h>
 #include <tui.h>
-#include <vterm.h>
 
 struct VTE {
 	t_window *divider;
