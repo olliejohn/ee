@@ -10,9 +10,9 @@ Public License for more details. Do NOT use Yaw for editing documents that you
 don't have copies of elsewhere - it is not yet stable.
 
 Yaw currently features:
--Opening multiple buffers at once in tabs
--A built in terminal emulator
--Extensibility and configuation with the built in Lisp interpretter
+- Opening multiple buffers at once in tabs
+- A built in terminal emulator
+- Extensibility and configuation with the built in Lisp interpretter
 
 My main focus for the moment is taking what we have so far (about 5500 lines of
 C as of 29th April 2014) and making it as stable and, ultimately, useable as
