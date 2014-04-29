@@ -35,27 +35,27 @@
 
 #define CSR_X line_get_cur_pos(buf->data[buf->pos])
 
-inline void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag)
+void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	scrn->FLAGS |= 1 << flag;
 }
 
-inline void screen_unset_flag(struct Screen *scrn, enum Screen_Flag flag)
+void screen_unset_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	scrn->FLAGS &= ~(1 << flag);
 }
 
-inline void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag)
+void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	scrn->FLAGS ^= 1 << flag;
 }
 
-inline int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag)
+int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	return scrn->FLAGS & (1 << flag);
 }
 
-inline void screen_clear_flags(struct Screen *scrn)
+void screen_clear_flags(struct Screen *scrn)
 {
 	scrn->FLAGS ^= scrn->FLAGS;
 }
