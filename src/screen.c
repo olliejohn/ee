@@ -277,12 +277,14 @@ int screen_run(struct Screen *scrn, char *filepath)
 	int FOCUS = FOCUS_BUF;
 
 	t_char ch;
+	cb_ptr callback;
 run_loop:
-//	while (t_getch(&ch) != TUI_ERR) {
 	while (1) {
 		t_getch(&ch);
 
-		cb_ptr callback;
+		if (ch == TUI_ERR)
+			continue;
+
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
 			if (FOCUS == FOCUS_BUF) {
 				buffer_process_char(scrn, ch);
@@ -332,8 +334,8 @@ run_loop:
 		}
 	}
 
-	/* This should never be reached - it means the input was TUI_ERR */
-	screen_set_status(scrn, L"ERROR: Unrecognized input");
+	/* This should never be reached */
+	screen_set_status(scrn, L"ERROR: Invalid input");
 	goto run_loop;
 }
 #undef buf
