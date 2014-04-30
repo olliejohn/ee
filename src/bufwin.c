@@ -20,6 +20,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+/*
+ * The BufWin is the main structure for using a text document in a buffer.
+ * The Buffer struct is not aware of any screen output so it's the job of BufWin
+ * to interface it with ncurses (through TUI) whilst handling scrolling,
+ * displaying '\t' correctly, optionally printing line numbers and all other
+ * idiosyncrasies of display it to the screen. It also contains the array of
+ * open buffers, the window for the current buffer and the VTE.
+ */
+
 #include "bufwin.h"
 
 #include "color.h"
@@ -28,9 +37,14 @@
 #include <stdlib.h>
 #include <wctype.h>
 
+/* These two will eventually be replaced with options in the Settings struct */
 int DRAW_LINE_NUMS = 1;
 int SHOW_VTE = 1;
 
+/*
+ * Create a new bufwin object at (x, y) with w columns and h rows. Note that
+ * this includes the space for the VTE as well.
+ */
 struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
@@ -55,6 +69,10 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	return bw;
 }
 
+/*
+ * Destroy the bufwin including all buffers (which should be saved beforehand
+ * in the calling code) and the VTE.
+ */
 void bufwin_free(struct BufWin *bw)
 {
 	int i;
@@ -68,6 +86,7 @@ void bufwin_free(struct BufWin *bw)
 	free(bw);
 }
 
+/* Helper function for counting the number of digits in an int */
 int count_int_digits(int n)
 {
 	if (n < 0)
@@ -79,11 +98,17 @@ int count_int_digits(int n)
 	return 1 + count_int_digits(n / 10);
 }
 
+/* Returns the number of digits needed for line numbers in the current buffer */
 int bufwin_get_linum_digits(struct BufWin *bw)
 {
 	return count_int_digits(bw->curbuf->size + 1);
 }
 
+/*
+ * Draw a line from the current buffer to the screen. Note that the line number
+ * is the position on the screen, NOT the line number in the buffer. This
+ * function also draws the line number to the screen if that option is turned on
+ */
 void bufwin_render_line(struct BufWin *bw, int line)
 {
 	int x = 0;
@@ -101,6 +126,7 @@ void bufwin_render_line(struct BufWin *bw, int line)
 		    bw->curbuf->data[line + bw->ywinoffs]->data);
 }
 
+/* Redraw the entire buffer screen */
 void bufwin_redraw(struct BufWin *bw)
 {
 	t_wclear(bw->win);
@@ -116,16 +142,25 @@ void bufwin_redraw(struct BufWin *bw)
 	t_wrefresh(bw->win);
 }
 
+/*
+ * Move left in the buffer. This function does not yet, but will in future be
+ * responsible for placing the cursor correctly when the line contains tabs
+ */
 void bufwin_move_left(struct BufWin *bw)
 {
 	buffer_move_backward(bw->curbuf);
 }
 
+/*
+ * Move right in the buffer. This function does not yet, but will in future be
+ * responsible for placing the cursor correctly when the line contains tabs
+ */
 void bufwin_move_right(struct BufWin *bw)
 {
 	buffer_move_forward(bw->curbuf);
 }
 
+/* Move up in the buffer - this is the function that handles scrolling up */
 void bufwin_move_up(struct BufWin *bw)
 {
 	if (buffer_move_up(bw->curbuf) == -1)
@@ -137,6 +172,7 @@ void bufwin_move_up(struct BufWin *bw)
 	}
 }
 
+/* Move up in the buffer - this is the function that handles scrolling down */
 void bufwin_move_down(struct BufWin *bw)
 {
 	if (buffer_move_down(bw->curbuf) == -1)
@@ -149,6 +185,10 @@ void bufwin_move_down(struct BufWin *bw)
 	}
 }
 
+/*
+ * Check if the number of digits needed for the line numbers has changed - if it
+ * has, it automatically redraws the screen.
+ */
 void bufwin_check_line_number_digit_change(struct BufWin *bw)
 {
 	if (DRAW_LINE_NUMS) {
@@ -161,6 +201,10 @@ void bufwin_check_line_number_digit_change(struct BufWin *bw)
 	}
 }
 
+/*
+ * Process a character for the buffer - note that input for the VTE is NOT
+ * handled here but rather in vte/vte_driver.c
+ */
 #define buf bw->curbuf
 void bufwin_process_char(struct BufWin *bw, t_char ch)
 {
@@ -245,16 +289,22 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 }
 #undef buf
 
+/* Refresh the buffer window - doesn't refresh the VTE. */
 void bufwin_refresh(struct BufWin *bufwin)
 {
 	t_wrefresh(bufwin->win);
 }
 
+/*
+ * Set the colors for the buffer - line number are handled directly in color.c
+ * and VTE colors and handled in vte/vte_driver.c
+ */
 void bufwin_set_color_scheme(struct BufWin *bw, int colpair)
 {
 	t_wbkgd(bw->win, colpair);
 }
 
+/* Add a new buffer - note that this does NOT switch to the new buffer */
 int bufwin_add_buffer(struct BufWin *bw)
 {
 	if (bw->num_bufs >= MAX_BUFS)
@@ -270,12 +320,18 @@ int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 	return 0;
 }
 
+/* Set the active buffer and redraw the screen */
 void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
 	bw->curbuf = bw->buffers[index];
 	bw->linumdigits = bufwin_get_linum_digits(bw);
+	bufwin_redraw(bw);
 }
 
+/*
+ * Toggle whether or not line numbers should be drawn and the redraw with the
+ * new setting
+ */
 void bufwin_toggle_draw_linums(struct BufWin *bw)
 {
 	DRAW_LINE_NUMS ^= 1;

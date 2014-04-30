@@ -106,10 +106,9 @@ void screen_change_to_buffer(struct Screen *scrn, int new)
 	if (new >= scrn->bw->num_bufs)
 		return;
 
-	scrn->bw->curbuf = scrn->bw->buffers[new];
+	bufwin_set_active_buffer(scrn->bw, new);
 	screen_draw_tabs(scrn);
 
-	bufwin_redraw(scrn->bw);
 	screen_print_ch_info(scrn);
 	screen_set_status(scrn, L"Changed to buffer %d", new);
 }

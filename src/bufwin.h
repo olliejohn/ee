@@ -23,6 +23,15 @@
 #ifndef BUFWIN_H
 #define BUFWIN_H
 
+/*
+ * The BufWin is the main structure for using a text document in a buffer.
+ * The Buffer struct is not aware of any screen output so it's the job of BufWin
+ * to interface it with ncurses (through TUI) whilst handling scrolling,
+ * displaying '\t' correctly, optionally printing line numbers and all other
+ * idiosyncrasies of display it to the screen. It also contains the array of
+ * open buffers, the window for the current buffer and the VTE.
+ */
+
 #include "buffer.h"
 #include "tui/tui.h"
 #include "vte/vte_driver.h"
