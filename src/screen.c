@@ -60,8 +60,6 @@ void screen_clear_flags(struct Screen *scrn)
 	scrn->FLAGS ^= scrn->FLAGS;
 }
 
-/* TODO: readjusting line numbers when the number of digits in the number changes */
-
 /* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
 int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
 			int xoffs, int active)
