@@ -276,7 +276,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	vte_refresh(scrn->vte);
 	t_nodelay(FALSE);
 
-	t_wmove(win, buf->data[buf->pos]->pos + scrn->bw->linumoffs, buf->pos);
+	bufwin_place_cursor(scrn->bw);
 	t_wrefresh(win);
 
 	int FOCUS = FOCUS_BUF;
@@ -314,9 +314,7 @@ run_loop:
 		if (screen_get_flag(scrn, SF_BUF)) {
 			FOCUS = FOCUS_BUF;
 			t_nodelay(FALSE);
-			t_wmove(win,
-				buf->data[buf->pos]->pos + scrn->bw->linumoffs,
-				buf->pos);
+			bufwin_place_cursor(scrn->bw);
 			t_wrefresh(win);
 			screen_unset_flag(scrn, SF_BUF);
 		}
@@ -349,6 +347,7 @@ void screen_set_colors(struct Screen *scrn)
 	t_wbkgd(scrn->bbar, CS_BOT_BAR);
 	t_wbkgd(scrn->cbar, CS_CMD_BAR);
 	bufwin_set_color_scheme(scrn->bw, CS_BUFFER);
+	bufwin_set_linum_color_scheme(scrn->bw, CS_LINE_NUM);
 
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);

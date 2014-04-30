@@ -45,8 +45,9 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
-	bw->linumwin = t_winit(x, y, w, h);
-	bw->win = t_winit(x, y, w, h);
+	//bw->linumwin = t_winit(x, y, 0, h);
+	bw->linumwin = t_winit(x, y, 5, h);
+	bw->win = t_winit(x + 5, y, w - 5, h);
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
@@ -59,7 +60,6 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
 	bw->ywinoffs = 0;
-	bw->linumoffs = 0;
 	bw->linumdigits = 0;
 
 	return bw;
@@ -104,6 +104,30 @@ int bufwin_get_linum_digits(struct BufWin *bw)
 	return count_int_digits(bw->curbuf->size + 1);
 }
 
+void bufwin_render_linums(struct BufWin *bw)
+{
+//	int w, h, size = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
+//	t_wgetmaxxy(bw->linumwin, w, h);
+/*
+	if (size != w) {
+		t_wresize(bw->linumwin, size, h);
+
+		int diff = size - w;
+		w = t_wgetmaxx(bw->win);
+		t_wresize(bw->win, w - diff, h);	*/
+		/* From here on w and h and used as x and y repectively */
+/*		t_getbegxy(bw->win, w, h);
+		t_mvwin(bw->win, w + diff, h);
+	}	*/
+
+	int i;
+	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
+		t_mv_wprint(bw->linumwin, 0, i, L" %*d ",
+			    bw->linumdigits, i + bw->ywinoffs + 1);
+
+	t_wrefresh(bw->linumwin);
+}
+
 /*
  * Draw a line from the current buffer to the screen. Note that the line number
  * is the position on the screen, NOT the line number in the buffer. This
@@ -111,24 +135,21 @@ int bufwin_get_linum_digits(struct BufWin *bw)
  */
 void bufwin_render_line(struct BufWin *bw, int line)
 {
-	int x = 0;
-
 	if (DRAW_LINE_NUMS) {
-		t_wattron(bw->win, CS_LINE_NUM);
-		t_mv_wprint(bw->win, 0, line, L" %*d %n", bw->linumdigits,
-			    line + bw->ywinoffs + 1, &x);
-		t_wattroff(bw->win, CS_LINE_NUM);
+		t_mv_wprint(bw->linumwin, 0, line, L" %*d ",
+			    bw->linumdigits, line + bw->ywinoffs + 1);
+		t_wrefresh(bw->linumwin);
 	}
 
-	bw->linumoffs = x;
-
-	t_mv_wprint(bw->win, x, line,
+	t_mv_wprint(bw->win, 0, line,
 		    bw->curbuf->data[line + bw->ywinoffs]->data);
 }
 
 /* Redraw the entire buffer screen */
 void bufwin_redraw(struct BufWin *bw)
 {
+	//bufwin_render_linums(bw);
+
 	t_wclear(bw->win);
 
 	int i;
@@ -221,6 +242,9 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 
 			t_wmove(bw->win, 0, buf->size + 1);
 			t_wclrtoeol(bw->win);
+			t_wmove(bw->linumwin, 0, buf->size + 1);
+			t_wclrtoeol(bw->linumwin);
+			t_wrefresh(bw->linumwin);
 		}
 
 		bufwin_check_line_number_digit_change(bw);
@@ -244,6 +268,9 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 
 			t_wmove(bw->win, 0, buf->size + 1);
 			t_wclrtoeol(bw->win);
+			t_wmove(bw->linumwin, 0, buf->size + 1);
+			t_wclrtoeol(bw->linumwin);
+			t_wrefresh(bw->linumwin);
 		}
 
 		bufwin_check_line_number_digit_change(bw);
@@ -291,7 +318,7 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 void bufwin_place_cursor(struct BufWin *bw)
 {
 	t_wmove(bw->win,
-		line_get_curs_pos(curline) + bw->linumoffs,
+		line_get_curs_pos(curline),
 		bw->curbuf->pos - bw->ywinoffs);
 
 	t_wrefresh(bw->win);
@@ -308,6 +335,11 @@ void bufwin_refresh(struct BufWin *bw)
 void bufwin_set_color_scheme(struct BufWin *bw, int colpair)
 {
 	t_wbkgd(bw->win, colpair);
+}
+
+void bufwin_set_linum_color_scheme(struct BufWin *bw, int colpair)
+{
+	t_wbkgd(bw->linumwin, colpair);
 }
 
 /* Add a new buffer - note that this does NOT switch to the new buffer */
