@@ -172,6 +172,9 @@ void run_current_cmd(struct Screen *scrn)
 
 void cmd_process_char(struct Screen *scrn, t_char ch)
 {
+	if (ch == TUI_ERR)
+		return;
+
 	struct Line *cur_cmd = scrn->cmds->data[scrn->cmds->pos];
 
 	switch (ch) {
@@ -224,6 +227,9 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 #define buf scrn->bw->curbuf
 void buffer_process_char(struct Screen *scrn, t_char ch)
 {
+	if (ch == TUI_ERR)
+		return;
+
 	bufwin_process_char(scrn->bw, ch);
 
 	screen_print_ch_info(scrn);
@@ -269,7 +275,11 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wrefresh(scrn->tbar);
 	t_wrefresh(scrn->bbar);
 	t_wrefresh(scrn->cbar);
+
+	t_nodelay(TRUE);
+	vte_process_char(scrn->bw->vte, ' ');
 	vte_refresh(scrn->bw->vte);
+	t_nodelay(FALSE);
 
 	t_wmove(win, buf->data[buf->pos]->pos + scrn->bw->linumoffs, buf->pos);
 	t_wrefresh(win);
@@ -281,9 +291,6 @@ int screen_run(struct Screen *scrn, char *filepath)
 run_loop:
 	while (1) {
 		t_getch(&ch);
-
-		if (ch == TUI_ERR)
-			continue;
 
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
 			if (FOCUS == FOCUS_BUF) {
