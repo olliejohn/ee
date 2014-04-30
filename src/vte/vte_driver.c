@@ -55,7 +55,6 @@ struct VTE *vte_new(int x, int y, int w, int h)
 	vte->divider = t_winit(x, y, 1, h);
 	vte_draw_divider(vte);
 	vte->win = t_winit(x + 1, y, w - 1, h);
-	t_wrefresh(vte->win);
 	vte->vterm = vterm_create(w - 1, h, VTERM_FLAG_VT100);
 	vterm_set_colors(vte->vterm, TERM_FG, TERM_BG);
 	vterm_wnd_set(vte->vterm, vte->win);
@@ -84,34 +83,12 @@ int vte_read_update(struct VTE *vte)
 	return (bytes == -1) ? -1 : 0;
 }
 
-int vte_char_is_allowed(t_char ch)
-{
-	if (	iswprint(ch) 	||
-		ch == TK_ENTER	||
-		ch == TK_ESC	||
-		ch == TK_DELETE	||
-		ch == TK_BKSPC	||
-		ch == TK_INSERT	||
-		ch == TK_UP	||
-		ch == TK_DOWN	||
-		ch == TK_LEFT	||
-		ch == TK_RIGHT	||
-		ch == TK_HOME	||
-		ch == TK_END	||
-		ch == TK_PGUP	||
-		ch == TK_PGDN	||
-		ch == '\n' || ch == 't' || ch == 'r' || ch == ' ' ||
-		(ch >= TK_F(1) && ch <= TK_F(12)) ||
-		(ch >= TK_CTRL_A && ch <= TK_CTRL_Z)) return 0;
-	return -1;
-}
-
 void vte_process_char(struct VTE *vte, t_char ch)
 {
 	if (vte_read_update(vte) == -1)
 		return;
 
-	if (vte_char_is_allowed(ch) == 0)
+	if (ch != TUI_ERR && ch != '\0')
 		vterm_write_pipe(vte->vterm, ch);
 }
 
