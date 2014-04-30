@@ -30,6 +30,8 @@
 
 #include "buffer.h"
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +40,8 @@
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
 #define DEFAULT_BUFFER_FILENAME "Untitled"
-#define TAB_SIZE 8
+
+#define TAB_OFFS CFG->tabsize - 1
 
 struct Line *line_new()
 {
@@ -74,12 +77,6 @@ void line_double_capacity_if_full(struct Line *line)
 	       sizeof(t_char) * (line->capacity - oldcap));
 }
 
-void line_append(struct Line *line, t_char c)
-{
-	line_double_capacity_if_full(line);
-	line->data[line->size++] = c;
-}
-
 int line_move_forward(struct Line *line)
 {
 	if (++line->pos > line->size) {
@@ -87,8 +84,8 @@ int line_move_forward(struct Line *line)
 		return -1;
 	}
 
-	if (line->data[line->pos] == '\t')
-		line->coffs += TAB_SIZE;
+	if (line->data[line->pos - 1] == '\t')
+		line->coffs += TAB_OFFS;
 
 	return 0;
 }
@@ -101,7 +98,7 @@ int line_move_backward(struct Line *line)
 	line->pos--;
 
 	if (line->data[line->pos] == '\t')
-		line->coffs -= TAB_SIZE;
+		line->coffs -= TAB_OFFS;
 
 	return 0;
 }
@@ -131,6 +128,9 @@ void line_add(struct Line *line, t_char c)
 
 		line->data[line->pos++] = c;
 	}
+
+	if (c == '\t')
+		line->coffs += TAB_OFFS;
 }
 
 int line_backspace(struct Line *line)
@@ -147,6 +147,10 @@ int line_backspace(struct Line *line)
 	line->data[line->size - 1] = 0;
 	line->size--;
 	line->pos--;
+
+	if (line->data[line->pos] == '\t')
+		line->coffs -= TAB_OFFS;
+
 	return 0;
 }
 
@@ -159,8 +163,6 @@ struct Buffer *buffer_new()
 	buf->capacity = BUFFER_INITAL_CAPACITY;
 	buf->data = malloc(sizeof(struct Line *) * BUFFER_INITAL_CAPACITY);
 	buf->data[0] = line_new();
-	/* We init filename instead of setting it to NULL so we know it's
-	 * always safe to free it, whether or not it's been used */
 	buf->filename = NULL;
 	buffer_set_filename(buf, DEFAULT_BUFFER_FILENAME);
 	return buf;

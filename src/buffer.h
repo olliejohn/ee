@@ -46,7 +46,6 @@ struct Buffer {
 struct Line *line_new();
 void line_free(struct Line *line);
 int line_get_curs_pos(struct Line *line);
-void line_append(struct Line *line, t_char c);
 int line_move_forward(struct Line *line);
 int line_move_backward(struct Line *line);
 void line_set(struct Line *line, int index, t_char c);

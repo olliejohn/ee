@@ -234,11 +234,7 @@ void buffer_process_char(struct Screen *scrn, t_char ch)
 	screen_print_ch_info(scrn);
 	t_wrefresh(scrn->bbar);
 
-	t_wmove(scrn->bw->win,
-		buf->data[buf->pos]->pos + scrn->bw->linumoffs,
-		buf->pos - scrn->bw->ywinoffs);
-
-	t_wrefresh(scrn->bw->win);
+	bufwin_place_cursor(scrn->bw);
 }
 #undef buf
 

@@ -55,11 +55,12 @@ struct BufWin *bufwin_new(int x, int y, int w, int h);
 void bufwin_free(struct BufWin *bufwin);
 void bufwin_redraw(struct BufWin *bufwin);
 void bufwin_process_char(struct BufWin *bufwin, t_char ch);
+void bufwin_place_cursor(struct BufWin *bufwin);
 void bufwin_refresh(struct BufWin *bufwin);
 void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair);
 int bufwin_add_buffer(struct BufWin *bufwin);
 int bufwin_add_buffer_from_file(struct BufWin *bufwin, char *file);
 void bufwin_set_active_buffer(struct BufWin *bufwin, int index);
-void bufwin_toggle_draw_linums(struct BufWin *bw);
+void bufwin_toggle_draw_linums(struct BufWin *bufwin);
 
 #endif

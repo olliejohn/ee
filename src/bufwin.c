@@ -289,10 +289,22 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 }
 #undef buf
 
-/* Refresh the buffer window - doesn't refresh the VTE. */
-void bufwin_refresh(struct BufWin *bufwin)
+/* Put the cursor in the current position account for scrolling and tabs */
+#define curline bw->curbuf->data[bw->curbuf->pos]
+void bufwin_place_cursor(struct BufWin *bw)
 {
-	t_wrefresh(bufwin->win);
+	t_wmove(bw->win,
+		line_get_curs_pos(curline) + bw->linumoffs,
+		bw->curbuf->pos - bw->ywinoffs);
+
+	t_wrefresh(bw->win);
+}
+#undef curline
+
+/* Refresh the buffer window - doesn't refresh the VTE. */
+void bufwin_refresh(struct BufWin *bw)
+{
+	t_wrefresh(bw->win);
 }
 
 /*
