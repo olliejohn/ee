@@ -162,6 +162,9 @@ int t_wgetch(t_window *win, t_char *ch);
 int t_mv_getch(int x, int y, t_char *ch);
 int t_mv_wgetch(t_window *win, int x, int y, t_char *ch);
 
+/* Set tabsize */
+inline int t_set_tabsize(int size) { return set_tabsize(size); }
+
 /*
  * Window constructor and destructor. As well as making the window, the
  * constructor also sets keypad to true by default. This can be disabled on a
