@@ -24,6 +24,7 @@
 
 #include "color.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <wctype.h>
 
@@ -65,6 +66,22 @@ void bufwin_free(struct BufWin *bw)
 	bw->curbuf = NULL;
 	free(bw->buffers);
 	free(bw);
+}
+
+int count_int_digits(int n)
+{
+	if (n < 0)
+		return count_int_digits((n == INT_MIN) ? INT_MAX : -n);
+
+	if (n < 10)
+		return 1;
+
+	return 1 + count_int_digits(n / 10);
+}
+
+int bufwin_get_linum_digits(struct BufWin *bw)
+{
+	return count_int_digits(bw->curbuf->size + 1);
 }
 
 void bufwin_render_line(struct BufWin *bw, int line)
@@ -135,7 +152,7 @@ void bufwin_move_down(struct BufWin *bw)
 void bufwin_check_line_number_digit_change(struct BufWin *bw)
 {
 	if (DRAW_LINE_NUMS) {
-		int new = buffer_get_size_of_linums(bw->curbuf);
+		int new = bufwin_get_linum_digits(bw);
 
 		if (bw->linumdigits != new) {
 			bw->linumdigits = new;
@@ -256,7 +273,7 @@ int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
 	bw->curbuf = bw->buffers[index];
-	bw->linumdigits = buffer_get_size_of_linums(bw->curbuf);
+	bw->linumdigits = bufwin_get_linum_digits(bw);
 }
 
 void bufwin_toggle_draw_linums(struct BufWin *bw)

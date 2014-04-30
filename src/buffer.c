@@ -30,7 +30,6 @@
 
 #include "buffer.h"
 
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -346,22 +345,6 @@ int buffer_move_down(struct Buffer *buf)
 		line->pos = line->size;
 
 	return 0;
-}
-
-int count_int_digits(int n)
-{
-	if (n < 0)
-		return count_int_digits((n == INT_MIN) ? INT_MAX : -n);
-
-	if (n < 10)
-		return 1;
-
-	return 1 + count_int_digits(n / 10);
-}
-
-int buffer_get_size_of_linums(struct Buffer *buf)
-{
-	return count_int_digits(buf->size + 1);
 }
 
 int buffer_save(struct Buffer *buf)
