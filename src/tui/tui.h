@@ -189,8 +189,8 @@ int t_mv_vwprintn(t_window *win, int x, int y, int n, t_char *fmt,va_list args);
 
 int t_wbkgd(t_window *win, int data);
 
-inline int t_wresize(t_window *win, w, h) { return wresize(win, h, w); }
-inline int t_mvwin(t_window *win, x, y) { return mvwin(win, y, x); }
+inline int t_wresize(t_window *win, int w, int h) { return wresize(win, h, w); }
+inline int t_mvwin(t_window *win, int x, int y) { return mvwin(win, y, x); }
 
 inline int t_wnodelay(t_window *win, TUI_BOOL value) {
 	return (value) ? nodelay(win, TRUE) : nodelay(win, FALSE);
