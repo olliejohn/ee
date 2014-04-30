@@ -41,14 +41,11 @@
 #define BUFFER_INITAL_CAPACITY 32
 #define DEFAULT_BUFFER_FILENAME "Untitled"
 
-#define TAB_OFFS CFG->tabsize - 1
-
 struct Line *line_new()
 {
 	struct Line *line = malloc(sizeof(struct Line));
 	line->size = 0;
 	line->pos = 0;
-	line->coffs = 0;
 	line->capacity = LINE_INITAL_CAPACITY;
 	line->data = calloc(LINE_INITAL_CAPACITY, sizeof(t_char));
 	return line;
@@ -62,7 +59,13 @@ void line_free(struct Line *line)
 
 int line_get_curs_pos(struct Line *line)
 {
-	return line->pos + line->coffs;
+	int i, indent = 0;
+
+	for (i = 0; i < line->pos; i++)
+		if (line->data[i] == '\t')
+			indent += CFG->tabsize - 1;
+
+	return line->pos + indent;
 }
 
 void line_double_capacity_if_full(struct Line *line)
@@ -84,9 +87,6 @@ int line_move_forward(struct Line *line)
 		return -1;
 	}
 
-	if (line->data[line->pos - 1] == '\t')
-		line->coffs += TAB_OFFS;
-
 	return 0;
 }
 
@@ -96,9 +96,6 @@ int line_move_backward(struct Line *line)
 		return -1;
 
 	line->pos--;
-
-	if (line->data[line->pos] == '\t')
-		line->coffs -= TAB_OFFS;
 
 	return 0;
 }
@@ -128,9 +125,6 @@ void line_add(struct Line *line, t_char c)
 
 		line->data[line->pos++] = c;
 	}
-
-	if (c == '\t')
-		line->coffs += TAB_OFFS;
 }
 
 int line_backspace(struct Line *line)
@@ -147,9 +141,6 @@ int line_backspace(struct Line *line)
 	line->data[line->size - 1] = 0;
 	line->size--;
 	line->pos--;
-
-	if (line->data[line->pos] == '\t')
-		line->coffs -= TAB_OFFS;
 
 	return 0;
 }

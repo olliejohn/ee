@@ -28,8 +28,7 @@
 
 struct Line {
 	int size;
-	int pos;	/* Character position */
-	int coffs;	/* Cursor offset added to pos to account for tabs */
+	int pos;
 	int capacity;
 	t_char *data;
 };

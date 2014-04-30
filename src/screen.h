@@ -26,6 +26,7 @@
 #include "buffer.h"
 #include "bufwin.h"
 #include "tui/tui.h"
+#include "vte/vte_driver.h"
 
 /* Flags are stored in an unsigned int allowing up to 32 */
 enum Screen_Flag {
@@ -43,6 +44,7 @@ struct Screen {
 	t_window *bbar;	/* Bottom bar */
 	t_window *cbar;	/* Command bar */
 	struct BufWin *bw;
+	struct VTE *vte;
 	struct Buffer *cmds;
 	unsigned int WIDTH;
 	unsigned int HEIGHT;

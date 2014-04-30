@@ -35,6 +35,9 @@
 
 #define CSR_X line_get_cur_pos(buf->data[buf->pos])
 
+/* This will eventually be replaced with an option in the Settings struct */
+int SHOW_VTE = 1;
+
 void screen_set_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	scrn->FLAGS |= 1 << flag;
@@ -270,8 +273,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	t_wrefresh(scrn->cbar);
 
 	t_nodelay(TRUE);
-	vte_process_char(scrn->bw->vte, ' ');
-	vte_refresh(scrn->bw->vte);
+	vte_refresh(scrn->vte);
 	t_nodelay(FALSE);
 
 	t_wmove(win, buf->data[buf->pos]->pos + scrn->bw->linumoffs, buf->pos);
@@ -291,7 +293,7 @@ run_loop:
 			} else if (FOCUS == FOCUS_CLI) {
 				cmd_process_char(scrn, ch);
 			} else if (FOCUS == FOCUS_TERM) {
-				vte_process_char(scrn->bw->vte, ch);
+				vte_process_char(scrn->vte, ch);
 			} else {
 				FOCUS = FOCUS_BUF;
 				buffer_process_char(scrn, ch);
@@ -329,7 +331,7 @@ run_loop:
 		if (screen_get_flag(scrn, SF_TERM)) {
 			FOCUS = FOCUS_TERM;
 			t_nodelay(TRUE);
-			vte_refresh(scrn->bw->vte);
+			vte_refresh(scrn->vte);
 			screen_unset_flag(scrn, SF_TERM);
 		}
 	}
@@ -364,9 +366,11 @@ struct Screen *screen_new()
 	scrn->bbar = bar_new(scrn->HEIGHT - 2);
 	scrn->cbar = bar_new(scrn->HEIGHT - 1);
 
-	scrn->bw = bufwin_new(0, 1, scrn->WIDTH, scrn->HEIGHT - 3);
+	int termx = scrn->WIDTH / 2;
+	scrn->bw = bufwin_new(0, 1, termx - 1, scrn->HEIGHT - 3);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_set_active_buffer(scrn->bw, 0);
+	scrn->vte = vte_new(termx, 1, termx, scrn->HEIGHT - 3);
 
 	screen_set_colors(scrn);
 
@@ -383,7 +387,7 @@ void screen_free(struct Screen *scrn)
 	t_wdestroy(scrn->bbar);
 	t_wdestroy(scrn->cbar);
 	bufwin_free(scrn->bw);
-
+	vte_free(scrn->vte);
 	buffer_free(scrn->cmds);
 	free(scrn);
 }

@@ -40,7 +40,7 @@
 
 struct BufWin {
 	t_window *win;
-	struct VTE *vte;
+	t_window *linumwin;
 	struct Buffer **buffers;
 	int num_bufs;
 	struct Buffer *curbuf;

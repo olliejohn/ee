@@ -48,7 +48,7 @@ void cb_save(struct Screen *scrn)
 	if (screen_get_flag(scrn, SF_CLI))
 		t_wrefresh(scrn->cbar);
 	else if (screen_get_flag(scrn, SF_TERM))
-		vte_refresh(scrn->bw->vte);
+		vte_refresh(scrn->vte);
 	else
 		bufwin_refresh(scrn->bw);
 }

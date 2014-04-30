@@ -26,7 +26,7 @@
  * to interface it with ncurses (through TUI) whilst handling scrolling,
  * displaying '\t' correctly, optionally printing line numbers and all other
  * idiosyncrasies of display it to the screen. It also contains the array of
- * open buffers, the window for the current buffer and the VTE.
+ * open buffers and the window for the current buffer.
  */
 
 #include "bufwin.h"
@@ -37,21 +37,16 @@
 #include <stdlib.h>
 #include <wctype.h>
 
-/* These two will eventually be replaced with options in the Settings struct */
+/* This will eventually be replaced with an option in the Settings struct */
 int DRAW_LINE_NUMS = 1;
-int SHOW_VTE = 1;
 
-/*
- * Create a new bufwin object at (x, y) with w columns and h rows. Note that
- * this includes the space for the VTE as well.
- */
+/* Create a new bufwin object at (x, y) with w columns and h rows */
 struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
-	int termx = (w - x) / 2;
-	bw->win = t_winit(x, y, termx - 1, h);
-	bw->vte = vte_new(termx, y, w - termx, h);
+	bw->linumwin = t_winit(x, y, w, h);
+	bw->win = t_winit(x, y, w, h);
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
@@ -65,13 +60,14 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	bw->HEIGHT = h;
 	bw->ywinoffs = 0;
 	bw->linumoffs = 0;
+	bw->linumdigits = 0;
 
 	return bw;
 }
 
 /*
  * Destroy the bufwin including all buffers (which should be saved beforehand
- * in the calling code) and the VTE.
+ * in the calling code if required).
  */
 void bufwin_free(struct BufWin *bw)
 {
@@ -79,8 +75,12 @@ void bufwin_free(struct BufWin *bw)
 	for (i = 0; i < bw->num_bufs; i++)
 		buffer_free(bw->buffers[i]);
 
+	t_wclear(bw->linumwin);
+	t_wrefresh(bw->linumwin);
+	t_wdestroy(bw->linumwin);
+	t_wclear(bw->win);
+	t_wrefresh(bw->win);
 	t_wdestroy(bw->win);
-	vte_free(bw->vte);
 	bw->curbuf = NULL;
 	free(bw->buffers);
 	free(bw);
@@ -201,10 +201,7 @@ void bufwin_check_line_number_digit_change(struct BufWin *bw)
 	}
 }
 
-/*
- * Process a character for the buffer - note that input for the VTE is NOT
- * handled here but rather in vte/vte_driver.c
- */
+/* Process a character for the buffer */
 #define buf bw->curbuf
 void bufwin_process_char(struct BufWin *bw, t_char ch)
 {
@@ -301,16 +298,13 @@ void bufwin_place_cursor(struct BufWin *bw)
 }
 #undef curline
 
-/* Refresh the buffer window - doesn't refresh the VTE. */
+/* Refresh the buffer window */
 void bufwin_refresh(struct BufWin *bw)
 {
 	t_wrefresh(bw->win);
 }
 
-/*
- * Set the colors for the buffer - line number are handled directly in color.c
- * and VTE colors and handled in vte/vte_driver.c
- */
+/* Set the colors for the buffer; line number are handled directly in color.c */
 void bufwin_set_color_scheme(struct BufWin *bw, int colpair)
 {
 	t_wbkgd(bw->win, colpair);
