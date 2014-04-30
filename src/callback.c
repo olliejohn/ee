@@ -23,6 +23,7 @@
 #include "callback.h"
 
 #include "bufwin.h"
+#include "vte/vte_driver.h"
 
 void cb_exit(struct Screen *scrn)
 {
@@ -47,8 +48,7 @@ void cb_save(struct Screen *scrn)
 	if (screen_get_flag(scrn, SF_CLI))
 		t_wrefresh(scrn->cbar);
 	else if (screen_get_flag(scrn, SF_TERM))
-		/* THIS NEEDS TO CHANGE WHEN TERM IS IMPLAMENTED */
-		t_wrefresh(scrn->cbar);
+		vte_refresh(scrn->bw->vte);
 	else
 		bufwin_refresh(scrn->bw);
 }
