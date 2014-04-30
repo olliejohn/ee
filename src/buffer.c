@@ -59,13 +59,13 @@ void line_free(struct Line *line)
 
 int line_get_curs_pos(struct Line *line)
 {
-	int i, indent = 0;
+	int i, curspos = 0;
 
-	for (i = 0; i < line->pos; i++)
+	for (i = 0; i < line->pos; i++, curspos++)
 		if (line->data[i] == '\t')
-			indent += CFG->tabsize - 1;
+			while (++curspos % CFG->tabsize != CFG->tabsize - 1);
 
-	return line->pos + indent;
+	return curspos;
 }
 
 void line_double_capacity_if_full(struct Line *line)
