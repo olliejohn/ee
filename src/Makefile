@@ -10,7 +10,7 @@ BINDIR=/usr/bin
 LIBDIR=/usr/lib
 
 all: debugExec
-	@echo -- Make Success --
+	@echo -- Yaw Make Success --
 
 debugExec: buildtui buildvte debugBuild link
 

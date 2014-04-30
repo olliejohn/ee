@@ -5,7 +5,7 @@ DEMO=tui_demo
 SOURCES=tui.c
 
 all: demo
-	@echo -- Make Success --
+	@echo -- TUI Make Success --
 
 demo: build
 	$(CC) $(DEMO).c tui.o $(LDFLAGS) -o $(DEMO)
