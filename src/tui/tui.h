@@ -188,11 +188,9 @@ int t_mv_vwprint(t_window *win, int x, int y, t_char *fmt, va_list args);
 int t_mv_vwprintn(t_window *win, int x, int y, int n, t_char *fmt,va_list args);
 
 int t_wbkgd(t_window *win, int data);
-/*
-int t_wbkgrnd(t_window *win, cchar_t *data);
-void t_wbkgrndset(t_window *win, cchar_t *data);
-int t_wgetbkgrnd(t_window *win, cchar_t *data);
-*/
+
+inline int t_wresize(t_window *win, w, h) { return wresize(win, h, w); }
+inline int t_mvwin(t_window *win, x, y) { return mvwin(win, y, x); }
 
 inline int t_wnodelay(t_window *win, TUI_BOOL value) {
 	return (value) ? nodelay(win, TRUE) : nodelay(win, FALSE);
@@ -322,9 +320,8 @@ inline int t_mv_wchgat(t_window *win, int x, int y, int n, t_attrib attr,
 	t_mv_wprintn(stdscr, x, y, n, fmt VA_ARGS(__VA_ARGS__))
 
 #define t_bkgd(data) t_wbkgd(stdscr, data)
-#define t_bkgrnd(data) t_wbkgrnd(stdscr, data)
-#define t_bkgrndset(data) t_wbkgrndset(stdscr, data)
-#define t_getbkgrnd(data) t_wgetbkgrnd(stdscr, data)
+
+#define t_resize(w, h) t_wresize(stdscr, w, h)
 
 #define t_set_scroll(v) t_wset_scroll(stdscr, v)
 #define t_nodelay(value) t_wnodelay(stdscr, value)
