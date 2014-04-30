@@ -46,6 +46,8 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
 	//bw->linumwin = t_winit(x, y, 0, h);
+	//bw->win = t_winit(x, y, w, h);
+
 	bw->linumwin = t_winit(x, y, 5, h);
 	bw->win = t_winit(x + 5, y, w - 5, h);
 
@@ -104,28 +106,26 @@ int bufwin_get_linum_digits(struct BufWin *bw)
 	return count_int_digits(bw->curbuf->size + 1);
 }
 
-void bufwin_render_linums(struct BufWin *bw)
+void bufwin_resize_linums(struct BufWin *bw)
 {
-//	int w, h, size = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
-//	t_wgetmaxxy(bw->linumwin, w, h);
-/*
+//	int size = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
+/*	int x, y, w, h;
+	t_wgetbegxy(bw->linumwin, x, y);
+	t_wgetmaxxy(bw->linumwin, w, h);
+
 	if (size != w) {
 		t_wresize(bw->linumwin, size, h);
 
-		int diff = size - w;
-		w = t_wgetmaxx(bw->win);
-		t_wresize(bw->win, w - diff, h);	*/
-		/* From here on w and h and used as x and y repectively */
-/*		t_getbegxy(bw->win, w, h);
-		t_mvwin(bw->win, w + diff, h);
-	}	*/
+		t_mvwin(bw->win,x + size, y);
+		t_wresize(bw->win, t_wgetmaxx(bw->win) + w - size, h);
 
-	int i;
-	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
-		t_mv_wprint(bw->linumwin, 0, i, L" %*d ",
-			    bw->linumdigits, i + bw->ywinoffs + 1);
+		t_wrefresh(bw->linumwin);
 
-	t_wrefresh(bw->linumwin);
+		t_wrefresh(bw->win);
+
+		bufwin_redraw(bw);
+	}
+*/
 }
 
 /*
@@ -148,8 +148,6 @@ void bufwin_render_line(struct BufWin *bw, int line)
 /* Redraw the entire buffer screen */
 void bufwin_redraw(struct BufWin *bw)
 {
-	//bufwin_render_linums(bw);
-
 	t_wclear(bw->win);
 
 	int i;
@@ -216,8 +214,9 @@ void bufwin_check_line_number_digit_change(struct BufWin *bw)
 		int new = bufwin_get_linum_digits(bw);
 
 		if (bw->linumdigits != new) {
-			bw->linumdigits = new;
-			bufwin_redraw(bw);
+			//bw->linumdigits = new;
+			//bufwin_redraw(bw);
+			bufwin_resize_linums(bw);
 		}
 	}
 }
@@ -363,6 +362,7 @@ void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
 	bw->curbuf = bw->buffers[index];
 	bw->linumdigits = bufwin_get_linum_digits(bw);
+	bufwin_resize_linums(bw);
 	bufwin_redraw(bw);
 }
 
