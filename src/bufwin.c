@@ -72,9 +72,8 @@ void bufwin_render_line(struct BufWin *bw, int line)
 	int x = 0;
 
 	if (DRAW_LINE_NUMS) {
-		int space = buffer_get_size_of_linums(bw->curbuf);
 		t_wattron(bw->win, CS_LINE_NUM);
-		t_mv_wprint(bw->win, 0, line, L" %*d %n", space,
+		t_mv_wprint(bw->win, 0, line, L" %*d %n", bw->linumdigits,
 			    line + bw->ywinoffs + 1, &x);
 		t_wattroff(bw->win, CS_LINE_NUM);
 	}
@@ -133,9 +132,23 @@ void bufwin_move_down(struct BufWin *bw)
 	}
 }
 
+void bufwin_check_line_number_digit_change(struct BufWin *bw)
+{
+	if (DRAW_LINE_NUMS) {
+		int new = buffer_get_size_of_linums(bw->curbuf);
+
+		if (bw->linumdigits != new) {
+			bw->linumdigits = new;
+			bufwin_redraw(bw);
+		}
+	}
+}
+
 #define buf bw->curbuf
 void bufwin_process_char(struct BufWin *bw, t_char ch)
 {
+	int i;
+
 	switch (ch) {
 	case TK_BKSPC:
 		if (buffer_backspace(buf) == 0) {
@@ -143,7 +156,6 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 			t_wclrtoeol(bw->win);
 			bufwin_render_line(bw, buf->pos);
 		} else {
-			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
 				bufwin_render_line(bw, i);
 				t_wclrtoeol(bw->win);
@@ -152,6 +164,8 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 			t_wmove(bw->win, 0, buf->size + 1);
 			t_wclrtoeol(bw->win);
 		}
+
+		bufwin_check_line_number_digit_change(bw);
 
 		break;
 	case TK_DELETE:
@@ -165,7 +179,6 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 			t_wclrtoeol(bw->win);
 			bufwin_render_line(bw, buf->pos);
 		} else {
-			int i;
 			for (i = buf->pos; i <= buf->size; i++) {
 				bufwin_render_line(bw, i);
 				t_wclrtoeol(bw->win);
@@ -175,15 +188,20 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 			t_wclrtoeol(bw->win);
 		}
 
+		bufwin_check_line_number_digit_change(bw);
+
 		break;
 	case TK_ENTER:
 		buffer_new_line(buf);
-		int i = (buf->pos == 0) ? 0 : buf->pos - 1;
+
+		i = (buf->pos == 0) ? 0 : buf->pos - 1;
 		for ( ; i <= buf->size; i++) {
 			t_wmove(bw->win, 0, i);
 			t_wclrtoeol(bw->win);
 			bufwin_render_line(bw, i);
 		}
+
+		bufwin_check_line_number_digit_change(bw);
 
 		t_wmove(bw->win, 0, buf->size + 1);
 		t_wclrtoeol(bw->win);
@@ -238,6 +256,7 @@ int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 void bufwin_set_active_buffer(struct BufWin *bw, int index)
 {
 	bw->curbuf = bw->buffers[index];
+	bw->linumdigits = buffer_get_size_of_linums(bw->curbuf);
 }
 
 void bufwin_toggle_draw_linums(struct BufWin *bw)

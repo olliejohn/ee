@@ -38,7 +38,8 @@ struct BufWin {
 	int WIDTH;
 	int HEIGHT;
 	int ywinoffs;
-	int linumoffs;
+	int linumoffs;   /* Dist from left of screen to text char 0 */
+	int linumdigits; /* The number of digits in the line number */
 };
 
 struct BufWin *bufwin_new(int x, int y, int w, int h);

@@ -361,7 +361,7 @@ int count_int_digits(int n)
 
 int buffer_get_size_of_linums(struct Buffer *buf)
 {
-	return count_int_digits(buf->size);
+	return count_int_digits(buf->size + 1);
 }
 
 int buffer_save(struct Buffer *buf)
