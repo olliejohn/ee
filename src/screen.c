@@ -148,14 +148,10 @@ void screen_print_ch_info(struct Screen *scrn)
 }
 #undef buf
 
+#define curcmd scrn->cmds->data[scrn->cmds->pos]->data
 void run_current_cmd(struct Screen *scrn)
 {
 	/* lisp_run(scrn); */
-
-	struct Line *curln = scrn->cmds->data[scrn->cmds->pos];
-
-	t_char *curcmd = malloc(sizeof(t_char) * (curln->size + 1));
-	wcscpy(curcmd, curln->data);
 
 	if (wcscmp(curcmd, L"save") == 0 || wcscmp(curcmd, L"s") == 0) {
 
@@ -166,9 +162,8 @@ void run_current_cmd(struct Screen *scrn)
 		t_char *pEnd = NULL;
 		screen_change_to_buffer(scrn, wcstol(curcmd, &pEnd, 10));
 	}
-
-	free(curcmd);
 }
+#undef curcmd
 
 void cmd_process_char(struct Screen *scrn, t_char ch)
 {

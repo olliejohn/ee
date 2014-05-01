@@ -48,8 +48,8 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	//bw->linumwin = t_winit(x, y, 0, h);
 	//bw->win = t_winit(x, y, w, h);
 
-	bw->linumwin = t_winit(x, y, 5, h);
-	bw->win = t_winit(x + 5, y, w - 5, h);
+	bw->linumwin = NULL;
+	bw->win = t_winit(x, y, w, h);
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
