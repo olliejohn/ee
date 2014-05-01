@@ -364,7 +364,7 @@ struct Screen *screen_new()
 	scrn->bw = bufwin_new(0, 1, termx - 1, scrn->HEIGHT - 3);
 	bufwin_add_buffer(scrn->bw);
 	bufwin_set_active_buffer(scrn->bw, 0);
-	scrn->vte = vte_new(termx, 1, termx, scrn->HEIGHT - 3);
+	scrn->vte = vte_new(termx, 1, scrn->WIDTH - termx, scrn->HEIGHT - 3);
 
 	screen_set_colors(scrn);
 

@@ -45,11 +45,8 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
-	//bw->linumwin = t_winit(x, y, 0, h);
-	//bw->win = t_winit(x, y, w, h);
-
-	bw->linumwin = NULL;
-	bw->win = t_winit(x, y, w, h);
+	bw->linumwin = t_winit(x, y, 3, h);
+	bw->win = t_winit(x + 3, y, w - 3, h);
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
@@ -77,11 +74,7 @@ void bufwin_free(struct BufWin *bw)
 	for (i = 0; i < bw->num_bufs; i++)
 		buffer_free(bw->buffers[i]);
 
-	t_wclear(bw->linumwin);
-	t_wrefresh(bw->linumwin);
 	t_wdestroy(bw->linumwin);
-	t_wclear(bw->win);
-	t_wrefresh(bw->win);
 	t_wdestroy(bw->win);
 	bw->curbuf = NULL;
 	free(bw->buffers);
@@ -108,14 +101,27 @@ int bufwin_get_linum_digits(struct BufWin *bw)
 
 void bufwin_resize_linums(struct BufWin *bw)
 {
-	int linumsize = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
+	if (!DRAW_LINE_NUMS)
+		return;
 
-	if (linumsize != t_wgetmaxx(bw->linumwin)) {
-		int h = t_wgetmaxy(bw->win);
-		int totalw = t_wgetmaxx(bw->win) + t_wgetmaxx(bw->linumwin);
-		t_wresize(bw->linumwin, linumsize, h);
-		t_wresize(bw->win, totalw - linumsize, h);
-		t_mvwin(bw->win, linumsize, 1);//t_wgetbegy(bw->win));
+	/* Calculated linum width and actual current linum width */
+	int lw = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
+	int oldlw = t_wgetmaxx(bw->linumwin);
+
+	if (lw != oldlw) {
+		t_wclear(bw->win);
+		t_wclear(bw->linumwin);
+
+		t_wresize(bw->linumwin, lw, t_wgetmaxy(bw->linumwin));
+
+		int bwid = t_wgetmaxx(bw->win) + t_wgetmaxx(bw->linumwin) - lw;
+		t_wresize(bw->win, bwid, t_wgetmaxy(bw->win));
+		t_mvwin(bw->win, lw, t_wgetbegy(bw->win));
+
+		t_wrefresh(bw->win);
+		t_wrefresh(bw->linumwin);
+
+		bufwin_redraw(bw);
 	}
 }
 
