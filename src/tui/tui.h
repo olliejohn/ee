@@ -340,8 +340,8 @@ inline int t_wgetcurx(t_window *win) 	{ return getcurx(win); }
 inline int t_wgetcury(t_window *win) 	{ return getcury(win); }
 inline int t_getcurx() 			{ return getcurx(stdscr); }
 inline int t_getcury() 			{ return getcury(stdscr); }
-inline int t_wgetbegx(t_window *win) 	{ return getcurx(win); }
-inline int t_wgetbegy(t_window *win) 	{ return getcury(win); }
+inline int t_wgetbegx(t_window *win) 	{ return getbegx(win); }
+inline int t_wgetbegy(t_window *win) 	{ return getbegy(win); }
 inline int t_getbegx() 			{ return getbegx(stdscr); }
 inline int t_getbegy() 			{ return getbegy(stdscr); }
 inline int t_wgetmaxx(t_window *win) 	{ return getmaxx(win); }

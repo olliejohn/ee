@@ -108,24 +108,15 @@ int bufwin_get_linum_digits(struct BufWin *bw)
 
 void bufwin_resize_linums(struct BufWin *bw)
 {
-//	int size = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
-/*	int x, y, w, h;
-	t_wgetbegxy(bw->linumwin, x, y);
-	t_wgetmaxxy(bw->linumwin, w, h);
+	int linumsize = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
 
-	if (size != w) {
-		t_wresize(bw->linumwin, size, h);
-
-		t_mvwin(bw->win,x + size, y);
-		t_wresize(bw->win, t_wgetmaxx(bw->win) + w - size, h);
-
-		t_wrefresh(bw->linumwin);
-
-		t_wrefresh(bw->win);
-
-		bufwin_redraw(bw);
+	if (linumsize != t_wgetmaxx(bw->linumwin)) {
+		int h = t_wgetmaxy(bw->win);
+		int totalw = t_wgetmaxx(bw->win) + t_wgetmaxx(bw->linumwin);
+		t_wresize(bw->linumwin, linumsize, h);
+		t_wresize(bw->win, totalw - linumsize, h);
+		t_mvwin(bw->win, linumsize, 1);//t_wgetbegy(bw->win));
 	}
-*/
 }
 
 /*
@@ -158,6 +149,7 @@ void bufwin_redraw(struct BufWin *bw)
 		bw->curbuf->data[bw->curbuf->pos]->pos,
 		bw->curbuf->pos);
 
+	t_wrefresh(bw->linumwin);
 	t_wrefresh(bw->win);
 }
 
