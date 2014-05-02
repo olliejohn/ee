@@ -99,6 +99,11 @@ int bufwin_get_linum_digits(struct BufWin *bw)
 	return count_int_digits(bw->curbuf->size + 1);
 }
 
+/*
+ * Checks if the linum window and buffer window need to be resized to acount for
+ * a change in the number of digits in the maximum line number and redraws
+ * accordingly.
+ */
 void bufwin_resize_linums(struct BufWin *bw)
 {
 	if (!DRAW_LINE_NUMS)
@@ -120,6 +125,8 @@ void bufwin_resize_linums(struct BufWin *bw)
 
 		t_wrefresh(bw->win);
 		t_wrefresh(bw->linumwin);
+
+		bw->linumdigits = lw - 2;
 
 		bufwin_redraw(bw);
 	}
