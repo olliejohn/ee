@@ -421,8 +421,10 @@ int buffer_save_as(struct Buffer *buf, char *file)
 		return -1;
 
 	int i;
-	for (i = 0; i <= buf->size; i++)
+	for (i = 0; i < buf->size; i++)
 		fwprintf(f, L"%ls\n", buf->data[i]->data);
+
+	fwprintf(f, L"%ls", buf->data[buf->size]->data);
 
 	fclose(f);
 
