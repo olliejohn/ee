@@ -40,7 +40,6 @@
 
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
-#define DEFAULT_BUFFER_FILENAME "Untitled"
 
 struct Line *line_new()
 {
@@ -429,7 +428,7 @@ int buffer_save_as(struct Buffer *buf, char *file)
 		return -1;
 
 	int i;
-	for (i = 0; i < buf->size; i++)
+	for (i = 0; i <= buf->size; i++)
 		fwprintf(f, L"%ls\n", buf->data[i]->data);
 
 	fclose(f);

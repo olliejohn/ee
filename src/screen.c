@@ -148,6 +148,68 @@ void screen_print_ch_info(struct Screen *scrn)
 }
 #undef buf
 
+void screen_do_save_prompt(struct Screen *scrn)
+{
+	screen_set_status(scrn, L"Saving: Enter filename...");
+	t_wclear(scrn->cbar);
+	t_wrefresh(scrn->cbar);
+
+	struct Line *filename = line_new();
+	char *shortfn;
+	t_char ch = 0;
+
+	while (1) {
+		t_getch(&ch);
+
+		switch (ch) {
+		case TK_BKSPC:
+			line_backspace(filename);
+			t_wclear(scrn->cbar);
+			break;
+		case TK_DELETE:
+			if (line_move_forward(filename) == 0) {
+				line_backspace(filename);
+				t_wclear(scrn->cbar);
+			}
+			break;
+		case TK_LEFT:
+			line_move_backward(filename);
+			break;
+		case TK_RIGHT:
+			line_move_forward(filename);
+			break;
+		case TK_ENTER:
+			goto do_save;
+		default:
+			if (iswprint(ch))
+				line_add(filename, ch);
+			else
+				continue;
+		}
+
+		t_mv_wprint(scrn->cbar, 0, 0, filename->data);
+		t_wrefresh(scrn->cbar);
+		t_wmove(scrn->cbar, filename->pos, 0);
+	}
+
+do_save:
+	shortfn = calloc(filename->size + 1, sizeof(char));
+	sprintf(shortfn, "%ls", filename->data);
+
+
+	if (buffer_save_as(scrn->bw->curbuf, shortfn) == 0) {
+		screen_set_status(scrn, L"Wrote buffer to '%s'", shortfn);
+	} else {
+		screen_set_status(scrn, L"Couldn't write to '%s'", shortfn);
+	}
+
+	free(shortfn);
+	line_free(filename);
+
+	t_wclear(scrn->cbar);
+	t_wrefresh(scrn->cbar);
+}
+
 #define curcmd scrn->cmds->data[scrn->cmds->pos]->data
 void run_current_cmd(struct Screen *scrn)
 {

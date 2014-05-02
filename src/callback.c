@@ -22,8 +22,11 @@
 
 #include "callback.h"
 
+#include "buffer.h"
 #include "bufwin.h"
 #include "vte/vte_driver.h"
+
+#include <string.h>
 
 void cb_exit(struct Screen *scrn)
 {
@@ -38,10 +41,16 @@ void cb_save_exit(struct Screen *scrn)
 #define buf scrn->bw->curbuf
 void cb_save(struct Screen *scrn)
 {
-	if (buffer_save(buf) == 0) {
-		screen_set_status(scrn, L"Wrote file to %s", buf->filename);
+	if (strcmp(buf->filename, DEFAULT_BUFFER_FILENAME) == 0) {
+		screen_do_save_prompt(scrn);
 	} else {
-		screen_set_status(scrn, L"Couldn't write to %s", buf->filename);
+		if (buffer_save(buf) == 0) {
+			screen_set_status(scrn, L"Wrote buffer to '%s'",
+					  buf->filename);
+		} else {
+			screen_set_status(scrn, L"Couldn't write to '%s'",
+					  buf->filename);
+		}
 	}
 
 	/* Put the cursor back where it was */

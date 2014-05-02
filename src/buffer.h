@@ -26,6 +26,8 @@
 #include "config.h"
 #include "tui/tui.h"
 
+#define DEFAULT_BUFFER_FILENAME "Untitled"
+
 struct Line {
 	int size;
 	int pos;
