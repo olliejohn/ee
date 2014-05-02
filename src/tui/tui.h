@@ -368,8 +368,8 @@ inline int t_getpary() 			{ return getpary(stdscr); }
 #define TK_DELETE 	0512
 #define TK_HOME		0406
 #define TK_END 		0550
-#define TK_PGUP		0522
-#define TK_PGDN 	0523
+#define TK_PGUP		KEY_PPAGE
+#define TK_PGDN 	KEY_NPAGE
 #define TK_DOWN 	0402
 #define TK_UP		0403
 #define TK_LEFT 	0404
@@ -424,5 +424,9 @@ inline int t_getpary() 			{ return getpary(stdscr); }
 #define TK_CTRL_UNDRSCR	0x1F // clash with 'CTRL_7'
 #define TK_BKSPC2 	0x7F
 #define TK_CTRL_8 	0x7F //clash with 'DELETE'
+#define TK_CTRL_DOWN 	527
+#define TK_CTRL_UP	571
+#define TK_CTRL_LEFT 	547
+#define TK_CTRL_RIGHT 	565
 
 #endif

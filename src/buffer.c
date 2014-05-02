@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <wctype.h>
 
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
@@ -62,7 +63,7 @@ int line_get_curs_pos(struct Line *line)
 	int i, curspos = 0;
 
 	for (i = 0; i < line->pos; i++, curspos++)
-		if (line->data[i] == '\t')
+		if (line->data[i] == TK_TAB)
 			while (++curspos % CFG->tabsize != CFG->tabsize - 1);
 
 	return curspos;
@@ -98,6 +99,34 @@ int line_move_backward(struct Line *line)
 	line->pos--;
 
 	return 0;
+}
+
+int line_prev_word(struct Line *line)
+{
+	for ( ; iswalnum(line->data[line->pos]); line->pos--)
+		if (line->pos < 0)
+			return -1;
+
+	return 0;
+}
+
+int line_next_word(struct Line *line)
+{
+	for ( ; iswalnum(line->data[line->pos]); line->pos++)
+		if (line->pos >= line->size - 1)
+			return -1;
+
+	return 0;
+}
+
+void line_home(struct Line *line)
+{
+	line->pos = 0;
+}
+
+void line_end(struct Line *line)
+{
+	line->pos = line->size;
 }
 
 void line_set(struct Line *line, int index, t_char c)
@@ -338,6 +367,42 @@ int buffer_move_down(struct Buffer *buf)
 		line->pos = line->size;
 
 	return 0;
+}
+
+void buffer_prev_word(struct Buffer *buf)
+{
+	while (line_prev_word(buf->data[buf->pos]) == -1) {
+		buf->pos--;
+		buf->data[buf->pos]->pos = buf->data[buf->pos]->size;
+	}
+}
+
+void buffer_next_word(struct Buffer *buf)
+{
+	while (line_next_word(buf->data[buf->pos]) == -1)
+		buf->data[++buf->pos]->pos = 0;
+}
+
+void buffer_home(struct Buffer *buf)
+{
+	line_home(buf->data[buf->pos]);
+}
+
+void buffer_end(struct Buffer *buf)
+{
+	line_end(buf->data[buf->pos]);
+}
+
+void buffer_pgup(struct Buffer *buf, int pg_size)
+{
+	register int new = buf->pos - pg_size;
+	buf->pos = (new >= 0) ? new : 0;
+}
+
+void buffer_pgdn(struct Buffer *buf, int pg_size)
+{
+	register int new = buf->pos + pg_size;
+	buf->pos = (new < buf->size) ? new : buf->size;
 }
 
 int buffer_save(struct Buffer *buf)

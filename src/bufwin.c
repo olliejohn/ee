@@ -308,6 +308,24 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 	case TK_DOWN:
 		bufwin_move_down(bw);
 		break;
+	case TK_CTRL_LEFT:
+		buffer_prev_word(buf);
+		break;
+	case TK_CTRL_RIGHT:
+		buffer_next_word(buf);
+		break;
+	case TK_HOME:
+		buffer_home(buf);
+		break;
+	case TK_END:
+		buffer_end(buf);
+		break;
+	case TK_PGUP:
+		buffer_pgup(buf, t_wgetmaxy(bw->win));
+		break;
+	case TK_PGDN:
+		buffer_pgdn(buf, t_wgetmaxy(bw->win));
+		break;
 	default:
 		if (iswprint(ch) || ch == L'\t') {
 			buffer_add(buf, ch);
