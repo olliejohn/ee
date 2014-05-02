@@ -184,6 +184,7 @@ struct Buffer *buffer_new()
 	buf->data[0] = line_new();
 	buf->filename = NULL;
 	buffer_set_filename(buf, DEFAULT_BUFFER_FILENAME);
+	buf->dirty = BUF_CLEAN;
 	return buf;
 }
 
@@ -245,6 +246,8 @@ void buffer_add(struct Buffer *buf, t_char c)
 	}
 
 	line_add(buf->data[buf->pos], c);
+
+	buf->dirty = BUF_DIRTY;
 }
 
 void buffer_new_line(struct Buffer *buf)
@@ -276,6 +279,8 @@ void buffer_new_line(struct Buffer *buf)
 
 	buf->pos++;
 	buf->data[buf->pos]->pos = 0;
+
+	buf->dirty = BUF_DIRTY;
 }
 
 /*
@@ -307,8 +312,12 @@ int buffer_backspace(struct Buffer *buf)
 		buf->size--;
 		buf->pos--;
 
+		buf->dirty = BUF_DIRTY;
+
 		return 1;
 	}
+
+	buf->dirty = BUF_DIRTY;
 
 	return 0;
 }
@@ -404,22 +413,6 @@ void buffer_pgdn(struct Buffer *buf, int pg_size)
 	buf->pos = (new < buf->size) ? new : buf->size;
 }
 
-int buffer_save(struct Buffer *buf)
-{
-	FILE *f = fopen(buf->filename, "w");
-
-	if (f == NULL)
-		return -1;
-
-	int i;
-	for (i = 0; i < buf->size; i++)
-		fwprintf(f, L"%ls\n", buf->data[i]->data);
-
-	fclose(f);
-
-	return 0;
-}
-
 int buffer_save_as(struct Buffer *buf, char *file)
 {
 	FILE *f = fopen(file, "w");
@@ -432,6 +425,8 @@ int buffer_save_as(struct Buffer *buf, char *file)
 		fwprintf(f, L"%ls\n", buf->data[i]->data);
 
 	fclose(f);
+
+	buf->dirty = BUF_CLEAN;
 
 	return 0;
 }
@@ -462,6 +457,8 @@ int buffer_open_at(struct Buffer *buf, char *file, int x, int y)
 
 	buf->pos = y;
 	buf->data[buf->pos]->pos = x;
+
+	buf->dirty = BUF_CLEAN;
 
 	return 0;
 }

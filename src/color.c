@@ -43,12 +43,11 @@ void color_init()
 		init_color(COL_L_GRAY, 	830, 	830, 	830	);
 		init_color(COL_D_GRAY, 	500, 	500, 	500	);
 
-		/*
-		 * TODO: Make the 3 tab pairs and the line number pair look
-		 * nicer with 256 colors
-		 */
+		/* TODO: Improve the color scheme when more are available */
 		init_pair(SCH_TAB_ACTIVE, 	COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_TAB_INACTIVE, 	COLOR_WHITE, 	COLOR_BLACK);
+		init_pair(SCH_TAB_ACTIVE_DIRTY, COLOR_RED, 	COLOR_WHITE);
+		init_pair(SCH_TAB_INACTIVE_DIRTY,COLOR_RED, 	COLOR_BLACK);
 		init_pair(SCH_TAB_SPACE, 	COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_BUFFER, 		COL_WHITE, 	COL_BLACK);
 		init_pair(SCH_LINE_NUM, 	COLOR_YELLOW, 	COLOR_DEFAULT);
@@ -64,6 +63,8 @@ void color_init()
 
 		init_pair(SCH_TAB_ACTIVE, 	COLOR_BLACK, 	COLOR_WHITE);
 		init_pair(SCH_TAB_INACTIVE, 	COLOR_WHITE, 	COLOR_BLACK);
+		init_pair(SCH_TAB_ACTIVE_DIRTY, COLOR_RED, 	COLOR_WHITE);
+		init_pair(SCH_TAB_INACTIVE_DIRTY,COLOR_RED, 	COLOR_BLACK);
 		init_pair(SCH_TAB_SPACE, 	COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_BUFFER, 		COLOR_DEFAULT, 	COLOR_DEFAULT);
 		init_pair(SCH_LINE_NUM, 	COLOR_YELLOW, 	COLOR_DEFAULT);

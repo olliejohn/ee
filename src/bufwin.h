@@ -46,7 +46,7 @@ struct BufWin {
 	struct Buffer *curbuf;
 	int WIDTH;
 	int HEIGHT;
-	int ywinoffs;
+	int ywinoffs;    /* Window offset for scrolling */
 	int linumdigits; /* The number of digits in the line number */
 };
 

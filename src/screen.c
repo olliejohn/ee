@@ -65,19 +65,22 @@ void screen_clear_flags(struct Screen *scrn)
 
 /* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
 int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
-			int xoffs, int active)
+			int xoffs, int active, dirty_t dirty)
 {
-	if (active)
-		t_wattron(scrn->tbar, CS_TAB_ACTIVE);
-	else
-		t_wattron(scrn->tbar, CS_TAB_INACTIVE);
+	int ATTR;
 
+	if (active && dirty == BUF_DIRTY)	/* Active and dirty */
+		ATTR = CS_TAB_ACTIVE_DIRTY;
+	else if (active) 			/* Active and clean */
+		ATTR = CS_TAB_ACTIVE;
+	else if (dirty == BUF_DIRTY)		/* Inactive and dirty */
+		ATTR = CS_TAB_INACTIVE_DIRTY;
+	else 					/* Inactive and clean */
+		ATTR = CS_TAB_INACTIVE;
+
+	t_wattron(scrn->tbar, ATTR);
 	t_mv_wprint(scrn->tbar, xoffs, 0, L" %d - %s ", num, filename);
-
-	if (active)
-		t_wattroff(scrn->tbar, CS_TAB_ACTIVE);
-	else
-		t_wattroff(scrn->tbar, CS_TAB_INACTIVE);
+	t_wattroff(scrn->tbar, ATTR);
 
 	t_wattron(scrn->tbar, CS_TAB_SPACE);
 	t_wprint(scrn->tbar, L" ");
@@ -95,7 +98,8 @@ void screen_draw_tabs(struct Screen *scrn)
 		active = (scrn->bw->buffers[i] == scrn->bw->curbuf) ? 1 : 0;
 		nextx = screen_draw_tab_at(scrn, i,
 					   scrn->bw->buffers[i]->filename,
-					   nextx, active);
+					   nextx, active,
+					   scrn->bw->buffers[i]->dirty);
 	}
 
 	t_wclrtoeol(scrn->tbar);
@@ -197,11 +201,10 @@ do_save:
 	sprintf(shortfn, "%ls", filename->data);
 
 
-	if (buffer_save_as(scrn->bw->curbuf, shortfn) == 0) {
+	if (buffer_save_as(scrn->bw->curbuf, shortfn) == 0)
 		screen_set_status(scrn, L"Wrote buffer to '%s'", shortfn);
-	} else {
+	else
 		screen_set_status(scrn, L"Couldn't write to '%s'", shortfn);
-	}
 
 	free(shortfn);
 	line_free(filename);
@@ -336,10 +339,11 @@ int screen_run(struct Screen *scrn, char *filepath)
 	bufwin_place_cursor(scrn->bw);
 	t_wrefresh(win);
 
-	int FOCUS = FOCUS_BUF;
+	enum Focus FOCUS = FOCUS_BUF;
 
 	t_char ch;
 	cb_ptr callback;
+	dirty_t persistent_dirty = BUF_CLEAN;
 run_loop:
 	while (1) {
 		t_getch(&ch);
@@ -388,6 +392,18 @@ run_loop:
 			t_nodelay(TRUE);
 			vte_refresh(scrn->vte);
 			screen_unset_flag(scrn, SF_TERM);
+		}
+
+		if (buf->dirty != persistent_dirty) {
+			persistent_dirty = buf->dirty;
+			screen_draw_tabs(scrn);
+
+			if (FOCUS == FOCUS_BUF)
+				bufwin_place_cursor(scrn->bw);
+			else if (FOCUS == FOCUS_CLI)
+				t_wrefresh(scrn->cbar);
+			else /* FOCUS == FOCUS_TERM */
+				vte_refresh(scrn->vte);
 		}
 	}
 

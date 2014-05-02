@@ -28,6 +28,11 @@
 
 #define DEFAULT_BUFFER_FILENAME "Untitled"
 
+typedef enum {
+	BUF_CLEAN,
+	BUF_DIRTY,
+} dirty_t;
+
 struct Line {
 	int size;
 	int pos;
@@ -42,6 +47,7 @@ struct Buffer {
 	int capacity;
 	struct Line **data;
 	char *filename;
+	dirty_t dirty;
 };
 
 struct Line *line_new();
@@ -75,9 +81,13 @@ void buffer_home(struct Buffer *buf);
 void buffer_end(struct Buffer *buf);
 void buffer_pgup(struct Buffer *buf, int pg_size);
 void buffer_pgdn(struct Buffer *buf, int pg_size);
-int buffer_save(struct Buffer *buf);
 int buffer_save_as(struct Buffer *buf, char *file);
 int buffer_open_at(struct Buffer *buf, char *file, int x, int y);
+
+inline int buffer_save(struct Buffer *buf)
+{
+	return buffer_save_as(buf, buf->filename);
+}
 
 inline int buffer_open(struct Buffer *buf, char *file)
 {
