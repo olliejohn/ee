@@ -20,14 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
- /*
-  * Found another bug: Sometimes longer lines appear to end 6 chars
-  * early, but only when the file is loaded - not when it's typed
-  *
-  * Update:
-  * This is because the cursor position doesn't account for tab size...
-  */
-
 #include "buffer.h"
 
 #include "config.h"
