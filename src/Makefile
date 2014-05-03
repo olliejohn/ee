@@ -3,41 +3,50 @@
 CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo -lutil
+DEFS=-DNDEBUG
+DEBUG=-g -UNDEBUG -DDEBUG
 TARGET=yaw
 OBJECTS=*.o vte/*.o tui/*.o
 SOURCES=*.c
 BINDIR=/usr/bin
 LIBDIR=/usr/lib
 
-all: debugExec
+all: exec
 	@echo -- Yaw Make Success --
 
-debugExec: buildtui buildvte debugBuild link
+debug: buildTuiDebug buildVteDebug buildDebug link
 
-exec: buildtui buildvte build link
+exec: buildTui buildVte build link
 
 link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
-debugBuild:
-	$(CC) $(CFLAGS) -g $(SOURCES)
-
 build:
-	$(CC) $(CFLAGS) $(SOURCES)
+	$(CC) $(CFLAGS) $(DEFS) $(SOURCES)
 
-buildvte:
+buildVte:
 	$(MAKE) -C vte
 
-buildtui:
+buildTui:
 	$(MAKE) -C tui
+
+buildDebug:
+	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) $(SOURCES)
+
+buildVteDebug:
+	$(MAKE) debug -C vte
+
+buildTuiDebug:
+	$(MAKE) debug -C tui
 
 clean:
 	rm -rf *.o
+	rm $(TARGET)
 	$(MAKE) clean -C vte
 	$(MAKE) clean -C tui
 	@echo -- Clean Success --
 
-install: exec
+install:
 	strip $(TARGET)
 	cp $(TARGET) $(BINDIR)
 	chmod 755 $(BINDIR)/$(TARGET)
