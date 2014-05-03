@@ -3,7 +3,7 @@
 CC=gcc
 CFLAGS=-c -Wall -O2 -std=gnu99
 DEFS=-D_REENTRANT -DNDEBUG
-DEBUG=-g -UNDEBUG -DDEBUG
+CDEBUG=-g -UNDEBUG -DDEBUG
 SOURCES=*.c
 
 all: build

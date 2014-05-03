@@ -2,7 +2,7 @@
 
 CC=gcc
 DEFS=-DNDEBUG
-DEBUG=-g -UNDEBUG -DDEBUG
+CDEBUG=-g -UNDEBUG -DDEBUG
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo
 DEMO=tui_demo

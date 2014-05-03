@@ -4,7 +4,7 @@ CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo -lutil
 DEFS=-DNDEBUG
-DEBUG=-g -UNDEBUG -DDEBUG
+CDEBUG=-g -UNDEBUG -DDEBUG
 TARGET=yaw
 OBJECTS=*.o vte/*.o tui/*.o
 SOURCES=*.c
