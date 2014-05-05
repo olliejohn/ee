@@ -60,7 +60,7 @@ int line_get_curs_pos(struct Line *line)
 	return curspos;
 }
 
-void line_double_capacity_if_full(struct Line *line)
+static void line_double_capacity_if_full(struct Line *line)
 {
 	if (line->size < line->capacity - 1)
 		return;
@@ -215,7 +215,7 @@ void buffer_go_to(struct Buffer *buf, int x, int y)
 	buf->data[buf->pos]->pos = x;
 }
 
-void buffer_double_capacity_if_full(struct Buffer *buf)
+static void buffer_double_capacity_if_full(struct Buffer *buf)
 {
 	if (buf->size < buf->capacity)
 		return;
@@ -451,6 +451,8 @@ int buffer_open_at(struct Buffer *buf, char *file, int x, int y)
 
 	buf->pos = y;
 	buf->data[buf->pos]->pos = x;
+
+	buffer_set_filename(buf, file);
 
 	buf->dirty = BUF_CLEAN;
 

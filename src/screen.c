@@ -33,8 +33,6 @@
 
 #define bar_new(y) t_winit(0, y, t_getmaxx(), 1)
 
-#define CSR_X line_get_cur_pos(buf->data[buf->pos])
-
 /* This will eventually be replaced with an option in the Settings struct */
 int SHOW_VTE = 1;
 
@@ -64,8 +62,8 @@ void screen_clear_flags(struct Screen *scrn)
 }
 
 /* Draw a tab on the tab bar. Returns the xoffs of the end of the tab */
-int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
-			int xoffs, int active, dirty_t dirty)
+static int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
+			      int xoffs, int active, dirty_t dirty)
 {
 	int ATTR;
 
@@ -89,7 +87,7 @@ int screen_draw_tab_at(struct Screen *scrn, int num, char *filename,
 	return t_wgetcurx(scrn->tbar);
 }
 
-void screen_draw_tabs(struct Screen *scrn)
+static void screen_draw_tabs(struct Screen *scrn)
 {
 	t_wattrend(scrn->tbar);
 
@@ -214,7 +212,7 @@ do_save:
 }
 
 #define curcmd scrn->cmds->data[scrn->cmds->pos]->data
-void run_current_cmd(struct Screen *scrn)
+static void run_current_cmd(struct Screen *scrn)
 {
 	/* lisp_run(scrn); */
 
@@ -230,7 +228,7 @@ void run_current_cmd(struct Screen *scrn)
 }
 #undef curcmd
 
-void cmd_process_char(struct Screen *scrn, t_char ch)
+static void cmd_process_char(struct Screen *scrn, t_char ch)
 {
 	if (ch == TUI_ERR)
 		return;
@@ -285,7 +283,7 @@ void cmd_process_char(struct Screen *scrn, t_char ch)
 }
 
 #define buf scrn->bw->curbuf
-void buffer_process_char(struct Screen *scrn, t_char ch)
+static void buffer_process_char(struct Screen *scrn, t_char ch)
 {
 	if (ch == TUI_ERR)
 		return;
@@ -299,22 +297,22 @@ void buffer_process_char(struct Screen *scrn, t_char ch)
 }
 #undef buf
 
-enum Focus {
-	FOCUS_BUF,
-	FOCUS_CLI,
-	FOCUS_TERM,
-};
-
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 #define buf scrn->bw->curbuf
 #define win scrn->bw->win
 int screen_run(struct Screen *scrn, char *filepath)
 {
+	enum Focus {
+		FOCUS_BUF,
+		FOCUS_CLI,
+		FOCUS_TERM,
+	};
+
 	if (filepath == NULL) {
 		screen_set_status(scrn, L"Created new buffer");
+		bufwin_add_buffer(scrn->bw);
 	} else {
-		buffer_open(buf, filepath);
-		buffer_set_filename(buf, filepath);
+		bufwin_add_buffer_from_file(scrn->bw, filepath);
 		screen_set_status(scrn, L"Loaded buffer from %s", filepath);
 	}
 
@@ -323,6 +321,8 @@ int screen_run(struct Screen *scrn, char *filepath)
 			L"Error: Couldn't load config - using default");
 		screen_unset_flag(scrn, SF_NO_CONFIG);
 	}
+
+	bufwin_set_active_buffer(scrn->bw, 0);
 
 	screen_draw_tabs(scrn);
 	bufwin_redraw(scrn->bw);
@@ -378,16 +378,12 @@ run_loop:
 			bufwin_place_cursor(scrn->bw);
 			t_wrefresh(win);
 			screen_unset_flag(scrn, SF_BUF);
-		}
-
-		if (screen_get_flag(scrn, SF_CLI)) {
+		} else if (screen_get_flag(scrn, SF_CLI)) {
 			FOCUS = FOCUS_CLI;
 			t_nodelay(FALSE);
 			t_wrefresh(scrn->cbar);
 			screen_unset_flag(scrn, SF_CLI);
-		}
-
-		if (screen_get_flag(scrn, SF_TERM)) {
+		} else if (screen_get_flag(scrn, SF_TERM)) {
 			FOCUS = FOCUS_TERM;
 			t_nodelay(TRUE);
 			vte_refresh(scrn->vte);
@@ -440,8 +436,6 @@ struct Screen *screen_new()
 
 	int termx = scrn->WIDTH / 2;
 	scrn->bw = bufwin_new(0, 1, termx - 1, scrn->HEIGHT - 3);
-	bufwin_add_buffer(scrn->bw);
-	bufwin_set_active_buffer(scrn->bw, 0);
 	scrn->vte = vte_new(termx, 1, scrn->WIDTH - termx, scrn->HEIGHT - 3);
 
 	screen_set_colors(scrn);

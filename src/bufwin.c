@@ -45,6 +45,7 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
+	/* 3 is a single character digit (1) with a padding space either side */
 	bw->linumwin = t_winit(x, y, 3, h);
 	bw->win = t_winit(x + 3, y, w - 3, h);
 
@@ -82,7 +83,7 @@ void bufwin_free(struct BufWin *bw)
 }
 
 /* Helper function for counting the number of digits in an int */
-int count_int_digits(int n)
+static int count_int_digits(int n)
 {
 	if (n < 0)
 		return count_int_digits((n == INT_MIN) ? INT_MAX : -n);
@@ -94,7 +95,7 @@ int count_int_digits(int n)
 }
 
 /* Returns the number of digits needed for line numbers in the current buffer */
-int bufwin_get_linum_digits(struct BufWin *bw)
+static int bufwin_get_linum_digits(struct BufWin *bw)
 {
 	return count_int_digits(bw->curbuf->size + 1);
 }
@@ -133,6 +134,23 @@ void bufwin_resize_linums(struct BufWin *bw)
 }
 
 /*
+ * Check if the number of digits needed for the line numbers has changed - if it
+ * has, it automatically redraws the screen.
+ */
+void bufwin_check_line_number_digit_change(struct BufWin *bw)
+{
+	if (DRAW_LINE_NUMS) {
+		int new = bufwin_get_linum_digits(bw);
+
+		if (bw->linumdigits != new) {
+			//bw->linumdigits = new;
+			//bufwin_redraw(bw);
+			bufwin_resize_linums(bw);
+		}
+	}
+}
+
+/*
  * Draw a line from the current buffer to the screen. Note that the line number
  * is the position on the screen, NOT the line number in the buffer. This
  * function also draws the line number to the screen if that option is turned on
@@ -166,37 +184,31 @@ void bufwin_redraw(struct BufWin *bw)
 	t_wrefresh(bw->win);
 }
 
-/*
- * Move left in the buffer. This function does not yet, but will in future be
- * responsible for placing the cursor correctly when the line contains tabs
- */
-void bufwin_move_left(struct BufWin *bw)
+/* Scroll up one line - requires a redraw afterwards */
+static inline void bufwin_scroll_up(struct BufWin *bw)
 {
-	buffer_move_backward(bw->curbuf);
+	bw->ywinoffs--;
 }
 
-/*
- * Move right in the buffer. This function does not yet, but will in future be
- * responsible for placing the cursor correctly when the line contains tabs
- */
-void bufwin_move_right(struct BufWin *bw)
+/* Scroll down one line - requires a redraw afterwards */
+static inline void bufwin_scroll_down(struct BufWin *bw)
 {
-	buffer_move_forward(bw->curbuf);
+	bw->ywinoffs++;
 }
 
-/* Move up in the buffer - this is the function that handles scrolling up */
+/* Move up in the buffer and scroll if needed */
 void bufwin_move_up(struct BufWin *bw)
 {
 	if (buffer_move_up(bw->curbuf) == -1)
 		return;
 
 	if (t_wgetcury(bw->win) == 0 && bw->curbuf->pos >= 0) {
-		bw->ywinoffs--;
+		bufwin_scroll_up(bw);
 		bufwin_redraw(bw);
 	}
 }
 
-/* Move up in the buffer - this is the function that handles scrolling down */
+/* Move down in the buffer and scroll if needed */
 void bufwin_move_down(struct BufWin *bw)
 {
 	if (buffer_move_down(bw->curbuf) == -1)
@@ -204,26 +216,32 @@ void bufwin_move_down(struct BufWin *bw)
 
 	if (t_wgetcury(bw->win) >= bw->HEIGHT - 1 &&
 	    bw->curbuf->pos < bw->curbuf->size) {
-		bw->ywinoffs++;
+		bufwin_scroll_down(bw);
 		bufwin_redraw(bw);
 	}
 }
 
-/*
- * Check if the number of digits needed for the line numbers has changed - if it
- * has, it automatically redraws the screen.
- */
-void bufwin_check_line_number_digit_change(struct BufWin *bw)
+/* Add a new line to the buffer in the current position and scroll if needed */
+void bufwin_new_line(struct BufWin *bw)
 {
-	if (DRAW_LINE_NUMS) {
-		int new = bufwin_get_linum_digits(bw);
+	buffer_new_line(bw->curbuf);
 
-		if (bw->linumdigits != new) {
-			//bw->linumdigits = new;
-			//bufwin_redraw(bw);
-			bufwin_resize_linums(bw);
+	if (t_wgetcury(bw->win) >= bw->HEIGHT - 1) {
+		bufwin_scroll_down(bw);
+		bufwin_redraw(bw);
+	} else {
+		int i = (bw->curbuf->pos == 0) ? 0 : bw->curbuf->pos - 1;
+		for ( ; i <= bw->curbuf->size; i++) {
+			t_wmove(bw->win, 0, i);
+			t_wclrtoeol(bw->win);
+			bufwin_render_line(bw, i);
 		}
 	}
+
+	bufwin_check_line_number_digit_change(bw);
+
+	t_wmove(bw->win, 0, bw->curbuf->size + 1);
+	t_wclrtoeol(bw->win);
 }
 
 /* Process a character for the buffer */
@@ -281,26 +299,13 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 
 		break;
 	case TK_ENTER:
-		buffer_new_line(buf);
-
-		i = (buf->pos == 0) ? 0 : buf->pos - 1;
-		for ( ; i <= buf->size; i++) {
-			t_wmove(bw->win, 0, i);
-			t_wclrtoeol(bw->win);
-			bufwin_render_line(bw, i);
-		}
-
-		bufwin_check_line_number_digit_change(bw);
-
-		t_wmove(bw->win, 0, buf->size + 1);
-		t_wclrtoeol(bw->win);
-
+		bufwin_new_line(bw);
 		break;
 	case TK_LEFT:
-		bufwin_move_left(bw);
+		buffer_move_backward(bw->curbuf);
 		break;
 	case TK_RIGHT:
-		bufwin_move_right(bw);
+		buffer_move_forward(bw->curbuf);
 		break;
 	case TK_UP:
 		bufwin_move_up(bw);
@@ -374,10 +379,18 @@ int bufwin_add_buffer(struct BufWin *bw)
 	return 0;
 }
 
-/* TODO: Implement this */
+/*
+ * Create a new buffer and open the file in it  - note that this DOES switch to
+ * the new buffer
+ */
 int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 {
-	return 0;
+	bufwin_add_buffer(bw);
+	bufwin_set_active_buffer(bw, bw->num_bufs - 1);
+	int status = buffer_open(bw->curbuf, file);
+	/* Second call to set_active_buffer handles rendering correctly */
+	bufwin_set_active_buffer(bw, bw->num_bufs - 1);
+	return status;
 }
 
 /* Set the active buffer and redraw the screen */
@@ -390,7 +403,7 @@ void bufwin_set_active_buffer(struct BufWin *bw, int index)
 }
 
 /*
- * Toggle whether or not line numbers should be drawn and the redraw with the
+ * Toggle whether or not line numbers should be drawn and then redraw with the
  * new setting
  */
 void bufwin_toggle_draw_linums(struct BufWin *bw)

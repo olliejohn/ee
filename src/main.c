@@ -30,7 +30,7 @@
 #include "tui/tui.h"
 
 #define INFO_NAME 	"Yaw"
-#define INFO_VERSION 	"0.01"
+#define INFO_VERSION 	"0.0.1"
 #define INFO_AUTHOR 	"Ollie Etherington"
 #define INFO_LICENSE	"GNU GPLv2"
 #define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
