@@ -1,7 +1,7 @@
 # Yaw Makefile
 
 CC=gcc
-CFLAGS=-c -Wall -std=gnu99 -O3
+CFLAGS=-c -Wall -std=gnu99 -O3 -D_GNU_SOURCE
 LDFLAGS=-lncursesw -ltinfo -lutil
 DEFS=-DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG

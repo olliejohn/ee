@@ -1,7 +1,7 @@
 #Yaw TUI Makefile
 
 CC=gcc
-DEFS=-DNDEBUG
+DEFS=-D_GNU_SOURCE -DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo
