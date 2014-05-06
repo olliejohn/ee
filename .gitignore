@@ -26,6 +26,11 @@ yaw
 # Output from profiling script
 profile.png
 
+# Valgrind logs
+*.log
+log.*
+log
+
 # Test files
 testfile*
 tf*
