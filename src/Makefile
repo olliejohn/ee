@@ -16,6 +16,8 @@ all: exec
 
 debug: buildTuiDebug buildVteDebug buildDebug link
 
+
+
 exec: buildTui buildVte build link
 
 link:
@@ -31,7 +33,7 @@ buildTui:
 	$(MAKE) -C tui
 
 buildDebug:
-	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) $(SOURCES)
+	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
 
 buildVteDebug:
 	$(MAKE) debug -C vte

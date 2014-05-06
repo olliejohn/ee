@@ -159,7 +159,7 @@ void vterm_interpret_csi(vterm_t *vterm)
       }
 #ifdef DEBUG
       default:
-         fprintf(stderr, "Unrecogized CSI: <%s>\n", rt->pd->esbuf); break;
+         fprintf(stderr, "Unrecogized CSI: <%s>\n", vterm->esbuf); break;
 #endif
    }
 }

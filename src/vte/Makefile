@@ -13,7 +13,7 @@ build:
 	$(CC) $(CFLAGS) $(DEFS) $(SOURCES)
 
 debug:
-	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) $(SOURCES)
+	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
 
 clean:
 	rm -f *.o
