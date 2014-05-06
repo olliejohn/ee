@@ -52,9 +52,9 @@ struct VTE *vte_new(int x, int y, int w, int h)
 {
 	struct VTE *vte = malloc(sizeof(struct VTE));
 
-	vte->divider = t_winit(x, y, 1, h);
+	vte->divider = t_winit(x + 1, y, 1, h);
 	vte_draw_divider(vte);
-	vte->win = t_winit(x + 1, y, w - 1, h);
+	vte->win = t_winit(x + 2, y, w - 1, h);
 	vte->vterm = vterm_create(w - 1, h, VTERM_FLAG_VT100);
 	vterm_set_colors(vte->vterm, TERM_FG, TERM_BG);
 	vterm_wnd_set(vte->vterm, vte->win);
