@@ -1,0 +1,330 @@
+2014-05-06  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added valgrind output logs to .gitignore
+
+	Fixed a window sizing issue in the vte driver
+
+	Added _GNU_SOURCE definition to makefiles
+
+	Fixed a bug in all makefiles where debug variables weren't being inserted into the targets correctly
+
+2014-05-05  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Various small fixes and more work on expanding the scrolling capabilities
+
+2014-05-03  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	More tidying of makefiles
+
+	Tidied make files greatly improving debug builds and added NDEBUG defines to non-debug builds to disable asserts
+
+	Removed an outdated todo comment
+
+2014-05-02  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Fixed a bug that appended a new empty line onto the end of a file every time a save was done
+
+	Implemented tracking of whether a file's dirty or not and changing tab text color accordingly
+
+	Completed basic implementation of saving (with and without a filename prompt)
+
+	Implemented home and end and started working on pgup, pgdn, ctrl+left and ctrl+right
+
+	Fixed the bug with line numbering not shrinking when necessary with a missed update of bufwin->linumdigits
+
+2014-05-01  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	The new line numbering system is starting to work - it now expands accordingly but doesn't yet shrink down again when it should
+
+	Fixed a mistake where t_wgetbegx() and t_getbegy() called the wrong ncurses functions
+
+	More work on fixing line numbering and also fixed a memory error in run_current_cmd (also improving performance in the process)
+
+2014-04-30  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	More work on the line numbering that I had to break to make indents work
+
+	Indents finally working properly
+
+	The new line numbers and tabs are implemented (just about) - they're still rough around the edges
+
+	Fixed missing types in t_wresize and t_mvwin
+
+	Added window move/resize functions to tui
+
+	Started the new implementation of indent handling and moved the VTE from the bufwin into the screen
+
+	Removed an outdated todo comment
+
+	Added clearer messages to the makefiles
+
+	Started working on implementing indents
+
+	Added case to put cursor back in the correct position if using the terminal when triggering the save callback
+
+	Added tui/.gitignore to ignore the demo executable
+
+	Added tabsize function
+
+	Small optimization to redrawing when changing buffers and added documentation to bufwin.c and bufwin.h
+
+	Found the exact issue in printing the VTE which, once fixed, meant the function to check if a character was allowed could be removed as it became implicit
+
+	Fixed a small bug in error handling
+
+	Moved helper functions for calculating the size of the line numbers from buffer to bufwin
+
+	Fixed bug where the window didn't redraw when the number of digits in the maximum line number changed
+
+2014-04-29  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Un-inlined flag functions - it's worth loosing a couple of CPU cycles for the sake of cleaner code
+
+	Updated todo
+
+	Fixed formatting issue in readme
+
+	Updated readme
+
+	Fixed typos and added more info to the vte readme
+
+	Fixed rendering bugs in vte
+
+2014-04-28  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Made all lines fit within 80 chars
+
+	Used t_window typedef consistently instead of occasionally
+
+	The terminal now works. It has some rendering bugs that still need fixing, but it works.
+
+	Changed the quit bind, added shorter command line flags for info and fixed a typo in the usage dialog
+
+	Fixed a typo in an explanatory comment
+
+	Refacted the contents of vterm_misc.* into the new files vterm_clamp_cursor.*
+
+	More work on the vte driver integration
+
+	Moved validate_escape_suffix function from misc into vterm_escape.c - the only file it's used in
+
+	Formatted vterm_read.c and vterm_write.c as well as some (very) small refactoring
+
+	Added NO_DELAY option to tui
+
+	Made screen flag functions inline
+
+	Made the make targets more efficient
+
+	Improved file opening API
+
+	Made the make targets more efficient
+
+	Updated local references to tui
+
+	Fully integrated local version of vterm
+
+	Merged branch VTE: Added VTE and TUI subsystems
+
+	Updated makefiles fixing linking errors with vte and adding the newly merged tui targets
+
+	Merged TUI subsystem into Yaw
+
+	Added readme for vte subsystem
+
+	Updated references to libvterm - they now all point to the local version
+
+	Updated license/copyright headers in all vte files
+
+	Added files from the no-glib fork of libvterm and updated both it's makefile and the main Yaw makefile accordingly
+
+	More work on the vte
+
+	Rewrote buffer_new_line function
+
+	Removed glib2 from makefile since I forked libvterm to no longer require it
+
+2014-04-27  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Fixed a small memory leak when pressing backspace in a buffer
+
+2014-04-26  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Continued work on the vte - I'm using libvterm after all. It's still buggy though - hopefully it's fixable
+
+	Removed lots of old code from the lisp interpreter - it won't be used nearly as much as originally expected
+
+	Fixed a bug where the global settings struct wasn't delared as extern in it's header file and added a lisp_tokenize function
+
+	Added libvterm to makefile (and glib2 which it depends on)
+
+2014-04-25  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added more control features to the vte
+
+	Updated todo
+
+	Fixed a cursor positioning bug when moving from the cli to the buffer and created a new buffer
+
+	Added prompt printing to the vte
+
+	Fixed a very important bug in the line_double_capacity_if_full function and started working on the vte
+
+2014-04-24  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added line numbers
+
+	Scrolling now works
+
+	Added test files to .gitignore
+
+	Better focus switching
+
+	Full multibuffer support. Buffers also now redraw when switching tabs
+
+	Implemented tab bar
+
+	More work on saving and started on the tab framework
+
+2014-04-23  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Removed old commented-out code from before bufwin was added
+
+	Moved most of buffer_process_char into it's own function in bufwin called bufwin_process_char
+
+	Merge branch 'master' of https://github.com/olliejohn/Yaw
+	After a commit error that accidentally excluded adding two new files (bufwin.c and bufwin.h)
+
+	Converted buffer references of filename from t_char* to char* for posix consistency, started adding to save/save as framework and created encapsulating bufwin class
+
+	Converted buffer references of filename from t_char* to char* for posix consistency, started adding to save/save as framework and created encapsulating bufwin class
+
+	Removed old unused macros
+
+	Buffers now track there filename. This has also been implemented in the screen_run function.
+
+	Fixed a small call bug when switching to CLI
+
+	Implemented flags system
+
+2014-04-22  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Started large expansion of bind system by using an array of bind objects instead of simply defining macros corresponding to keys
+
+	More work on the lisp interpreter - it's still not functional but most of the framework and structures are in place
+
+	Removed key definitions from binds.g - they'll move into libtui instead
+
+	Removed libtermkey from dependencies - I'll add the functionality needed to libtui instead
+
+	Changed order of init functions
+
+	Added libtermkey dependency
+
+	Fixed an off-by-one error when converting the char filepath to a wide char filepath that caused 2 invalid memory reads of 4 bytes each
+
+2014-04-21  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Removed old and unused print_to_win and v_print_to_win functions
+
+	Added variable arguments to the screen_set_title and screen_set_status functions
+
+	Expanded and improved printing title, status and character info data to the upper and lower bars
+
+	Added more cmd line control functionality and implemented simple command history/recall
+
+	Fixed incorrect include in binds.h
+
+	Removed duplicated code in make targets
+
+	Implemented cmd line buffer and enabled switching between it and the main text buffer
+
+	Reimplemented opening files and moved unnecessary code from window.c/.h into screen.c
+
+2014-04-20  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added color support for 8 color xterms
+
+2014-04-18  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Started working on the lisp interpreter
+
+2014-04-17  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Fixed delete bug
+
+	Fixed another backspace bug
+
+	Fixed a new line bug
+
+	Removed profile.png (which wasn't needed) and updated .gitignore accordingly
+
+	Fixed a backspace bug and moved the big buffer-operation-choosing switch statement in screen.c into it's own function
+
+	Fixed a bug in buffer_move_forward
+
+2014-04-16  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Updated .gitignore to exclude new executable
+
+	Small naming fixes
+
+	Added profile and changed name
+
+2014-04-15  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Various bug fixes and small additions
+
+	Added screen class which allowed moving the run loop out of main.c
+
+	Added buffer_go_to function and expanded color system
+
+	The editor is now UTF-8, not ASCii, using TUI on top of ncurses. The conversion isn't fully complete (it certainly wasn't trivial) but I don't want to make this commit any larger than it already is. There's a refresh bug when backspacing and open/save isn't yet implemented
+
+2014-04-13  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	MASSIVE refactor, lots of small memory bug fixes, added UI and window system, upgraded print system, added color support, fixed a movement bug and improved config system (though it's still messy)
+
+	Added delete support in buffer, fixed an end of buffer seg fault, refactored and updated config functionality
+
+2014-04-12  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Config loading is now fully functional, added a todo list and fixed a bug where you couldn't move onto the final line of a buffer
+
+2014-04-11  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Fixed a makefile bug and started on the config loader
+
+	More bug fixes. I'm no longer aware of any bugs in the buffer system - let the testing commence
+
+	Corrected order of render/refresh/input functions in the main event loop. More bug fixes in the new line function - I think it's fine now. Also added some debugging functionality
+
+	Fixed seg fault bug that only appears on some terminal emulators
+
+	Added license headers to all source files
+
+	Fixed new line bug
+
+	Prevented unprintable characters from being inserted into the file
+
+	Optimised screen refresh when inserting lines
+
+	Fixed backspace bug
+
+	More work on buffer logistics, fixed a saving bug and started on preferred line system in buffer
+
+	New lines now work and added some control sequence macros (which are probably wrong)
+
+	Fixed a bug in the new save algorithm
+
+	Fixed two bugs when moving up a line in the buffer
+
+	More work on adding lines to buffers and fixed a bug that added a extra new line when saving
+
+	Removed unused code and fixed a seg-fault when starting a new file
+
+2014-04-10  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added about, version and help/usage dialogs
+
+	Initial commit
