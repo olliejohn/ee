@@ -16,8 +16,6 @@ all: exec
 
 debug: buildTuiDebug buildVteDebug buildDebug link
 
-
-
 exec: buildTui buildVte build link
 
 link:
