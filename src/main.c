@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <malloc.h>
 #include <string.h>
 
 #include "binds.h"
@@ -88,6 +89,13 @@ int main(int argc, char **argv)
 {
 	/* Enable unicode */
 	void t_init_unicode();
+
+	/* Set mallopt options */
+#ifdef DEBUG
+	mallopt(M_CHECK_ACTION, 3); /* Detailed error message and abort */
+#else
+	mallopt(M_CHECK_ACTION, 1); /* Detailed error message and continue */
+#endif
 
 	/* Parse args */
 	int FLAG_OPEN = 0;
