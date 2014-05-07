@@ -1,6 +1,10 @@
+Better scrolling!!!
+
+Documentation
+
 Undo/redo
 
-Config
+(Lisp?) Config
 	Tabs
 	Line Numbers
 	Line size indicator
@@ -11,10 +15,7 @@ Config
 
 Grep (search/replace)
 
-Clipboard with xsel
-
-UI
-	Better saving
+Clipboard (xsel?)
 
 Syntax Highlighting
 
