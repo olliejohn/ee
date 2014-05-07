@@ -25,12 +25,13 @@
  * Make sure that the first thing the other application does is either t_init()
  * or t_init_unicode()
  *
- * ncurses(w) needn't be included in the souce file as it is included here
+ * ncurses(w) needn't be included in the source file as it is included here
  * Link with -lncursesw. Some systems will also require -ltinfo
  *
  * Mixing tui functions with the original ncurses functions is generally
  * discouraged but entirely possible. In particular, feel free to use any
- * ncurses functions that I've forgotten to add a wrapper for.
+ * ncurses functions that I've forgotten to add a wrapper for (or, even better,
+ * add them here).
  */
 
 #ifndef TUI_H
@@ -242,17 +243,17 @@ int t_scroll(t_window *win);
 /* Attributes */
 typedef attr_t t_attrib;
 
-#define TA_NORMAL 	A_NORMAL,
-#define TA_STANDOUT 	A_STANDOUT,
-#define TA_UNDERLINE 	A_UNDERLINE,
-#define TA_REVERSE 	A_REVERSE,
-#define TA_BLINK 	A_BLINK,
-#define TA_DIM 		A_DIM,
-#define TA_BOLD 	A_BOLD,
-#define TA_PROTECT 	A_PROTECT,
-#define TA_INVIS 	A_INVIS,
-#define TA_ALTCHARSET 	A_ALTCHARSET,
-#define TA_CHARTEXT 	A_CHARTEXT,
+#define TA_NORMAL 	A_NORMAL
+#define TA_STANDOUT 	A_STANDOUT
+#define TA_UNDERLINE 	A_UNDERLINE
+#define TA_REVERSE 	A_REVERSE
+#define TA_BLINK 	A_BLINK
+#define TA_DIM 		A_DIM
+#define TA_BOLD 	A_BOLD
+#define TA_PROTECT 	A_PROTECT
+#define TA_INVIS 	A_INVIS
+#define TA_ALTCHARSET 	A_ALTCHARSET
+#define TA_CHARTEXT 	A_CHARTEXT
 
 inline int t_attrget(t_attrib *aptr, short *colorptr, void *opts) {
 	return attr_get(aptr, colorptr, opts);
