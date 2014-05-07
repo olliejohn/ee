@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 	/* Run program */
 	binds_init();
 
-	int cfgstatus = config_init();
+	int status = config_init();
 
 	color_init();
 
@@ -137,10 +137,10 @@ int main(int argc, char **argv)
 	binds_set_current_screen(scrn);
 	register_default_binds();
 
-	if (cfgstatus == -1)
+	if (status == -1)
 		screen_set_flag(scrn, SF_NO_CONFIG);
 
-	int status = screen_run(scrn, filepath);
+	status = screen_run(scrn, filepath);
 	screen_free(scrn);
 
 	config_destroy();
