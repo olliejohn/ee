@@ -68,6 +68,7 @@ void buffer_free(struct Buffer *buf);
 void buffer_set_filename(struct Buffer *buf, char *filename);
 void buffer_set_filename_from_wide(struct Buffer *buf, t_char *filename);
 void buffer_go_to(struct Buffer *buf, int x, int y);
+t_char *buffer_get_text_at(struct Buffer *buf, int line);
 void buffer_add(struct Buffer *buf, t_char c);
 void buffer_new_line(struct Buffer *buf);
 int buffer_backspace(struct Buffer *buf);

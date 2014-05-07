@@ -215,6 +215,12 @@ void buffer_go_to(struct Buffer *buf, int x, int y)
 	buf->data[buf->pos]->pos = x;
 }
 
+#define LN_MAX ((buf->size < 2) ? 1 : buf->size)
+t_char *buffer_get_text_at(struct Buffer *buf, int line)
+{
+	return (line <= LN_MAX) ? buf->data[line]->data : NULL;
+}
+
 static void buffer_double_capacity_if_full(struct Buffer *buf)
 {
 	if (buf->size < buf->capacity)
