@@ -14,6 +14,16 @@ Yaw currently features:
 - A built in terminal emulator
 - Extensibility and configuation with the built in Lisp interpretter
 
-My main focus for the moment is taking what we have so far (about 5500 lines of
-C as of 29th April 2014) and making it as stable and, ultimately, useable as
+My main focus for the moment is taking what we have so far (about 5800 lines of
+C as of 6th May 2014) and making it as stable and, ultimately, useable as
 possible. I will, however, continue to add features along the way.
+
+
+###Building and Installing
+Either run 'make' or 'make debug' in the src directory depending on your needs.
+This can then be installed on your system by running 'make install'. In order
+to build Yaw, you will need GCC and ncursesw.
+
+
+###Licensing
+Yaw is available under the GNU GPL Version 2. See 'LICENSE' for more details.
