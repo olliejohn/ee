@@ -22,7 +22,9 @@ possible. I will, however, continue to add features along the way.
 ###Building and Installing
 Either run 'make' or 'make debug' in the src directory depending on your needs.
 This can then be installed on your system by running 'make install'. In order
-to build Yaw, you will need GCC and ncursesw.
+to build Yaw, you will need GCC, ncursesw and some variant of make. Updating the
+ChangeLog will also require Perl and Git whilst building the documentation
+files will require man, gzip, info and makeinfo.
 
 
 ###Licensing
