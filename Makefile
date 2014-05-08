@@ -1,6 +1,7 @@
 
 EXEC=yaw
 SRCDIR=./src
+DOCDIR=./doc
 
 all: exec
 
@@ -18,9 +19,13 @@ clean:
 
 install:
 	$(MAKE) install -C $(SRCDIR)
+	$(MAKE) install -C $(DOCDIR)
+	@echo -- Install Success --
 
 uninstall:
 	$(MAKE) uninstall -C $(SRCDIR)
+	$(MAKE) uninstall -C $(DOCDIR)
+	@echo -- Uninstall Success --
 
 log:
 	@./gitlog-to-changelog > ChangeLog
