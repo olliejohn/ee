@@ -169,7 +169,7 @@ int bufwin_get_line_screen_position(struct BufWin *bw, unsigned int ln)
  * function also draws the line number to the screen if that option is turned on
  */
 #define scroll_offs line + bw->ywinoffs
-void bufwin_render_line(struct BufWin *bw, unsigned int line)
+void bufwin_render_screen_line(struct BufWin *bw, unsigned int line)
 {
 	if (DRAW_LINE_NUMS) {
 		t_mv_wprint(bw->linumwin, 0, line, L" %*d ",
@@ -181,7 +181,7 @@ void bufwin_render_line(struct BufWin *bw, unsigned int line)
 	if (text != NULL)
 		t_mv_wprint(bw->win, 0, line, text);
 	else
-		DEBUG_DUMP("Array index out of bounds: bufwin_render_line:\n"
+		DEBUG_DUMP("Index out of bounds: bufwin_render_screen_line:\n"
 			   "Fetching index: %d from a buffer of size %d\n"
 			   "Y relative to screen: %d - Y window offset: %d\n",
 			   scroll_offs, bw->curbuf->size, line, bw->ywinoffs);
@@ -189,8 +189,8 @@ void bufwin_render_line(struct BufWin *bw, unsigned int line)
 #undef scroll_offs
 
 /*
- * Exactly the same as bufwin_render_line except the line index is relative to
- * the buffer, not the screen position.
+ * Exactly the same as bufwin_render_screen_line except the line index is
+ * relative to the buffer, not the screen position.
  */
 void bufwin_render_buffer_line(struct BufWin *bw, unsigned int bln)
 {
@@ -198,7 +198,7 @@ void bufwin_render_buffer_line(struct BufWin *bw, unsigned int bln)
 	if (unlikely(l == -1))
 		return;
 	else
-		bufwin_render_line(bw, l);
+		bufwin_render_screen_line(bw, l);
 }
 
 /* Redraw the entire buffer screen */
@@ -208,7 +208,7 @@ void bufwin_redraw(struct BufWin *bw)
 
 	unsigned int i;
 	for (i = 0; i < bw->HEIGHT && i + bw->ywinoffs <= bw->curbuf->size; i++)
-		bufwin_render_line(bw, i);
+		bufwin_render_screen_line(bw, i);
 
 	bufwin_place_cursor(bw);  /* Implicitly refreshes window */
 }
@@ -256,11 +256,11 @@ void bufwin_backspace(struct BufWin *bw)
 	if (buffer_backspace(bw->curbuf) == 0) {
 		t_wmove(bw->win, 0, bw->curbuf->pos);
 		t_wclrtoeol(bw->win);
-		bufwin_render_line(bw, bw->curbuf->pos);
+		bufwin_render_screen_line(bw, bw->curbuf->pos);
 	} else {
 		int i;
 		for (i = bw->curbuf->pos; i <= bw->curbuf->size; i++) {
-			bufwin_render_line(bw, i);
+			bufwin_render_screen_line(bw, i);
 			t_wclrtoeol(bw->win);
 		}
 
@@ -286,11 +286,11 @@ void bufwin_delete(struct BufWin *bw)
 	if (buffer_backspace(buf) == 0) {
 		t_wmove(bw->win, 0, buf->pos);
 		t_wclrtoeol(bw->win);
-		bufwin_render_line(bw, buf->pos);
+		bufwin_render_screen_line(bw, buf->pos);
 	} else {
 		unsigned int i;
 		for (i = buf->pos; i <= buf->size; i++) {
-			bufwin_render_line(bw, i);
+			bufwin_render_screen_line(bw, i);
 			t_wclrtoeol(bw->win);
 		}
 
@@ -310,15 +310,19 @@ void bufwin_new_line(struct BufWin *bw)
 {
 	buffer_new_line(bw->curbuf);
 
-	if (t_wgetcury(bw->win) >= bw->HEIGHT - 1) {
+	unsigned int screen_max = bw->HEIGHT - 1;
+	if (t_wgetcury(bw->win) >= screen_max) {
 		bufwin_scroll_down(bw);
 		bufwin_redraw(bw);
+		t_wmove(bw->win, 0, screen_max);
+		t_wclrtoeol(bw->win);
+		bufwin_render_screen_line(bw, screen_max);
 	} else {
-		int i = (bw->curbuf->pos == 0) ? 0 : bw->curbuf->pos - 1;
+		unsigned int i = (bw->curbuf->pos == 0) ? 0 : bw->curbuf->pos-1;
 		for ( ; i <= bw->curbuf->size; i++) {
 			t_wmove(bw->win, 0, i);
 			t_wclrtoeol(bw->win);
-			bufwin_render_line(bw, i);
+			bufwin_render_screen_line(bw, i);
 		}
 	}
 
