@@ -35,5 +35,8 @@ log
 testfile*
 tf*
 
-# gzipped files (mainly the man page)
+# gzipped files (for documentation)
 *.gz
+
+# info files
+*.info

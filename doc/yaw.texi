@@ -1,0 +1,129 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header
+@setfilename yaw.info
+@settitle Yaw User Manual
+@c %**end of header
+
+@smallbook
+@set EDITION 0.0.1
+@set VERSION 0.0.1
+@set UPDATED 7th May 2014
+@set AUTHOR Ollie Etherington
+@set HOMEPAGE @url{www.github.com/olliejohn/Yaw}
+@set COPYRIGHT Copyright (C) 2014 Ollie Etherington
+
+@dircategory Editors
+@direntry
+* yaw: (yaw).                 Simple, extensible text editor
+@end direntry
+
+@c tex
+@c \overfullrule=0pt
+@c end tex
+
+@titlepage
+@title The @code{Yaw} Text Editor
+@subtitle User Manual
+@subtitle Version @value{VERSION}
+
+@author @value{AUTHOR}
+@page
+
+This manual documents @code{Yaw}, a simple yet extensible text editor and
+terminal emulator.
+
+@value{COPYRIGHT}
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@iftex
+Permission is granted to process this file through @TeX{} and print the
+results, provided the printed document carries copying permission notice
+identical to this one except for the removal of this paragraph (this
+paragraph not being relevant to the printed manual).
+@end iftex
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+You may contact the author at @value{HOMEPAGE}
+@end titlepage
+
+
+@node Top, Introduction, (dir), (dir)
+
+This manual documents @code{Yaw}, a simple yet extensible text editor and
+terminal emulator.
+
+@menu
+* Introduction::
+* Building and Configure Options::
+@end menu
+
+@node Introduction, Building and Configure Options, Top, Top
+@chapter Introduction
+
+@code{Yaw} is a simple yet extensible text editor.  Besides basic text editing,
+@code{Yaw} also features a built in terminal emulator and customization via a
+Lisp interpreter.
+
+@menu
+* Overview::
+* Command Line Options::
+@end menu
+
+@node Overview, Command Line Options, Introduction, Introduction
+@section Overview
+
+@code{Yaw} [+LINE,COLUMN] [options] [@var{file ...}]
+
+The original goal for @code{Yaw} was to make the workflow between writing code
+and building/testing it in a terminal as simple as possible whilst still being
+compatible with CLI systems.
+
+Please file bug reports at @value{HOMEPAGE}.
+
+@node Command Line Options, , Overview, Introduction
+@section Command Line Options
+
+@code{Yaw} takes the following options from the command line:
+
+@table @code
+
+@item -z, --suspend
+Enable suspend ability of @code{Yaw} using the system's suspend
+keystroke (usually ^Z).
+
+@item +LINE,COLUMN
+Start at line number LINE and column number COLUMN instead of the default of
+line 1 and column 1.
+
+@end table
+
+@node Building and Configure Options, , Introduction, Top
+@chapter Building and Configure Options
+
+Building @code{Yaw} from source is very straight forward if you are familiar
+with the process. It simply requires moving into the 'yaw' directory then
+performing @code{make && make install}
+
+This process is dependant on the following packages:
+
+@itemize @bullet
+@item GCC (other C compilers may be used, but the source will require some small
+modifications)
+@item ncursesw
+@item make (or some compatable variant)
+@end itemize
+
+Building and installing the documentation will also require man, gzip, info and
+makeinfo.
+
+Updating the ChangeLog will also require Perl and Git.
+
+@contents
+@bye
