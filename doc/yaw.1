@@ -1,23 +1,20 @@
 .TH YAW 1
-
 .SH NAME
 yaw \- Yet Another Writer, extensible text editor with built-in terminal
 emulator
-
 .SH SYNOPSIS
 .B yaw
 .I [OPTIONS]\ [\+LINE,COLUMN]\ [FILES]
 .br
-
 .SH DESCRIPTION
 This manual page briefly describes the Yaw text editor.
-
+.PP
 Yaw is a command line text-editor designed to be as simple to use as possible
 whilst still being powerful and extensible.
-
+.PP
 Yaw is still in the early stages of development and so it NOT recomended for
 ACTUAL work (see the \fINOTES\fP section for more information).
-
+.PP
 Yaw currently features:
 .IP \[bu] 2
 Opening multiple buffers at once in tabs
@@ -25,33 +22,27 @@ Opening multiple buffers at once in tabs
 A built in terminal emulator
 .IP \[bu]
 Extensibility and configuation with the built in Lisp interpretter
-
 .SH OPTIONS
 .TP
 .B \+\fILINE\fP,\fICOLUMN\fP
 Places cursor at line number \fILINE\fP and column number \fICOLUMN\fP (at least
 one of which must be specified) on startup, instead of the default of line 1,
 column 1.
-
 .SH CONFIGURATION
 The Yaw configuaration file is found at ~/.yaw
-
+.PP
 Any time that Yaw starts up and does not find this file, it will write the
 default configuration to this location.
-
 .SH NOTES
 Yaw is still in the very early stages of development and so is still quite
 buggy and is still lacking some important (and some not so important) features.
 For this reason it is very much recommended that Yaw is NOT used for actual
 work until the release of the first stable version. The usual disclaimers
 asscociated with the GNU GPL also apply (see \fICOPYING\fP for more details).
-
 .SH BUGS
 Please report bugs by raising an issue at at github.com/olliejohn/Yaw/issues
-
 .SH HOMEPAGE
 www.github.com/olliejohn/Yaw
-
 .SH COPYING
 Yaw is free software; you can redistribute it and/or modify  it under the terms
 of the GNU General Public License as published by the Free Software Foundation;
@@ -59,9 +50,9 @@ either version 2 of the License, or (at your option) any later version. Yaw is
 distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE. See the GNU General Public License for more details.
-
+.PP
 Copying and distribution of this file, with or without modification, are
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty.
-
+.PP
 Copyright (C) 2014 Ollie Etherington
