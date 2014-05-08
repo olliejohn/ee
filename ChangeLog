@@ -1,4 +1,26 @@
+2014-05-08  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added debug dump macro to tools.h
+
+2014-05-07  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added 'Building and Installing' and 'Licensing' sections to the README
+
+	Updated todo
+
+	Removed an unnecessary status variable
+
+	Added initialization for malloc with mallopt
+
+	Added buffer_get_text_at function to buffer
+
+	Various spelling fixes and removed some accidental commas at the end of some attribute macros
+
+	Removed extraneous white space from the Makefile
+
 2014-05-06  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added ChangeLog and gitlog-to-changelog script
 
 	Added valgrind output logs to .gitignore
 
