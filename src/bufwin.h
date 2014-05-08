@@ -47,7 +47,6 @@ struct BufWin {
 	unsigned int WIDTH;
 	unsigned int HEIGHT;
 	unsigned int ywinoffs;    /* Window offset for scrolling */
-	unsigned int relcursy;	 /* Cursor y position relative to the screen */
 	unsigned int linumdigits; /* The number of digits in the line number */
 };
 

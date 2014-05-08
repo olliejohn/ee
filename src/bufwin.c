@@ -66,7 +66,6 @@ struct BufWin *bufwin_new(int x, int y, unsigned int w, unsigned int h)
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
 	bw->ywinoffs = 0;
-	bw->relcursy = 0;
 	bw->linumdigits = 0;
 
 	return bw;
@@ -258,7 +257,7 @@ void bufwin_backspace(struct BufWin *bw)
 		t_wclrtoeol(bw->win);
 		bufwin_render_screen_line(bw, bw->curbuf->pos);
 	} else {
-		int i;
+		unsigned int i;
 		for (i = bw->curbuf->pos; i <= bw->curbuf->size; i++) {
 			bufwin_render_screen_line(bw, i);
 			t_wclrtoeol(bw->win);

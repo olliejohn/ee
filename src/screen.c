@@ -145,8 +145,7 @@ void screen_print_ch_info(struct Screen *scrn)
 		    scrn->bw->curbuf->pos + 1,
 		    scrn->bw->curbuf->size + 1,
 		    scrn->bw->curbuf->data[scrn->bw->curbuf->pos]->pos + 1,
-		    scrn->bw->relcursy);
-		    //scrn->bw->curbuf->data[scrn->bw->curbuf->pos]->size + 1);
+		    scrn->bw->curbuf->data[scrn->bw->curbuf->pos]->size + 1);
 }
 
 void screen_do_save_prompt(struct Screen *scrn)
