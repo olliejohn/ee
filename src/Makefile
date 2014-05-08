@@ -3,7 +3,8 @@
 CC=gcc
 CFLAGS=-c -Wall -std=gnu99 -O3 -D_GNU_SOURCE
 LDFLAGS=-lncursesw -ltinfo -lutil
-DEFS=-DNDEBUG
+DEFS=
+NDEBUG=-DNDEBUG -UDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 TARGET=yaw
 OBJECTS=*.o vte/*.o tui/*.o
@@ -22,7 +23,7 @@ link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
 build:
-	$(CC) $(CFLAGS) $(DEFS) $(SOURCES)
+	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
 
 buildVte:
 	$(MAKE) -C vte

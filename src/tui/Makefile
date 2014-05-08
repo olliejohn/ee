@@ -1,10 +1,11 @@
 #Yaw TUI Makefile
 
 CC=gcc
-DEFS=-D_GNU_SOURCE -DNDEBUG
-CDEBUG=-g -UNDEBUG -DDEBUG
 CFLAGS=-c -Wall -std=gnu99 -O3
 LDFLAGS=-lncursesw -ltinfo
+DEFS=-D_GNU_SOURCE
+NDEBUG=-UDEBUG -DNDEBUG
+CDEBUG=-g -UNDEBUG -DDEBUG
 DEMO=tui_demo
 SOURCES=tui.c
 
@@ -15,7 +16,7 @@ demo: build
 	$(CC) $(DEMO).c tui.o $(LDFLAGS) -o $(DEMO)
 
 build:
-	$(CC) $(CFLAGS) $(SOURCES)
+	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
 
 debug:
 	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
