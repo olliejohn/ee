@@ -9,11 +9,11 @@ INFODIR=/usr/share/info
 all: man info
 
 man:
-	gzip -k $(MANSRC)
+	gzip -f -k $(MANSRC)
 
 info:
 	makeinfo $(INFOSRC) -o $(INFOOUT)
-	gzip -k $(INFOOUT)
+	gzip -f -k $(INFOOUT)
 
 clean:
 	rm -rf $(MANSRC).gz
