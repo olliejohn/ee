@@ -15,6 +15,7 @@ LIBDIR=/usr/lib
 all: exec
 	@echo -- Yaw Make Success --
 
+d: debug
 debug: buildTuiDebug buildVteDebug buildDebug link
 
 exec: buildTui buildVte build link
