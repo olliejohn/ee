@@ -51,7 +51,7 @@ void screen_toggle_flag(struct Screen *scrn, enum Screen_Flag flag)
 	scrn->FLAGS ^= 1 << flag;
 }
 
-int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag)
+unsigned int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag)
 {
 	return scrn->FLAGS & (1 << flag);
 }
@@ -104,7 +104,7 @@ static void screen_draw_tabs(struct Screen *scrn)
 	t_wrefresh(scrn->tbar);
 }
 
-void screen_change_to_buffer(struct Screen *scrn, int new)
+void screen_change_to_buffer(struct Screen *scrn, unsigned int new)
 {
 	if (new >= scrn->bw->num_bufs)
 		return;
@@ -137,18 +137,17 @@ void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
 /* Prints line number and character number information */
 #define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
 #define CH_INFO_OFFS 24
-#define buf scrn->bw->curbuf
 void screen_print_ch_info(struct Screen *scrn)
 {
 	t_mv_wprint(scrn->bbar,
 		    scrn->WIDTH - CH_INFO_OFFS, 0,
 		    CH_INFO_FMT,
-		    buf->pos + 1,
-		    buf->size + 1,
-		    buf->data[buf->pos]->pos + 1,
-		    buf->data[buf->pos]->size + 1);
+		    scrn->bw->curbuf->pos + 1,
+		    scrn->bw->curbuf->size + 1,
+		    scrn->bw->curbuf->data[scrn->bw->curbuf->pos]->pos + 1,
+		    scrn->bw->relcursy);
+		    //scrn->bw->curbuf->data[scrn->bw->curbuf->pos]->size + 1);
 }
-#undef buf
 
 void screen_do_save_prompt(struct Screen *scrn)
 {

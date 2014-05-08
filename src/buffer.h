@@ -34,17 +34,17 @@ typedef enum {
 } dirty_t;
 
 struct Line {
-	int size;
-	int pos;
-	int capacity;
+	unsigned int size;
+	unsigned int pos;
+	unsigned int capacity;
 	t_char *data;
 };
 
 struct Buffer {
-	int size;
-	int pos;
-	int pref_line_pos;
-	int capacity;
+	unsigned int size;
+	unsigned int pos;
+	unsigned int pref_line_pos;
+	unsigned int capacity;
 	struct Line **data;
 	char *filename;
 	dirty_t dirty;
@@ -52,7 +52,7 @@ struct Buffer {
 
 struct Line *line_new();
 void line_free(struct Line *line);
-int line_get_curs_pos(struct Line *line);
+unsigned int line_get_curs_pos(struct Line *line);
 int line_move_forward(struct Line *line);
 int line_move_backward(struct Line *line);
 int line_prev_word(struct Line *line);

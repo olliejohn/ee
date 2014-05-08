@@ -42,15 +42,16 @@ struct BufWin {
 	t_window *win;
 	t_window *linumwin;
 	struct Buffer **buffers;
-	int num_bufs;
+	unsigned int num_bufs;
 	struct Buffer *curbuf;
-	int WIDTH;
-	int HEIGHT;
-	int ywinoffs;    /* Window offset for scrolling */
-	int linumdigits; /* The number of digits in the line number */
+	unsigned int WIDTH;
+	unsigned int HEIGHT;
+	unsigned int ywinoffs;    /* Window offset for scrolling */
+	unsigned int relcursy;	 /* Cursor y position relative to the screen */
+	unsigned int linumdigits; /* The number of digits in the line number */
 };
 
-struct BufWin *bufwin_new(int x, int y, int w, int h);
+struct BufWin *bufwin_new(int x, int y, unsigned int w, unsigned int h);
 void bufwin_free(struct BufWin *bufwin);
 void bufwin_resize_linums(struct BufWin *bufwin);
 void bufwin_redraw(struct BufWin *bufwin);

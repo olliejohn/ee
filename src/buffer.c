@@ -49,9 +49,9 @@ void line_free(struct Line *line)
 	free(line);
 }
 
-int line_get_curs_pos(struct Line *line)
+unsigned int line_get_curs_pos(struct Line *line)
 {
-	int i, curspos = 0;
+	unsigned int i, curspos = 0;
 
 	for (i = 0; i < line->pos; i++, curspos++)
 		if (line->data[i] == TK_TAB)
@@ -65,7 +65,7 @@ static void line_double_capacity_if_full(struct Line *line)
 	if (line->size < line->capacity - 1)
 		return;
 
-	int oldcap = line->capacity;
+	unsigned int oldcap = line->capacity;
 	line->capacity <<= 1;
 	line->data = realloc(line->data, sizeof(t_char) * line->capacity);
 	memset(line->data + oldcap, 0,

@@ -32,6 +32,7 @@
 #include "bufwin.h"
 
 #include "color.h"
+#include "tools.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -41,17 +42,22 @@
 int DRAW_LINE_NUMS = 1;
 
 /* Create a new bufwin object at (x, y) with w columns and h rows */
-struct BufWin *bufwin_new(int x, int y, int w, int h)
+struct BufWin *bufwin_new(int x, int y, unsigned int w, unsigned int h)
 {
 	struct BufWin *bw = malloc(sizeof(struct BufWin));
 
+	if (DRAW_LINE_NUMS) {
 	/* 3 is a single character digit (1) with a padding space either side */
-	bw->linumwin = t_winit(x, y, 3, h);
-	bw->win = t_winit(x + 3, y, w - 3, h);
+		bw->linumwin = t_winit(x, y, 3, h);
+		bw->win = t_winit(x + 3, y, w - 3, h);
+	} else {
+		bw->linumwin = NULL;
+		bw->win = t_winit(x, y, w, h);
+	}
 
 	bw->buffers = malloc(sizeof(struct Buffer *) * MAX_BUFS);
 
-	int i;
+	unsigned int i;
 	for (i = 0; i < MAX_BUFS; i++)
 		bw->buffers[i] = NULL;
 
@@ -60,6 +66,7 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
 	bw->WIDTH = w;
 	bw->HEIGHT = h;
 	bw->ywinoffs = 0;
+	bw->relcursy = 0;
 	bw->linumdigits = 0;
 
 	return bw;
@@ -71,7 +78,7 @@ struct BufWin *bufwin_new(int x, int y, int w, int h)
  */
 void bufwin_free(struct BufWin *bw)
 {
-	int i;
+	unsigned int i;
 	for (i = 0; i < bw->num_bufs; i++)
 		buffer_free(bw->buffers[i]);
 
@@ -82,22 +89,20 @@ void bufwin_free(struct BufWin *bw)
 	free(bw);
 }
 
-/* Helper function for counting the number of digits in an int */
-static int count_int_digits(int n)
-{
-	if (n < 0)
-		return count_int_digits((n == INT_MIN) ? INT_MAX : -n);
-
-	if (n < 10)
-		return 1;
-
-	return 1 + count_int_digits(n / 10);
-}
-
 /* Returns the number of digits needed for line numbers in the current buffer */
-static int bufwin_get_linum_digits(struct BufWin *bw)
+static unsigned int bufwin_get_linum_digits(struct BufWin *bw)
 {
-	return count_int_digits(bw->curbuf->size + 1);
+	register unsigned int n = bw->curbuf->size + 1;
+	if (n < 10)		return 1;
+ 	if (n < 100)		return 2;
+ 	if (n < 1000)		return 3;
+ 	if (n < 10000)		return 4;
+ 	if (n < 100000)		return 5;
+ 	if (n < 1000000)	return 6;
+ 	if (n < 10000000)	return 7;
+ 	if (n < 100000000)	return 8;
+ 	if (n < 1000000000)	return 9;
+ 	return 10; /* Max number of digits in an int */
 }
 
 /*
@@ -111,8 +116,8 @@ void bufwin_resize_linums(struct BufWin *bw)
 		return;
 
 	/* Calculated linum width and actual current linum width */
-	int lw = bufwin_get_linum_digits(bw) + 2; /* 2 padding spaces */
-	int oldlw = t_wgetmaxx(bw->linumwin);
+	unsigned int lw = bufwin_get_linum_digits(bw) + 2; /*2 padding spaces*/
+	unsigned int oldlw = t_wgetmaxx(bw->linumwin);
 
 	if (lw != oldlw) {
 		t_wclear(bw->win);
@@ -120,7 +125,8 @@ void bufwin_resize_linums(struct BufWin *bw)
 
 		t_wresize(bw->linumwin, lw, t_wgetmaxy(bw->linumwin));
 
-		int bwid = t_wgetmaxx(bw->win) + t_wgetmaxx(bw->linumwin) - lw;
+		unsigned int bwid = t_wgetmaxx(bw->win) +
+				    t_wgetmaxx(bw->linumwin) - lw;
 		t_wresize(bw->win, bwid, t_wgetmaxy(bw->win));
 		t_mvwin(bw->win, lw, t_wgetbegy(bw->win));
 
@@ -139,15 +145,22 @@ void bufwin_resize_linums(struct BufWin *bw)
  */
 void bufwin_check_line_number_digit_change(struct BufWin *bw)
 {
-	if (DRAW_LINE_NUMS) {
-		int new = bufwin_get_linum_digits(bw);
-
-		if (bw->linumdigits != new) {
-			//bw->linumdigits = new;
-			//bufwin_redraw(bw);
+	if (DRAW_LINE_NUMS)
+		if (bw->linumdigits != bufwin_get_linum_digits(bw))
 			bufwin_resize_linums(bw);
-		}
-	}
+}
+
+/*
+ * When passed a line index from the current buffer in 'ln', this function
+ * returns it's y-position relative to the screen origin or -1 if the given
+ * line is currently scrolled off of the screen (or if it doesn't exist).
+ */
+int bufwin_get_line_screen_position(struct BufWin *bw, unsigned int ln)
+{
+	int pos = ln - bw->ywinoffs;
+	if (pos < 0 || pos > bw->HEIGHT)
+		return -1;
+	return pos;
 }
 
 /*
@@ -155,7 +168,8 @@ void bufwin_check_line_number_digit_change(struct BufWin *bw)
  * is the position on the screen, NOT the line number in the buffer. This
  * function also draws the line number to the screen if that option is turned on
  */
-void bufwin_render_line(struct BufWin *bw, int line)
+#define scroll_offs line + bw->ywinoffs
+void bufwin_render_line(struct BufWin *bw, unsigned int line)
 {
 	if (DRAW_LINE_NUMS) {
 		t_mv_wprint(bw->linumwin, 0, line, L" %*d ",
@@ -163,8 +177,28 @@ void bufwin_render_line(struct BufWin *bw, int line)
 		t_wrefresh(bw->linumwin);
 	}
 
-	t_mv_wprint(bw->win, 0, line,
-		    bw->curbuf->data[line + bw->ywinoffs]->data);
+	t_char *text = buffer_get_text_at(bw->curbuf, scroll_offs);
+	if (text != NULL)
+		t_mv_wprint(bw->win, 0, line, text);
+	else
+		DEBUG_DUMP("Array index out of bounds: bufwin_render_line:\n"
+			   "Fetching index: %d from a buffer of size %d\n"
+			   "Y relative to screen: %d - Y window offset: %d\n",
+			   scroll_offs, bw->curbuf->size, line, bw->ywinoffs);
+}
+#undef scroll_offs
+
+/*
+ * Exactly the same as bufwin_render_line except the line index is relative to
+ * the buffer, not the screen position.
+ */
+void bufwin_render_buffer_line(struct BufWin *bw, unsigned int bln)
+{
+	register int l = bufwin_get_line_screen_position(bw, bln);
+	if (unlikely(l == -1))
+		return;
+	else
+		bufwin_render_line(bw, l);
 }
 
 /* Redraw the entire buffer screen */
@@ -172,16 +206,11 @@ void bufwin_redraw(struct BufWin *bw)
 {
 	t_wclear(bw->win);
 
-	int i;
-	for (i = 0; i <= bw->curbuf->size && i < bw->HEIGHT; i++)
+	unsigned int i;
+	for (i = 0; i < bw->HEIGHT && i + bw->ywinoffs <= bw->curbuf->size; i++)
 		bufwin_render_line(bw, i);
 
-	t_wmove(bw->win,
-		bw->curbuf->data[bw->curbuf->pos]->pos,
-		bw->curbuf->pos);
-
-	t_wrefresh(bw->linumwin);
-	t_wrefresh(bw->win);
+	bufwin_place_cursor(bw);  /* Implicitly refreshes window */
 }
 
 /* Scroll up one line - requires a redraw afterwards */
@@ -215,11 +244,66 @@ void bufwin_move_down(struct BufWin *bw)
 		return;
 
 	if (t_wgetcury(bw->win) >= bw->HEIGHT - 1 &&
-	    bw->curbuf->pos < bw->curbuf->size) {
+	    bw->curbuf->pos <= bw->curbuf->size) {
 		bufwin_scroll_down(bw);
 		bufwin_redraw(bw);
 	}
 }
+
+/* Backspace at the current buffer position and scroll if needed */
+void bufwin_backspace(struct BufWin *bw)
+{
+	if (buffer_backspace(bw->curbuf) == 0) {
+		t_wmove(bw->win, 0, bw->curbuf->pos);
+		t_wclrtoeol(bw->win);
+		bufwin_render_line(bw, bw->curbuf->pos);
+	} else {
+		int i;
+		for (i = bw->curbuf->pos; i <= bw->curbuf->size; i++) {
+			bufwin_render_line(bw, i);
+			t_wclrtoeol(bw->win);
+		}
+
+		t_wmove(bw->win, 0, bw->curbuf->size + 1);
+		t_wclrtoeol(bw->win);
+		t_wmove(bw->linumwin, 0, bw->curbuf->size + 1);
+		t_wclrtoeol(bw->linumwin);
+		t_wrefresh(bw->linumwin);
+	}
+
+	bufwin_check_line_number_digit_change(bw);
+}
+
+/* Delete the char at the current position in the buffer and scroll if needed */
+#define buf bw->curbuf
+void bufwin_delete(struct BufWin *bw)
+{
+	if (buf->pos >= buf->size &&
+	    buf->data[buf->pos]->pos >= buf->data[buf->pos]->size)
+		return;
+
+	buffer_move_forward(buf);
+	if (buffer_backspace(buf) == 0) {
+		t_wmove(bw->win, 0, buf->pos);
+		t_wclrtoeol(bw->win);
+		bufwin_render_line(bw, buf->pos);
+	} else {
+		unsigned int i;
+		for (i = buf->pos; i <= buf->size; i++) {
+			bufwin_render_line(bw, i);
+			t_wclrtoeol(bw->win);
+		}
+
+		t_wmove(bw->win, 0, buf->size + 1);
+		t_wclrtoeol(bw->win);
+		t_wmove(bw->linumwin, 0, buf->size + 1);
+		t_wclrtoeol(bw->linumwin);
+		t_wrefresh(bw->linumwin);
+	}
+
+	bufwin_check_line_number_digit_change(bw);
+}
+#undef buf
 
 /* Add a new line to the buffer in the current position and scroll if needed */
 void bufwin_new_line(struct BufWin *bw)
@@ -244,59 +328,24 @@ void bufwin_new_line(struct BufWin *bw)
 	t_wclrtoeol(bw->win);
 }
 
+/* Add a character to the current buffer at the current position */
+void bufwin_add(struct BufWin *bw, t_char ch)
+{
+	if (iswprint(ch) || ch == L'\t') {
+		buffer_add(bw->curbuf, ch);
+		bufwin_render_buffer_line(bw, bw->curbuf->pos);
+	}
+}
+
 /* Process a character for the buffer */
-#define buf bw->curbuf
 void bufwin_process_char(struct BufWin *bw, t_char ch)
 {
-	int i;
-
 	switch (ch) {
 	case TK_BKSPC:
-		if (buffer_backspace(buf) == 0) {
-			t_wmove(bw->win, 0, buf->pos);
-			t_wclrtoeol(bw->win);
-			bufwin_render_line(bw, buf->pos);
-		} else {
-			for (i = buf->pos; i <= buf->size; i++) {
-				bufwin_render_line(bw, i);
-				t_wclrtoeol(bw->win);
-			}
-
-			t_wmove(bw->win, 0, buf->size + 1);
-			t_wclrtoeol(bw->win);
-			t_wmove(bw->linumwin, 0, buf->size + 1);
-			t_wclrtoeol(bw->linumwin);
-			t_wrefresh(bw->linumwin);
-		}
-
-		bufwin_check_line_number_digit_change(bw);
-
+		bufwin_backspace(bw);
 		break;
 	case TK_DELETE:
-		if (buf->pos >= buf->size &&
-		    buf->data[buf->pos]->pos >= buf->data[buf->pos]->size)
-			break;
-
-		buffer_move_forward(buf);
-		if (buffer_backspace(buf) == 0) {
-			t_wmove(bw->win, 0, buf->pos);
-			t_wclrtoeol(bw->win);
-			bufwin_render_line(bw, buf->pos);
-		} else {
-			for (i = buf->pos; i <= buf->size; i++) {
-				bufwin_render_line(bw, i);
-				t_wclrtoeol(bw->win);
-			}
-
-			t_wmove(bw->win, 0, buf->size + 1);
-			t_wclrtoeol(bw->win);
-			t_wmove(bw->linumwin, 0, buf->size + 1);
-			t_wclrtoeol(bw->linumwin);
-			t_wrefresh(bw->linumwin);
-		}
-
-		bufwin_check_line_number_digit_change(bw);
-
+		bufwin_delete(bw);
 		break;
 	case TK_ENTER:
 		bufwin_new_line(bw);
@@ -314,31 +363,27 @@ void bufwin_process_char(struct BufWin *bw, t_char ch)
 		bufwin_move_down(bw);
 		break;
 	case TK_CTRL_LEFT:
-		buffer_prev_word(buf);
+		buffer_prev_word(bw->curbuf);
 		break;
 	case TK_CTRL_RIGHT:
-		buffer_next_word(buf);
+		buffer_next_word(bw->curbuf);
 		break;
 	case TK_HOME:
-		buffer_home(buf);
+		buffer_home(bw->curbuf);
 		break;
 	case TK_END:
-		buffer_end(buf);
+		buffer_end(bw->curbuf);
 		break;
 	case TK_PGUP:
-		buffer_pgup(buf, t_wgetmaxy(bw->win));
+		buffer_pgup(bw->curbuf, t_wgetmaxy(bw->win));
 		break;
 	case TK_PGDN:
-		buffer_pgdn(buf, t_wgetmaxy(bw->win));
+		buffer_pgdn(bw->curbuf, t_wgetmaxy(bw->win));
 		break;
 	default:
-		if (iswprint(ch) || ch == L'\t') {
-			buffer_add(buf, ch);
-			bufwin_render_line(bw, buf->pos);
-		}
+		bufwin_add(bw, ch);
 	}
 }
-#undef buf
 
 /* Put the cursor in the current position account for scrolling and tabs */
 #define curline bw->curbuf->data[bw->curbuf->pos]
@@ -348,13 +393,15 @@ void bufwin_place_cursor(struct BufWin *bw)
 		line_get_curs_pos(curline),
 		bw->curbuf->pos - bw->ywinoffs);
 
-	t_wrefresh(bw->win);
+	bufwin_refresh(bw);
 }
 #undef curline
 
 /* Refresh the buffer window */
 void bufwin_refresh(struct BufWin *bw)
 {
+	if (DRAW_LINE_NUMS)
+		t_wrefresh(bw->linumwin);
 	t_wrefresh(bw->win);
 }
 
