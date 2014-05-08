@@ -23,6 +23,8 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
+#include "tui/tui.h"
+
 /* Use extensions by default */
 #ifndef USE_GCC_EXTENSIONS
 #define USE_GCC_EXTENSIONS 1
@@ -36,7 +38,15 @@
 	#define unlikely(x)	x
 #endif /* USE_GCC_EXTENSIONS */
 
-/* Macros that don't require GCC hacks */
+/* Debug dump macro */
+#ifdef DEBUG
+	/* This uses the TUI macro for passing 0 args to a variadic macro  */
+	#define DEBUG_DUMP(fmt, ...) t_fatal(fmt VA_ARGS(__VA_ARGS__))
+#else
+	#define DEBUG_DUMP(fmt, ...)
+#endif
+
+/* Other utility macros */
 #define array_size(x) (sizeof(x) / sizeof((x)[0]))
 
 #endif /* TOOLS_H */
