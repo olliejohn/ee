@@ -5,15 +5,19 @@ DOCDIR=./doc
 
 all: exec
 
-exec:
+exec: docs
 	$(MAKE) -C $(SRCDIR)
 	@echo -- Made executable at $(SRCDIR)/$(EXEC) --
 
-debug:
+debug: docs
 	$(MAKE) debug -C $(SRCDIR)
 	@echo -- Made debug executable at $(SRCDIR)/$(EXEC) --
 
+docs:
+	$(MAKE) -C $(DOCDIR)
+
 clean:
+	$(MAKE) clean -C $(DOCDIR)
 	$(MAKE) clean -C $(SRCDIR)
 	@echo -- Cleaned local source tree --
 
