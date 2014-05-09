@@ -85,6 +85,13 @@ void register_default_binds()
 	bind(TK_CTRL_V, cb_paste	);
 }
 
+#define MALLOPT_IGNORE_AND_CONTINUE 			0
+#define MALLOPT_PRINT_DETAILED_AND_CONTINUE 		1
+#define MALLOPT_ABORT 					2
+#define MALLOPT_PRINT_DETAILED_WITH_STACK_AND_ABORT 	3
+#define MALLOPT_PRINT_SIMPLE_AND_CONTINUE 		5
+#define MALLOPT_PRINT_SIMPLE_WITH_STACK_AND_ABORT 	7
+
 int main(int argc, char **argv)
 {
 	/* Enable unicode */
@@ -92,9 +99,9 @@ int main(int argc, char **argv)
 
 	/* Set mallopt options */
 #ifdef DEBUG
-	mallopt(M_CHECK_ACTION, 3); /* Detailed error message and abort */
+	mallopt(M_CHECK_ACTION, MALLOPT_PRINT_DETAILED_WITH_STACK_AND_ABORT);
 #else
-	mallopt(M_CHECK_ACTION, 1); /* Detailed error message and continue */
+	mallopt(M_CHECK_ACTION, MALLOPT_IGNORE_AND_CONTINUE);
 #endif
 
 	/* Parse args */
