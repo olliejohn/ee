@@ -27,6 +27,17 @@
 
 #include "vterm_private.h"
 
-void  clamp_cursor_to_bounds(vterm_t *vterm);
+inline void clamp_cursor_to_bounds(vterm_t *vterm)
+{
+	if (vterm->crow < 0)
+		vterm->crow = 0;
+	else if (vterm->crow >= vterm->rows)
+		vterm->crow = vterm->rows - 1;
+
+	if (vterm->ccol < 0)
+		vterm->ccol = 0;
+	else if (vterm->ccol >= vterm->cols)
+		vterm->ccol = vterm->cols - 1;
+}
 
 #endif
