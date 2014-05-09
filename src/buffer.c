@@ -248,36 +248,42 @@ void buffer_add(struct Buffer *buf, t_char c)
 	buf->dirty = BUF_DIRTY;
 }
 
+/*
+ * TODO: There's a massive memory error in the memmove call
+ * This error can only be seen in debug builds as it's hidden by mallopt in
+ * production builds
+ */
 void buffer_new_line(struct Buffer *buf)
 {
+	/* Make room for new line */
 	buf->size++;
 	buffer_double_capacity_if_full(buf);
 
-	if (buf->pos < buf->size - 1) {
+	/* If we're in the middle of the buffer */
+	if (buf->pos < buf->size - 1)
 		memmove(&buf->data[buf->pos + 2],
-		&buf->data[buf->pos + 1],
-		sizeof(struct Line) * (buf->size - 1 - buf->pos));
+			&buf->data[buf->pos + 1],
+			sizeof(struct Line) * (buf->size - 1 - buf->pos));
 
-		buf->data[buf->pos + 1] = line_new();
-	} else {
-		buf->data[buf->pos + 1] = line_new();
-	}
+	/* Make the new line */
+	buf->data[buf->pos + 1] = line_new();
 
+	/* If we're half way up a line, move what's left onto the new line */
 #define cur_line buf->data[buf->pos]
 #define new_line buf->data[buf->pos + 1]
-		int i, diff = 0;
-		for (i = cur_line->pos; i < cur_line->size; i++) {
-			line_add(new_line, cur_line->data[i]);
-			cur_line->data[i] = 0;
-			diff++;
-		}
-		cur_line->size -= diff;
+	unsigned int i, diff = 0;
+	for (i = cur_line->pos; i < cur_line->size; i++) {
+		line_add(new_line, cur_line->data[i]);
+		cur_line->data[i] = 0;
+		diff++;
+	}
+	cur_line->size -= diff;
 #undef cur_line
 #undef new_line
 
+	/* Move to the new line at pos 0 and note that the buffer's changed */
 	buf->pos++;
 	buf->data[buf->pos]->pos = 0;
-
 	buf->dirty = BUF_DIRTY;
 }
 
