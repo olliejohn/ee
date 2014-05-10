@@ -120,8 +120,8 @@ void t_destroy();
  * perform full garbage collection on exit but they do attempt to return the
  * host terminal to it's previous working state.
  */
-void t_vfatal(char *err, va_list args);
-void t_fatal(char *err, ...);
+void __attribute__ ((noreturn)) t_vfatal(char *err, va_list args);
+void __attribute__ ((noreturn)) t_fatal(char *err, ...);
 
 /*
  * The function for initialising 256 color support. It's called implicilty by
