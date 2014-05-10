@@ -1,9 +1,6 @@
 /*
  * lisp.c
- * Part of the Yaw text editor
- *
- * Originally forked from Andru Luvisi's 'Minimal Lisp Interpreter', the
- * copyright notive for which is shown below.
+ * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -25,8 +22,25 @@
 
 #include "lisp.h"
 
-#include "buffer.h"
+#include "parser.h"
 
+lisp_out_function lprintf;
+
+void lisp_set_out_function(lisp_out_function out)
+{
+	lprintf = out;
+}
+
+void lisp_execute(wchar_t *data)
+{
+	struct AST *ast = ast_new();
+	ast_parse(ast, data);
+	ast_free(ast);
+
+	lprintf(L"Hello World\n");
+}
+
+/*
 struct Buffer *lisp_tokenize(struct Line *ln)
 {
 	for (ln->pos = 0; ln->pos <= ln->size; ln->pos++) {
@@ -54,3 +68,4 @@ struct Buffer *lisp_tokenize(struct Line *ln)
 
 	return tkns;
 }
+*/

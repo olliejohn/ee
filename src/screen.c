@@ -24,7 +24,7 @@
 
 #include "binds.h"
 #include "color.h"
-#include "lisp.h"
+#include "lisp/lisp.h"
 
 #include <stdlib.h>
 #include <string.h>

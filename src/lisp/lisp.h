@@ -1,6 +1,6 @@
 /*
  * lisp.h
- * Part of the Yaw text editor
+ * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -23,9 +23,11 @@
 #ifndef LISP_H
 #define LISP_H
 
-#include "buffer.h"
-#include "tui/tui.h"
+#include <wchar.h>
 
-struct Buffer *lisp_tokenize(struct Line *ln);
+typedef void (*lisp_out_function)(wchar_t *fmt, ...);
+
+void lisp_set_out_function(lisp_out_function out);
+void lisp_execute(wchar_t *data);
 
 #endif
