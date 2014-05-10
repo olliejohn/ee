@@ -1,4 +1,14 @@
-.TH YAW 1
+.\" Copyright (C) 2014 Ollie Etherington
+.\" Permission is granted to copy, distribute and/or modify this document
+.\" under the terms of the GNU Free Documentation License, Version 1.3
+.\" or any later version published by the Free Software Foundation;
+.\" with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+.\" You should have received a copy of the GNU Free Documentation License along
+.\" with this program. If not, see <http://www.gnu.org/licenses/>.
+.\"
+.TH YAW 1 "Version 0.0.1" "9th May 2014"
+.\" Please adjust this date whenever revising the manpage.
+.\"
 .SH NAME
 yaw \- Yet Another Writer, extensible text editor with built-in terminal
 emulator
@@ -7,7 +17,10 @@ emulator
 .I [OPTIONS]\ [\+LINE,COLUMN]\ [FILES]
 .br
 .SH DESCRIPTION
-This manual page briefly describes the Yaw text editor.
+This manual page briefly describes the Yaw text editor - note that it is not
+a complete description of all of Yaw's functionality and it is not reguarly
+updated. For more extensive and recent documentation please refer to Yaw's GNU
+info manual which can be accessed by running 'info yaw'.
 .PP
 Yaw is a command line text-editor designed to be as simple to use as possible
 whilst still being powerful and extensible.
@@ -28,6 +41,44 @@ Extensibility and configuation with the built in Lisp interpretter
 Places cursor at line number \fILINE\fP and column number \fICOLUMN\fP (at least
 one of which must be specified) on startup, instead of the default of line 1,
 column 1.
+.SH SHORTCUTS
+Most of Yaw's functionality can be accessed from the following key commands. In
+addition to this, any of these shortcuts (and many others) can be rebound in the
+Lisp interpreter. See the info page for more information on how to do this.
+.PP
+The following is a list of all of Yaw's default key binds. 'C-S' should be read
+as 'press s while holding down control'.
+.TP
+.B C\-Q
+Quit Yaw
+.TP
+.B C\-S
+Save the current buffer. If the buffer has not yet been given a name, a prompt
+will appear in the command line asking for one.
+.TP
+.B C\-N
+Create a new buffer in a new tab
+.TP
+.B C\-O
+Open a file in a new buffer
+.TP
+.B C\-B
+Move the focus to the buffer window
+.TP
+.B C\-G
+Move the focus to the command line
+.TP
+.B C\-T
+Move the focus to the terminal
+.TP
+.B C\-X
+Cut (not yet implemented)
+.TP
+.B C\-C
+Copy (not yet implemented)
+.TP
+.B C\-V
+Paste (not yet implemented)
 .SH CONFIGURATION
 The Yaw configuaration file is found at ~/.yaw
 .PP

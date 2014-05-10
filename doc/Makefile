@@ -23,6 +23,7 @@ clean:
 install:
 	cp $(MANSRC).gz $(MANDIR)/man1/$(MANSRC).gz
 	cp $(INFOOUT).gz $(INFODIR)/$(INFOOUT).gz
+	install-info --info-file=$(INFOOUT) --info-dir=$(INFODIR)
 
 uninstall:
 	rm -rf $(MANDIR)/man1/$(MANSRC).gz
