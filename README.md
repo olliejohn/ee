@@ -29,3 +29,5 @@ files will require man, gzip, info and makeinfo.
 
 ###Licensing
 Yaw is available under the GNU GPL Version 2. See 'LICENSE' for more details.
+Note that all of the documentation is Licensed seperately; see doc/DOC_README.md
+and doc/DOC_LICENSE for details.
