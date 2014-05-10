@@ -51,14 +51,14 @@ static int maxcolors = 0;
 static int maxpairs = 0;
 static int COL_MODE = 0;
 
-void __attribute__ ((noreturn)) t_vfatal(char *err, va_list args)
+void __attribute__((noreturn)) t_vfatal(char *err, va_list args)
 {
 	endwin();
 	vfprintf(stderr, err, args);
 	exit(TUI_FAIL);
 }
 
-void __attribute__ ((noreturn)) t_fatal(char *err, ...)
+void __attribute__((noreturn)) t_fatal(char *err, ...)
 {
 	endwin();
 	va_list args;
