@@ -33,39 +33,8 @@ void lisp_set_out_function(lisp_out_function out)
 
 void lisp_execute(wchar_t *data)
 {
-	struct AST *ast = ast_new();
-	ast_parse(ast, data);
+	struct AST *ast = ast_new(data);
 	ast_free(ast);
 
-	lprintf(L"Hello World\n");
+	//lprintf(L"Hello World\n");
 }
-
-/*
-struct Buffer *lisp_tokenize(struct Line *ln)
-{
-	for (ln->pos = 0; ln->pos <= ln->size; ln->pos++) {
-		if (ln->data[ln->pos] == L'(' || ln->data[ln->pos] == L')') {
-			line_add(ln, L' ');
-			ln->pos++;
-			line_add(ln, L' ');
-		}
-	}
-
-	struct Buffer *tkns = buffer_new();
-	t_char *data;
-	t_char *state;
-	int i;
-
-	data = wcstok(ln->data, L" ", &state);
-	while (data != NULL) {
-		for (i = 0; i < wcslen(data); i++)
-			buffer_add(tkns, data[i]);
-
-		buffer_new_line(tkns);
-
-		data = wcstok(NULL, L" ", &state);
-	}
-
-	return tkns;
-}
-*/

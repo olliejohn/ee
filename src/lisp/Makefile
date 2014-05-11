@@ -15,6 +15,9 @@ all: demo
 demo: build
 	$(CC) $(OBJECTS) -o $(DEMO)
 
+demoDebug: debug
+	$(CC) $(OBJECTS) -o $(DEMO)
+
 build:
 	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
 

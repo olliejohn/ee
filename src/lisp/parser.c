@@ -22,15 +22,58 @@
 
 #include "parser.h"
 
+#include "tokenizer.h"
+
+#include <stdio.h> /* ONLY FOR DEBUGGING - REMOVE WHEN DONE */
 #include <stdlib.h>
 
-struct AST {
-
+union Atom {
+	struct AST *NODE;
+	wchar_t *SYM;
+	int INT;
 };
 
-struct AST *ast_new()
+enum AtomType {
+	AT_NODE,
+	AT_SYM,
+	AT_INT,
+};
+
+struct AST {
+	union Atom data;
+	enum AtomType type;
+	struct AST *next;
+};
+
+void parse(struct AST *ast, wchar_t *data)
+{
+	if (wcslen(data) < 1)
+		return;
+
+	struct TokenStream *ts = tokenize(data);
+
+	if (ts == NULL)
+		return;
+
+	unsigned int i;
+	for (i = 0; i < token_stream_get_size(ts); i++) {
+		wchar_t *tok = token_stream_get(ts, i);
+
+		if (tok == NULL)
+			continue;
+
+		printf("%ls\n", token_stream_get(ts, i));
+	}
+
+	// Parse the tokens here
+
+	token_stream_free(ts);
+}
+
+struct AST * __attribute__((warn_unused_result)) ast_new(wchar_t *data)
 {
 	struct AST *ast = malloc(sizeof(struct AST));
+	parse(ast, data);
 	return ast;
 }
 
@@ -38,29 +81,3 @@ void ast_free(struct AST* ast)
 {
 	free(ast);
 }
-
-void ast_parse(struct AST *ast, wchar_t *data)
-{
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

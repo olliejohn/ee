@@ -1,5 +1,5 @@
 /*
- * parser.h
+ * tokenizer.h
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,14 +20,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef TOKENIZER_H
+#define TOKENIZER_H
 
 #include <wchar.h>
 
-struct AST;
+struct TokenStream;
 
-struct AST * __attribute__((warn_unused_result)) ast_new(wchar_t *data);
-void ast_free(struct AST* ast);
+struct TokenStream *tokenize(wchar_t *data);
+void token_stream_free(struct TokenStream *ts);
+int token_stream_get_size(struct TokenStream *ts);
+wchar_t *token_stream_get(struct TokenStream *ts, int i);
 
 #endif
