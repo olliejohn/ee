@@ -33,9 +33,8 @@ void lisp_set_out_function(lisp_out_function out)
 
 void lisp_execute(wchar_t *data)
 {
-	//struct AST *ast =
-	ast_new_from_parse(data);
-	//ast_free(ast);
+	struct AST *ast = ast_new_from_parse(data);
+	ast_free(ast);
 
 	//lprintf(L"Hello World\n");
 }
