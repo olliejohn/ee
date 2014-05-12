@@ -6,14 +6,14 @@ DEFS=-D_GNU_SOURCE
 NDEBUG=-UDEBUG -DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 DEMO=lisp_demo
-SOURCES=*.c
+SOURCES:=$(shell ls | grep \\.c | grep -v demo)
 OBJECTS=*.o
 
 all: demo
 	@echo -- Lisp Make Success --
 
 demo: build
-	$(CC) $(OBJECTS) -o $(DEMO)
+	$(CC) $(DEMO).c $(OBJECTS) -o $(DEMO)
 
 demoDebug: debug
 	$(CC) $(OBJECTS) -o $(DEMO)
