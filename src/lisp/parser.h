@@ -27,7 +27,7 @@
 
 struct AST;
 
-struct AST * __attribute__((warn_unused_result)) ast_new(wchar_t *data);
-void ast_free(struct AST* ast);
+struct AST *ast_new_from_parse(wchar_t *data);
+void ast_free(struct AST *ast);
 
 #endif

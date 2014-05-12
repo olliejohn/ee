@@ -24,60 +24,171 @@
 
 #include "tokenizer.h"
 
-#include <stdio.h> /* ONLY FOR DEBUGGING - REMOVE WHEN DONE */
+#include <stdio.h>
 #include <stdlib.h>
+#include <wctype.h>
 
-union Atom {
-	struct AST *NODE;
-	wchar_t *SYM;
-	int INT;
-};
+#define AST_INITIAL_SIZE 16
 
-enum AtomType {
-	AT_NODE,
-	AT_SYM,
-	AT_INT,
-};
+struct Cell;
+void cell_free(struct Cell *cell);
 
 struct AST {
-	union Atom data;
-	enum AtomType type;
-	struct AST *next;
+	struct Cell **data;
+	unsigned int size;
+	unsigned int capacity;
 };
 
-void parse(struct AST *ast, wchar_t *data)
+enum CellType {
+	CT_ATM,
+	CT_AST,
+};
+
+union CellData {
+	struct AST *as_ast;
+	wchar_t *as_atom;
+};
+
+struct Cell {
+	enum CellType type;
+	union CellData data;
+};
+
+struct AST *ast_new()
+{
+	struct AST *ast = malloc(sizeof(struct AST));
+	ast->capacity = AST_INITIAL_SIZE;
+	ast->data = malloc(ast->capacity * sizeof(struct Cell *));
+	ast->size = 0;
+	return ast;
+}
+
+void ast_free(struct AST *ast)
+{
+	if (ast != NULL) {
+		unsigned int i;
+		for (i = 0; i < ast->size; i++)
+			cell_free(ast->data[i]);
+
+		free(ast->data);
+		free(ast);
+	}
+}
+
+void ast_add(struct AST *ast, struct Cell *cell)
+{
+	if (ast->size >= ast->capacity - 1) {
+		ast->capacity <<= 1;
+		ast->data = realloc(ast->data,
+				    ast->capacity * sizeof(struct Cell *));
+	}
+
+	ast->data[ast->size++] = cell;
+}
+
+struct Cell *cell_new_from_token(wchar_t *token)
+{
+	struct Cell *cell = malloc(sizeof(struct Cell));
+	cell->type = CT_ATM;
+	cell->data.as_atom = calloc(wcslen(token) + 1, sizeof(wchar_t));
+	wcscpy(cell->data.as_atom, token);
+	return cell;
+}
+
+struct Cell *cell_new_from_ast(struct AST *ast)
+{
+	struct Cell *cell = malloc(sizeof(struct Cell));
+	cell->type = CT_AST;
+	cell->data.as_ast = ast;
+	return cell;
+}
+
+void cell_free(struct Cell *cell)
+{
+	if (cell->type == CT_ATM)
+		free(cell->data.as_atom);
+	else
+		ast_free(cell->data.as_ast);
+
+	free(cell);
+}
+
+unsigned int AST_RESTART;
+struct AST *build_ast_single(struct TokenStream *ts, unsigned int start)
+{
+	struct AST *ast = ast_new();
+
+	unsigned int i;
+	const unsigned int size = token_stream_get_size(ts);
+	wchar_t *tok;
+
+	for (i = start; i < size; i++) {
+		tok = token_stream_get(ts, i);
+		if (tok[0] == L'(') {
+			ast_add(ast,
+				cell_new_from_ast(build_ast_single(ts, i + 1)));
+			i = AST_RESTART;
+		} else if (tok[0] == L')') {
+			AST_RESTART = i;
+			return ast;
+		} else {
+			ast_add(ast, cell_new_from_token(tok));
+		}
+	}
+
+	return ast;
+}
+
+inline struct AST *build_ast(struct TokenStream *ts)
+{
+	AST_RESTART = 0;
+	return build_ast_single(ts, 0);
+}
+
+void token_stream_dump(struct TokenStream *ts)
+{
+#ifdef DEBUG
+	unsigned int i;
+	for (i = 0; i < token_stream_get_size(ts); i++)
+		printf("%ls\n", token_stream_get(ts, i));
+#endif /* DEBUG */
+}
+
+#define ast_dump(ast) ast_dump_deleg(ast, 0)
+void ast_dump_deleg(struct AST *ast, int offs)
+{
+#ifdef DEBUG
+	if (offs == 0)
+		printf("AST Dump:\n");
+
+	unsigned int i;
+	for (i = 0; i < ast->size; i++)
+		if (ast->data[i]->type == CT_ATM) {
+			printf("%*ls\n", offs, ast->data[i]->data.as_atom);
+		} else {
+			printf("%*s\n", offs, "Node:");
+			ast_dump_deleg(ast->data[i]->data.as_ast, offs + 12);
+		}
+#endif /* DEBUG */
+}
+
+struct AST *ast_new_from_parse(wchar_t *data)
 {
 	if (wcslen(data) < 1)
-		return;
+		return NULL;
 
 	struct TokenStream *ts = tokenize(data);
 
 	if (ts == NULL)
-		return;
+		return NULL;
 
-	unsigned int i;
-	for (i = 0; i < token_stream_get_size(ts); i++) {
-		wchar_t *tok = token_stream_get(ts, i);
+	//token_stream_dump(ts);
 
-		if (tok == NULL)
-			continue;
+	struct AST *ast = build_ast(ts);
 
-		printf("%ls\n", token_stream_get(ts, i));
-	}
-
-	// Parse the tokens here
+	ast_dump(ast);
 
 	token_stream_free(ts);
-}
 
-struct AST * __attribute__((warn_unused_result)) ast_new(wchar_t *data)
-{
-	struct AST *ast = malloc(sizeof(struct AST));
-	parse(ast, data);
 	return ast;
-}
-
-void ast_free(struct AST* ast)
-{
-	free(ast);
 }
