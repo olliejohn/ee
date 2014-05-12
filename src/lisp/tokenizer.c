@@ -1,5 +1,5 @@
 /*
- * parser.c
+ * tokenizer.c
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
