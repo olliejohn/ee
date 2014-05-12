@@ -114,15 +114,14 @@ void cell_free(struct Cell *cell)
 }
 
 unsigned int AST_RESTART;
-struct AST *build_ast_single(struct TokenStream *ts, unsigned int start)
+struct AST *build_ast_single(struct TokenStream *ts, unsigned int i)
 {
 	struct AST *ast = ast_new();
 
-	unsigned int i;
 	const unsigned int size = token_stream_get_size(ts);
 	wchar_t *tok;
 
-	for (i = start; i < size; i++) {
+	for ( ; i < size; i++) {
 		tok = token_stream_get(ts, i);
 		if (tok[0] == L'(') {
 			ast_add(ast,
