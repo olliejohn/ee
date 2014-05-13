@@ -16,9 +16,8 @@ info:
 	gzip -f -k $(INFOOUT)
 
 clean:
-	rm -rf $(MANSRC).gz
-	rm -rf $(INFOOUT)
-	rm -rf $(INFOOUT).gz
+	rm -rf *.gz
+	rm -rf *.info
 
 install:
 	cp $(MANSRC).gz $(MANDIR)/man1/$(MANSRC).gz
