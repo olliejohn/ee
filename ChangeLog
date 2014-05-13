@@ -1,4 +1,82 @@
+2014-05-13  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Moved @node, @chapter and @section declarations into their subfiles added several more
+
+	Split the monolithic texi manual into several smaller files
+
+	Streamlined the make clean target in doc/Makefile
+
+2014-05-12  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Changed default terminal emulation from VT100 to RXVT
+
+	Added lisp files to main Yaw build tree
+
+	Added ast_free statement to remove the last memory leak (that I currently know of) in the lisp interpreter
+
+	Removed an unneccesary iterator variable from build_ast_single in lisp/parser.c
+
+	Added lisp parser - it should be fully functional but it needs more testing
+
+	Removed accidentally commited demo executable and added local .gitignore to prevent it reappearing
+
+	Fixed a typo in the header of tokenizer.c
+
+2014-05-11  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	More work on the lisp interpteter framework and added a complete working tokenizer
+
+2014-05-10  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Small formatting changes in TUI
+
+	Added __attribute__ ((noreturn)) to TUI fatal functions
+
+	Updated README to note that the documentation is licensed differently from the rest of the program
+
+	Added info about keyboard shortcuts to man and info pages and adding info about documentation licensing
+
+	Started work on the completely new implementation of the lisp subsystem
+
+2014-05-09  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Documented a memory bug in buffer_new_line that needs to be fixed at some point in the near future
+
+	Updated the mallopt system with macros to make it easier to change for debugging purposes
+
+	Removed accidentally commited test files and updated the .gitignore accordingly
+
+	Removed single function C file vterm_clamp_cursor.c by moving the function into an inline definition in the header file
+
 2014-05-08  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Removed unused struct member in the bufwin and removed an old piece of debugging code in screen_print_ch_info
+
+	Added forced overwrite to the gzip commands in the documentation makefile
+
+	Added more information on build dependencies to the readme
+
+	Added skelenton file for the texinfo manual and updated the makefile and .gitignore accordingly
+
+	Updated makefiles and .gitignore to take into account that the man page needs to be gzipped before it's installed
+
+	Added man page to make install target
+
+	Small formatting fixes in the man page
+
+	Added simple man page
+
+	Fixed a bug in bufwin_new_line that meant if a new line was added at position 'p' in line 'l' and p < l.length then the new line that was created would not be rendered until another character was entered
+
+	Added shortcut convinience target to the makefile for 'make debug'
+
+	Large amount of work on expanding the capabilities of the bufwin and tidying up the code surrounding it. The main element added is a fix of a seg-fault when writing to a newly added line that caused the screen to scroll
+
+	Cleaned up the differences between the debug targets and the normal targets in all Makefiles
+
+	Added top level Makefile for ease of use and updating the ChangeLog
+
+	Updated changelog
 
 	Added debug dump macro to tools.h
 
