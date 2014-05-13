@@ -6,6 +6,9 @@
 @c You should have received a copy of the GNU Free Documentation License along
 @c with this program. If not, see <http://www.gnu.org/licenses/>.
 
+@node Keyboard Shortcuts, Building Options, Command Line Options, Top
+@chapter Keyboard Shortcuts
+
 Most of Yaw's functionality can be accessed from the following key commands. In
 addition to this, any of these shortcuts (and many others) can be rebound in the
 Lisp interpreter. See section 'X' for more information on how to do this.

@@ -6,6 +6,9 @@
 @c You should have received a copy of the GNU Free Documentation License along
 @c with this program. If not, see <http://www.gnu.org/licenses/>.
 
+@node Overview, Command Line Options, Introduction, Introduction
+@section Overview
+
 @code{Yaw} [+LINE,COLUMN] [options] [@var{files ...}]
 
 The original goal for @code{Yaw} was to make the workflow between writing code

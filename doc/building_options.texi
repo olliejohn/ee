@@ -6,6 +6,9 @@
 @c You should have received a copy of the GNU Free Documentation License along
 @c with this program. If not, see <http://www.gnu.org/licenses/>.
 
+@node Building Options, , Keyboard Shortcuts, Top
+@chapter Building Options
+
 Building @code{Yaw} from source is very straight forward if you are familiar
 with the process. It simply requires moving into the 'yaw' directory then
 performing @code{make && make install}

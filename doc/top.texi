@@ -6,19 +6,13 @@
 @c You should have received a copy of the GNU Free Documentation License along
 @c with this program. If not, see <http://www.gnu.org/licenses/>.
 
-@node Command Line Options, Keyboard Shortcuts, Overview, Introduction
-@section Command Line Options
+@node Top, Introduction, (dir), (dir)
 
-@code{Yaw} takes the following options from the command line:
+This manual documents @code{Yaw}, a simple yet extensible text editor and
+terminal emulator.
 
-@table @code
-
-@item -z, --suspend
-Enable suspend ability of @code{Yaw} using the system's suspend
-keystroke (usually ^Z).
-
-@item +LINE,COLUMN
-Start at line number LINE and column number COLUMN instead of the default of
-line 1 and column 1.
-
-@end table
+@menu
+* Introduction::
+* Keyboard Shortcuts::
+* Building Options::
+@end menu

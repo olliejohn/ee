@@ -29,80 +29,13 @@
 @c \overfullrule=0pt
 @c end tex
 
-@titlepage
-@title The @code{Yaw} Text Editor
-@subtitle User Manual
-@subtitle Version @value{VERSION}
+@include titlepage.texi
 
-@author @value{AUTHOR}
-@page
-
-This manual documents @code{Yaw}, a simple yet extensible text editor and
-terminal emulator.
-
-@value{COPYRIGHT}
-
-Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
-
-@iftex
-Permission is granted to process this file through @TeX{} and print the
-results, provided the printed document carries copying permission notice
-identical to this one except for the removal of this paragraph (this
-paragraph not being relevant to the printed manual).
-@end iftex
-
-Permission is granted to copy and distribute modified versions of this
-manual under the conditions for verbatim copying, provided that the
-entire resulting derived work is distributed under the terms of a
-permission notice identical to this one.
-
-You may contact the author at @value{HOMEPAGE}
-@end titlepage
-
-
-@node Top, Introduction, (dir), (dir)
-
-This manual documents @code{Yaw}, a simple yet extensible text editor and
-terminal emulator.
-
-@menu
-* Introduction::
-* Keyboard Shortcuts::
-* Building Options::
-@end menu
-
-@node Introduction, Overview, Top, Top
-@chapter Introduction
-
-@code{Yaw} is a simple yet extensible text editor.  Besides basic text editing,
-@code{Yaw} also features a built in terminal emulator and customization via a
-Lisp interpreter.
-
-@menu
-* Overview::
-* Command Line Options::
-@end menu
-
-@node Overview, Command Line Options, Introduction, Introduction
-@section Overview
-
+@include top.texi
+@include introduction.texi
 @include overview.texi
-
-@node Command Line Options, Keyboard Shortcuts, Overview, Introduction
-@section Command Line Options
-
 @include command_line_options.texi
-
-@node Keyboard Shortcuts, Building Options, Command Line Options, Top
-@chapter Keyboard Shortcuts
-
 @include keyboard_shortcuts.texi
-
-@node Building Options, , Keyboard Shortcuts, Top
-@chapter Building Options
-
 @include building_options.texi
 
 @contents
