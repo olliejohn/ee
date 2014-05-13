@@ -88,97 +88,22 @@ Lisp interpreter.
 @node Overview, Command Line Options, Introduction, Introduction
 @section Overview
 
-@code{Yaw} [+LINE,COLUMN] [options] [@var{files ...}]
-
-The original goal for @code{Yaw} was to make the workflow between writing code
-and building/testing it in a terminal as simple as possible whilst still being
-compatible with CLI systems.
-
-Please file bug reports at @value{HOMEPAGE}.
+@include overview.texi
 
 @node Command Line Options, Keyboard Shortcuts, Overview, Introduction
 @section Command Line Options
 
-@code{Yaw} takes the following options from the command line:
-
-@table @code
-
-@item -z, --suspend
-Enable suspend ability of @code{Yaw} using the system's suspend
-keystroke (usually ^Z).
-
-@item +LINE,COLUMN
-Start at line number LINE and column number COLUMN instead of the default of
-line 1 and column 1.
-
-@end table
+@include command_line_options.texi
 
 @node Keyboard Shortcuts, Building Options, Command Line Options, Top
 @chapter Keyboard Shortcuts
 
-Most of Yaw's functionality can be accessed from the following key commands. In
-addition to this, any of these shortcuts (and many others) can be rebound in the
-Lisp interpreter. See section 'X' for more information on how to do this.
-
-The following is a list of all of Yaw's default key binds. 'C-S' should be read
-as 'press s while holding down control'.
-
-@table @code
-
-@item C-Q
-Quit Yaw
-
-@item C-S
-Save the current buffer. If the buffer has not yet been given a name, a prompt
-will appear in the command line asking for one.
-
-@item C-N
-Create a new buffer in a new tab
-
-@item C-O
-Open a file in a new buffer
-
-@item C-B
-Move the focus to the buffer window
-
-@item C-G
-Move the focus to the command line
-
-@item C-T
-Move the focus to the terminal
-
-@item C-X
-Cut (not yet implemented)
-
-@item C-C
-Copy (not yet implemented)
-
-@item C-V
-Paste (not yet implemented)
-
-@end table
+@include keyboard_shortcuts.texi
 
 @node Building Options, , Keyboard Shortcuts, Top
 @chapter Building Options
 
-Building @code{Yaw} from source is very straight forward if you are familiar
-with the process. It simply requires moving into the 'yaw' directory then
-performing @code{make && make install}
-
-This process is dependant on the following packages:
-
-@itemize @bullet
-@item GCC (it may be possible to use some other C compiler but this is untested,
-unsupported and the source may require some modifications)
-@item ncursesw
-@item make (or some compatable variant)
-@end itemize
-
-Building and installing the documentation will also require man, gzip, info and
-makeinfo.
-
-Updating the ChangeLog will also require Perl and Git (and, needless to say,
-Yaw's Git commit history).
+@include building_options.texi
 
 @contents
 @bye

@@ -1,0 +1,49 @@
+@c Copyright (C) 2014 Ollie Etherington
+@c Permission is granted to copy, distribute and/or modify this document
+@c under the terms of the GNU Free Documentation License, Version 1.3
+@c or any later version published by the Free Software Foundation;
+@c with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+@c You should have received a copy of the GNU Free Documentation License along
+@c with this program. If not, see <http://www.gnu.org/licenses/>.
+
+Most of Yaw's functionality can be accessed from the following key commands. In
+addition to this, any of these shortcuts (and many others) can be rebound in the
+Lisp interpreter. See section 'X' for more information on how to do this.
+
+The following is a list of all of Yaw's default key binds. 'C-S' should be read
+as 'press s while holding down control'.
+
+@table @code
+
+@item C-Q
+Quit Yaw
+
+@item C-S
+Save the current buffer. If the buffer has not yet been given a name, a prompt
+will appear in the command line asking for one.
+
+@item C-N
+Create a new buffer in a new tab
+
+@item C-O
+Open a file in a new buffer
+
+@item C-B
+Move the focus to the buffer window
+
+@item C-G
+Move the focus to the command line
+
+@item C-T
+Move the focus to the terminal
+
+@item C-X
+Cut (not yet implemented)
+
+@item C-C
+Copy (not yet implemented)
+
+@item C-V
+Paste (not yet implemented)
+
+@end table
