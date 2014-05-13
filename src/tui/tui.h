@@ -199,6 +199,8 @@ inline int t_wnodelay(t_window *win, TUI_BOOL value) {
 
 inline int t_wmove(t_window *win, int x, int y) { return wmove(win, y, x); }
 inline int t_wrefresh(t_window *win) { return wrefresh(win); }
+inline int t_wnoutrefresh(t_window *win) { return wnoutrefresh(win); }
+inline int t_doupdate() { return doupdate(); }
 
 inline int t_wclear(t_window *win) { return wclear(win); }
 inline int t_wclrtobot(t_window *win) { return wclrtobot(win); }

@@ -36,7 +36,7 @@ void vte_draw_divider(struct VTE *vte)
 {
 	t_wbkgd(vte->divider, CS_TERM_DIV);
 
-	int i;
+	unsigned int i;
 	for (i = 0; i < t_wgetmaxy(vte->divider); i++)
 		t_mv_wprint(vte->divider, 0, i, L"|");
 
@@ -45,7 +45,7 @@ void vte_draw_divider(struct VTE *vte)
 
 void vte_refresh(struct VTE *vte)
 {
-	t_wrefresh(vte->win);
+	t_wnoutrefresh(vte->win);
 }
 
 struct VTE *vte_new(int x, int y, int w, int h)
@@ -94,8 +94,7 @@ void vte_process_char(struct VTE *vte, t_char ch)
 
 void vte_run_cmd(struct VTE *vte, t_char *cmd)
 {
-	int len = wcslen(cmd);
-	int i;
+	unsigned int len = wcslen(cmd), i;
 	for (i = 0; i < len; i++)
 		vte_process_char(vte, cmd[i]);
 

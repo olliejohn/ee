@@ -27,6 +27,10 @@
  * displaying '\t' correctly, optionally printing line numbers and all other
  * idiosyncrasies of display it to the screen. It also contains the array of
  * open buffers and the window for the current buffer.
+ *
+ * Note that all calls to t_doupdate() are handled by the parent (screen.c) so
+ * the bufwin should only ever use t_wnoutrefresh() instead of t_wrefresh()
+ * unless absolutely necessary.
  */
 
 #include "bufwin.h"
@@ -129,8 +133,8 @@ void bufwin_resize_linums(struct BufWin *bw)
 		t_wresize(bw->win, bwid, t_wgetmaxy(bw->win));
 		t_mvwin(bw->win, lw, t_wgetbegy(bw->win));
 
-		t_wrefresh(bw->win);
-		t_wrefresh(bw->linumwin);
+		t_wnoutrefresh(bw->win);
+		t_wnoutrefresh(bw->linumwin);
 
 		bw->linumdigits = lw - 2;
 
@@ -173,7 +177,7 @@ void bufwin_render_screen_line(struct BufWin *bw, unsigned int line)
 	if (DRAW_LINE_NUMS) {
 		t_mv_wprint(bw->linumwin, 0, line, L" %*d ",
 			    bw->linumdigits, line + bw->ywinoffs + 1);
-		t_wrefresh(bw->linumwin);
+		t_wnoutrefresh(bw->linumwin);
 	}
 
 	t_char *text = buffer_get_text_at(bw->curbuf, scroll_offs);
@@ -267,7 +271,7 @@ void bufwin_backspace(struct BufWin *bw)
 		t_wclrtoeol(bw->win);
 		t_wmove(bw->linumwin, 0, bw->curbuf->size + 1);
 		t_wclrtoeol(bw->linumwin);
-		t_wrefresh(bw->linumwin);
+		t_wnoutrefresh(bw->linumwin);
 	}
 
 	bufwin_check_line_number_digit_change(bw);
@@ -297,7 +301,7 @@ void bufwin_delete(struct BufWin *bw)
 		t_wclrtoeol(bw->win);
 		t_wmove(bw->linumwin, 0, buf->size + 1);
 		t_wclrtoeol(bw->linumwin);
-		t_wrefresh(bw->linumwin);
+		t_wnoutrefresh(bw->linumwin);
 	}
 
 	bufwin_check_line_number_digit_change(bw);
@@ -404,8 +408,8 @@ void bufwin_place_cursor(struct BufWin *bw)
 void bufwin_refresh(struct BufWin *bw)
 {
 	if (DRAW_LINE_NUMS)
-		t_wrefresh(bw->linumwin);
-	t_wrefresh(bw->win);
+		t_wnoutrefresh(bw->linumwin);
+	t_wnoutrefresh(bw->win);
 }
 
 /* Set the colors for the buffer; line number are handled directly in color.c */

@@ -101,7 +101,7 @@ static void screen_draw_tabs(struct Screen *scrn)
 	}
 
 	t_wclrtoeol(scrn->tbar);
-	t_wrefresh(scrn->tbar);
+	t_wnoutrefresh(scrn->tbar);
 }
 
 void screen_change_to_buffer(struct Screen *scrn, unsigned int new)
@@ -124,7 +124,7 @@ void screen_set_status(struct Screen *scrn, t_char *status, ...)
 	va_end(args);
 
 	t_wclrtoeol(scrn->bbar);
-	t_wrefresh(scrn->bbar);
+	t_wnoutrefresh(scrn->bbar);
 }
 
 void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
@@ -277,7 +277,7 @@ static void cmd_process_char(struct Screen *scrn, t_char ch)
 
 	t_mv_wprint(scrn->cbar, 0, 0, L"%ls", cur_cmd->data);
 	t_wmove(scrn->cbar, cur_cmd->pos, 0);
-	t_wrefresh(scrn->cbar);
+	t_wnoutrefresh(scrn->cbar);
 }
 
 #define buf scrn->bw->curbuf
@@ -289,7 +289,7 @@ static void buffer_process_char(struct Screen *scrn, t_char ch)
 	bufwin_process_char(scrn->bw, ch);
 
 	screen_print_ch_info(scrn);
-	t_wrefresh(scrn->bbar);
+	t_wnoutrefresh(scrn->bbar);
 
 	bufwin_place_cursor(scrn->bw);
 }
@@ -326,16 +326,18 @@ int screen_run(struct Screen *scrn, char *filepath)
 	bufwin_redraw(scrn->bw);
 	screen_print_ch_info(scrn);
 
-	t_wrefresh(scrn->tbar);
-	t_wrefresh(scrn->bbar);
-	t_wrefresh(scrn->cbar);
+	t_wnoutrefresh(scrn->tbar);
+	t_wnoutrefresh(scrn->bbar);
+	t_wnoutrefresh(scrn->cbar);
 
 	t_nodelay(TRUE);
 	vte_refresh(scrn->vte);
 	t_nodelay(FALSE);
 
 	bufwin_place_cursor(scrn->bw);
-	t_wrefresh(win);
+	t_wnoutrefresh(win);
+
+	t_doupdate();
 
 	enum Focus FOCUS = FOCUS_BUF;
 
@@ -374,12 +376,12 @@ run_loop:
 			FOCUS = FOCUS_BUF;
 			t_nodelay(FALSE);
 			bufwin_place_cursor(scrn->bw);
-			t_wrefresh(win);
+			t_wnoutrefresh(win);
 			screen_unset_flag(scrn, SF_BUF);
 		} else if (screen_get_flag(scrn, SF_CLI)) {
 			FOCUS = FOCUS_CLI;
 			t_nodelay(FALSE);
-			t_wrefresh(scrn->cbar);
+			t_wnoutrefresh(scrn->cbar);
 			screen_unset_flag(scrn, SF_CLI);
 		} else if (screen_get_flag(scrn, SF_TERM)) {
 			FOCUS = FOCUS_TERM;
@@ -395,10 +397,12 @@ run_loop:
 			if (FOCUS == FOCUS_BUF)
 				bufwin_place_cursor(scrn->bw);
 			else if (FOCUS == FOCUS_CLI)
-				t_wrefresh(scrn->cbar);
+				t_wnoutrefresh(scrn->cbar);
 			else /* FOCUS == FOCUS_TERM */
 				vte_refresh(scrn->vte);
 		}
+
+		t_doupdate();
 	}
 
 	/* This should never be reached */
@@ -416,10 +420,11 @@ void screen_set_colors(struct Screen *scrn)
 	bufwin_set_color_scheme(scrn->bw, CS_BUFFER);
 	bufwin_set_linum_color_scheme(scrn->bw, CS_LINE_NUM);
 
-	t_wrefresh(scrn->tbar);
-	t_wrefresh(scrn->bbar);
-	t_wrefresh(scrn->cbar);
+	t_wnoutrefresh(scrn->tbar);
+	t_wnoutrefresh(scrn->bbar);
+	t_wnoutrefresh(scrn->cbar);
 	bufwin_refresh(scrn->bw);
+	t_doupdate();
 }
 
 struct Screen *screen_new()
