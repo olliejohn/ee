@@ -40,13 +40,20 @@
 
 /* Debug dump macro */
 #ifdef DEBUG
-	/* This uses the TUI macro for passing 0 args to a variadic macro  */
+	/* This uses the TUI macro for passing 0 args to a variadic macro */
 	#define DEBUG_DUMP(fmt, ...) t_fatal(fmt VA_ARGS(__VA_ARGS__))
-#else
+#else /* DEBUG not defined */
 	#define DEBUG_DUMP(fmt, ...)
-#endif
+#endif /* DEBUG */
 
-/* Other utility macros */
+/* Get number of elements in an array */
 #define array_size(x) (sizeof(x) / sizeof((x)[0]))
+
+/* Determine whether of not a value is set  */
+#define is_set(macro) is_set_(macro)
+#define macrotest_1 ,
+#define is_set_(value) is_set__(macrotest_##value)
+#define is_set_(comma) is_set__(comma 1, 0)
+#define is_set___(_, v, ...) v
 
 #endif /* TOOLS_H */
