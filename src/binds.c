@@ -25,7 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef MAX_BINDS
 #define MAX_BINDS 128
+#endif /* MAX_BINDS */
 
 struct Screen *curscrn;
 struct Bind *keytab[MAX_BINDS];
