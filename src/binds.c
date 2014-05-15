@@ -51,7 +51,7 @@ void binds_init()
 
 void binds_destroy()
 {
-	int i;
+	unsigned int i;
 	for (i = 0; i < NUM_BINDS; i++)
 		bind_free(keytab[i]);
 }
@@ -63,7 +63,7 @@ void binds_set_current_screen(struct Screen *scrn)
 
 int binds_get_index_of(int key)
 {
-	int i;
+	unsigned int i;
 	for (i = 0; i < NUM_BINDS; i++)
 		if (keytab[i]->key == key)
 			return i;
