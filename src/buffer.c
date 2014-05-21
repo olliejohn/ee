@@ -33,6 +33,7 @@
 #define LINE_INITAL_CAPACITY 64
 #define BUFFER_INITAL_CAPACITY 32
 
+/* Create a new struct Line */
 struct Line *line_new()
 {
 	struct Line *line = malloc(sizeof(struct Line));
@@ -43,12 +44,14 @@ struct Line *line_new()
 	return line;
 }
 
+/* Destroy a line and it's data */
 void line_free(struct Line *line)
 {
 	free(line->data);
 	free(line);
 }
 
+/* Get the cursor position in the line accounting for tabs */
 unsigned int line_get_curs_pos(struct Line *line)
 {
 	unsigned int i, curspos = 0;
@@ -60,6 +63,10 @@ unsigned int line_get_curs_pos(struct Line *line)
 	return curspos;
 }
 
+/*
+ * Local function to check if a line is at it's maximum capacity and reallocate
+ * if neccesary
+ */
 static void line_double_capacity_if_full(struct Line *line)
 {
 	if (line->size < line->capacity - 1)
@@ -72,6 +79,10 @@ static void line_double_capacity_if_full(struct Line *line)
 	       sizeof(t_char) * (line->capacity - oldcap));
 }
 
+/*
+ * Increment the cursor position. Returns 0 on success or -1 if we're at the
+ * end of the line
+ */
 int line_move_forward(struct Line *line)
 {
 	if (++line->pos > line->size) {
@@ -82,6 +93,10 @@ int line_move_forward(struct Line *line)
 	return 0;
 }
 
+/*
+ * Decrement the cursor position. Returns 0 on success or -1 if we're already at
+ * the beginning of the line
+ */
 int line_move_backward(struct Line *line)
 {
 	if (line->pos == 0)
@@ -92,6 +107,10 @@ int line_move_backward(struct Line *line)
 	return 0;
 }
 
+/*
+ * Jump to the previous word in the line - this implementation is not yet
+ * functional
+ */
 int line_prev_word(struct Line *line)
 {
 	for ( ; iswalnum(line->data[line->pos]); line->pos--)
@@ -101,6 +120,10 @@ int line_prev_word(struct Line *line)
 	return 0;
 }
 
+/*
+ * Jump to the next word in the line - this implementation is not yet
+ * functional
+ */
 int line_next_word(struct Line *line)
 {
 	for ( ; iswalnum(line->data[line->pos]); line->pos++)
@@ -110,22 +133,26 @@ int line_next_word(struct Line *line)
 	return 0;
 }
 
+/* Move the cursor to position 0 in the line */
 void line_home(struct Line *line)
 {
 	line->pos = 0;
 }
 
+/* Move the cursor to the end of the line */
 void line_end(struct Line *line)
 {
 	line->pos = line->size;
 }
 
+/* Set the char at INDEX in LINE to C */
 void line_set(struct Line *line, int index, t_char c)
 {
 	if (index < line->size)
 		line->data[index] = c;
 }
 
+/* add char C to LINE at the current position */
 void line_add(struct Line *line, t_char c)
 {
 	line_double_capacity_if_full(line);
@@ -147,6 +174,14 @@ void line_add(struct Line *line, t_char c)
 	}
 }
 
+/*
+ * Perform a backspace at the current line position. Returns 0 on success, -1
+ * if we're at the beginning of a line and, depending on the situation, may need
+ * to clobber the previous line in a buffer or perform some other action, or 1
+ * if the line position is greater that the line size - this is an error on
+ * behalf of the programmer as the position should never be greater than the
+ * size and should never occur.
+ */
 int line_backspace(struct Line *line)
 {
 	if (line->pos <= 0)
@@ -165,6 +200,7 @@ int line_backspace(struct Line *line)
 	return 0;
 }
 
+/* Create a new buffer */
 struct Buffer *buffer_new()
 {
 	struct Buffer *buf = malloc(sizeof(struct Buffer));
@@ -180,6 +216,7 @@ struct Buffer *buffer_new()
 	return buf;
 }
 
+/* Destroy a buffer and all of it's data */
 void buffer_free(struct Buffer *buf)
 {
 	int i;
@@ -194,6 +231,7 @@ void buffer_free(struct Buffer *buf)
  * TODO: These filename functions will crash the program when the buffer is
  * destroyed if the reallocs fail - they could be made safer
  */
+/* Set the buffer filename from a (char *) */
 void buffer_set_filename(struct Buffer *buf, char *filename)
 {
 	buf->filename = realloc(buf->filename,
@@ -202,6 +240,7 @@ void buffer_set_filename(struct Buffer *buf, char *filename)
 	strcpy(buf->filename, filename);
 }
 
+/* Set the buffer filename from a (t_char *) or (wchar_t *) */
 void buffer_set_filename_from_wide(struct Buffer *buf, t_char *filename)
 {
 	int len = wcslen(filename) + 1;
@@ -209,18 +248,24 @@ void buffer_set_filename_from_wide(struct Buffer *buf, t_char *filename)
 	wcstombs(buf->filename, filename, len);
 }
 
+/* Go to position (x, y) in the buffer */
 void buffer_go_to(struct Buffer *buf, int x, int y)
 {
 	buf->pos = y;
 	buf->data[buf->pos]->pos = x;
 }
 
+/* Return the text from line number LINE or NULL if line LINE doesn't exist */
 #define LN_MAX ((buf->size < 2) ? 1 : buf->size)
 t_char *buffer_get_text_at(struct Buffer *buf, int line)
 {
 	return (line <= LN_MAX) ? buf->data[line]->data : NULL;
 }
 
+/*
+ * Local function to check if a buffer is at it's maximum capacity and
+ * reallocate if neccesary
+ */
 static void buffer_double_capacity_if_full(struct Buffer *buf)
 {
 	if (buf->size < buf->capacity)
@@ -234,6 +279,7 @@ static void buffer_double_capacity_if_full(struct Buffer *buf)
 	buf->data = realloc(buf->data, sizeof(struct Line) * buf->capacity);
 }
 
+/* Add character C to the buffer at the current position */
 void buffer_add(struct Buffer *buf, t_char c)
 {
 	buffer_double_capacity_if_full(buf);
@@ -248,6 +294,7 @@ void buffer_add(struct Buffer *buf, t_char c)
 	buf->dirty = BUF_DIRTY;
 }
 
+/* Add a new line at the current position in the buffer */
 /*
  * TODO: There's a massive memory error in the memmove call
  * This error can only be seen in debug builds as it's hidden by mallopt in
@@ -288,8 +335,8 @@ void buffer_new_line(struct Buffer *buf)
 }
 
 /*
- * Returns 1 if the number of lines was altered or 0 if all changes were
- * internal to a line
+ * Perform a backspace at the current buffer position. Returns 1 if the number
+ * of lines was altered or 0 if all changes were internal to a line.
  */
 int buffer_backspace(struct Buffer *buf)
 {
@@ -326,6 +373,7 @@ int buffer_backspace(struct Buffer *buf)
 	return 0;
 }
 
+/* Increment the cursor position */
 void buffer_move_forward(struct Buffer *buf)
 {
 	struct Line *line = buf->data[buf->pos];
@@ -334,6 +382,7 @@ void buffer_move_forward(struct Buffer *buf)
 		buf->data[++buf->pos]->pos = 0;
 }
 
+/* Decrement the cursor position */
 void buffer_move_backward(struct Buffer *buf)
 {
 	struct Line *line = buf->data[buf->pos];
@@ -347,6 +396,10 @@ void buffer_move_backward(struct Buffer *buf)
 	}
 }
 
+/*
+ * Move up a line in the buffer. Returns 0 on success or -1 if we're already
+ * at the top of the buffer
+ */
 int buffer_move_up(struct Buffer *buf)
 {
 	if (buf->pos <= 0)
@@ -364,6 +417,10 @@ int buffer_move_up(struct Buffer *buf)
 	return 0;
 }
 
+/*
+ * Move down a line in the buffer. Returns 0 on success or -1 if we're already
+ * at the end of the buffer
+ */
 int buffer_move_down(struct Buffer *buf)
 {
 	if (buf->pos >= buf->size)
@@ -381,6 +438,10 @@ int buffer_move_down(struct Buffer *buf)
 	return 0;
 }
 
+/*
+ * Jump to the previous word in the buffer - this implementation is not yet
+ * functional
+ */
 void buffer_prev_word(struct Buffer *buf)
 {
 	while (line_prev_word(buf->data[buf->pos]) == -1) {
@@ -389,34 +450,43 @@ void buffer_prev_word(struct Buffer *buf)
 	}
 }
 
+/*
+ * Jump to the next word in the buffer - this implementation is not yet
+ * functional
+ */
 void buffer_next_word(struct Buffer *buf)
 {
 	while (line_next_word(buf->data[buf->pos]) == -1)
 		buf->data[++buf->pos]->pos = 0;
 }
 
+/* Move the cursor to the beginning of the current line */
 void buffer_home(struct Buffer *buf)
 {
 	line_home(buf->data[buf->pos]);
 }
 
+/* Move the cursor to the end of the current line */
 void buffer_end(struct Buffer *buf)
 {
 	line_end(buf->data[buf->pos]);
 }
 
+/* Move the page up - this implementation is not yet functional */
 void buffer_pgup(struct Buffer *buf, int pg_size)
 {
 	register int new = buf->pos - pg_size;
 	buf->pos = (new >= 0) ? new : 0;
 }
 
+/* Move the page down - this implementation is not yet functional */
 void buffer_pgdn(struct Buffer *buf, int pg_size)
 {
 	register int new = buf->pos + pg_size;
 	buf->pos = (new < buf->size) ? new : buf->size;
 }
 
+/* Save the current buffer as FILE */
 int buffer_save_as(struct Buffer *buf, char *file)
 {
 	FILE *f = fopen(file, "w");
@@ -438,7 +508,7 @@ int buffer_save_as(struct Buffer *buf, char *file)
 }
 
 /*
- * Opens a file into buf and places that cursor at (x, y). If the buffer is
+ * Open a file into buf and place that cursor at (x, y). If the buffer is
  * already in use, the file will be appended so ensure that it's a new buffer
  * for normal use. Returns 0 on success or -1 on failiure.
  */
