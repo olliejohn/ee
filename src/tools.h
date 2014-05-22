@@ -46,14 +46,4 @@
 	#define DEBUG_DUMP(fmt, ...)
 #endif /* DEBUG */
 
-/* Get number of elements in an array */
-#define array_size(x) (sizeof(x) / sizeof((x)[0]))
-
-/* Determine whether of not a value is set  */
-#define is_set(macro) is_set_(macro)
-#define macrotest_1 ,
-#define is_set_(value) is_set__(macrotest_##value)
-#define is_set_(comma) is_set__(comma 1, 0)
-#define is_set___(_, v, ...) v
-
 #endif /* TOOLS_H */

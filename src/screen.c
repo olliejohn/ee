@@ -158,7 +158,7 @@ void screen_do_save_prompt(struct Screen *scrn)
 	char *shortfn;
 	t_char ch = 0;
 
-	while (1) {
+	for (;;) {
 		t_getch(&ch);
 
 		switch (ch) {
@@ -280,7 +280,6 @@ static void cmd_process_char(struct Screen *scrn, t_char ch)
 	t_wnoutrefresh(scrn->cbar);
 }
 
-#define buf scrn->bw->curbuf
 static void buffer_process_char(struct Screen *scrn, t_char ch)
 {
 	if (ch == TUI_ERR)
@@ -293,7 +292,6 @@ static void buffer_process_char(struct Screen *scrn, t_char ch)
 
 	bufwin_place_cursor(scrn->bw);
 }
-#undef buf
 
 /* Returns 1 if a save is requested or 0 if we just want to exit */
 #define buf scrn->bw->curbuf
@@ -345,7 +343,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 	cb_ptr callback;
 	dirty_t persistent_dirty = BUF_CLEAN;
 run_loop:
-	while (1) {
+	for (;;) {
 		t_getch(&ch);
 
 		if ((callback = binds_get_callback_for(ch)) == NULL) {
