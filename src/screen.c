@@ -23,6 +23,7 @@
 #include "screen.h"
 
 #include "binds.h"
+#include "buffer.h"
 #include "color.h"
 #include "lisp/lisp.h"
 
@@ -215,18 +216,42 @@ void screen_add_new_buffer(struct Screen *scrn)
 	screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
 }
 
+#define buf scrn->bw->curbuf
+void screen_save_current_buffer(struct Screen *scrn)
+{
+	if (strcmp(buf->filename, DEFAULT_BUFFER_FILENAME) == 0) {
+		screen_do_save_prompt(scrn);
+	} else {
+		if (buffer_save(buf) == 0) {
+			screen_set_status(scrn, L"Wrote buffer to '%s'",
+					  buf->filename);
+		} else {
+			screen_set_status(scrn, L"Couldn't write to '%s'",
+					  buf->filename);
+		}
+	}
+
+	/* Put the cursor back where it was */
+	if (screen_get_flag(scrn, SF_CLI))
+		t_wrefresh(scrn->cbar);
+	else if (screen_get_flag(scrn, SF_TERM))
+		vte_refresh(scrn->vte);
+	else
+		bufwin_refresh(scrn->bw);
+}
+#undef buf
+
 #define curcmd scrn->cmds->data[scrn->cmds->pos]->data
 static void run_current_cmd(struct Screen *scrn)
 {
 	/* lisp_run(scrn); */
 
 	if (wcscmp(curcmd, L"save") == 0 || wcscmp(curcmd, L"s") == 0) {
-
+		screen_save_current_buffer(scrn);
 	} else if (wcscmp(curcmd, L"new") == 0 || wcscmp(curcmd, L"n") == 0) {
 		screen_add_new_buffer(scrn);
 	} else if (iswdigit(curcmd[0])) {
-		t_char *pEnd = NULL;
-		screen_change_to_buffer(scrn, wcstol(curcmd, &pEnd, 10));
+		screen_change_to_buffer(scrn, wcstol(curcmd, NULL, 10));
 	}
 }
 #undef curcmd

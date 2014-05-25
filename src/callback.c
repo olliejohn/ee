@@ -38,30 +38,10 @@ void cb_save_exit(struct Screen *scrn)
 	screen_set_flag(scrn, SF_SAVE_EXIT);
 }
 
-#define buf scrn->bw->curbuf
 void cb_save(struct Screen *scrn)
 {
-	if (strcmp(buf->filename, DEFAULT_BUFFER_FILENAME) == 0) {
-		screen_do_save_prompt(scrn);
-	} else {
-		if (buffer_save(buf) == 0) {
-			screen_set_status(scrn, L"Wrote buffer to '%s'",
-					  buf->filename);
-		} else {
-			screen_set_status(scrn, L"Couldn't write to '%s'",
-					  buf->filename);
-		}
-	}
-
-	/* Put the cursor back where it was */
-	if (screen_get_flag(scrn, SF_CLI))
-		t_wrefresh(scrn->cbar);
-	else if (screen_get_flag(scrn, SF_TERM))
-		vte_refresh(scrn->vte);
-	else
-		bufwin_refresh(scrn->bw);
+	screen_save_current_buffer(scrn);
 }
-#undef buf
 
 void cb_save_as(struct Screen *scrn)
 {

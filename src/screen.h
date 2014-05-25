@@ -61,6 +61,7 @@ unsigned int screen_get_flag(struct Screen *scrn, enum Screen_Flag flag);
 void screen_clear_flags(struct Screen *scrn);
 void screen_change_to_buffer(struct Screen *scrn, unsigned int newtab);
 void screen_add_new_buffer(struct Screen *scrn);
+void screen_save_current_buffer(struct Screen *scrn);
 void screen_set_status(struct Screen *scrn, t_char *status, ...);
 void screen_vset_status(struct Screen *scrn, t_char *status, va_list args);
 void screen_print_ch_info(struct Screen *scrn);
