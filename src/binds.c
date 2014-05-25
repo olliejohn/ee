@@ -29,6 +29,11 @@
 #define MAX_BINDS 128
 #endif /* MAX_BINDS */
 
+struct Bind {
+	int key;
+	cb_ptr callback;
+};
+
 struct Screen *curscrn;
 struct Bind *keytab[MAX_BINDS];
 int NUM_BINDS;
@@ -79,8 +84,8 @@ cb_ptr binds_get_callback_for(int key)
 
 	if (index == -1)
 		return NULL;
-	else
-		return keytab[index]->callback;
+
+	return keytab[index]->callback;
 }
 
 int bind(int key, cb_ptr callback)

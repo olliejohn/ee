@@ -28,10 +28,7 @@
 
 typedef void (*cb_ptr)(struct Screen *scrn);
 
-struct Bind {
-	int key;
-	cb_ptr callback;
-};
+struct Bind;
 
 void binds_init();
 void binds_destroy();
