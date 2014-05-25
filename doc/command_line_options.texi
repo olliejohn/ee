@@ -13,12 +13,17 @@
 
 @table @code
 
-@item -z, --suspend
-Enable suspend ability of @code{Yaw} using the system's suspend
-keystroke (usually ^Z).
+@item -a, --about
+Display the @code{Yaw} about dialog.
+
+@item -h, --help
+Display the @code{Yaw} help dialog.
+
+@item -v, --version
+Display @code{Yaw} version information.
 
 @item +LINE,COLUMN
 Start at line number LINE and column number COLUMN instead of the default of
-line 1 and column 1.
+line 1 and column 1. (NOTE: Not yet implemented)
 
 @end table
