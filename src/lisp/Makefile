@@ -13,10 +13,10 @@ all: demo
 	@echo -- Lisp Make Success --
 
 demo: build
-	$(CC) $(DEMO).c $(OBJECTS) -o $(DEMO)
+	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(NDEBUG) -o $(DEMO)
 
 demoDebug: debug
-	$(CC) $(OBJECTS) -o $(DEMO)
+	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(CDEBUG) -o $(DEMO)
 
 build:
 	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)

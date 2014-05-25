@@ -1,5 +1,5 @@
 /*
- * lisp.c
+ * context.h
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,26 +20,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "lisp.h"
+#ifndef CONTEXT_H
+#define CONTEXT_H
 
-#include "context.h"
-#include "parser.h"
+struct Context;
 
-lisp_out_function lprintf;
 
-void lisp_set_out_function(lisp_out_function out)
-{
-	lprintf = out;
-}
 
-void interpret(struct AST *ast, struct Context *ctx)
-{
-	//lprintf(L"Hello World\n");
-}
-
-void lisp_execute(wchar_t *data)
-{
-	struct AST *ast = ast_new_from_parse(data);
-	//interpret(ast);
-	ast_free(ast);
-}
+#endif
