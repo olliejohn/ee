@@ -181,6 +181,11 @@ void screen_do_save_prompt(struct Screen *scrn)
 			break;
 		case TK_ENTER:
 			goto do_save;
+		case TK_ESC:
+			screen_set_status(scrn, L"Save cancelled");
+			t_wclear(scrn->cbar);
+			t_wrefresh(scrn->cbar);
+			return;
 		default:
 			if (iswprint(ch))
 				line_add(filename, ch);
