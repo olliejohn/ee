@@ -70,7 +70,7 @@ void cb_save_as(struct Screen *scrn)
 
 void cb_new(struct Screen *scrn)
 {
-
+	screen_add_new_buffer(scrn);
 }
 
 void cb_open(struct Screen *scrn)

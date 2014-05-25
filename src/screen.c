@@ -209,6 +209,12 @@ do_save:
 	t_wrefresh(scrn->cbar);
 }
 
+void screen_add_new_buffer(struct Screen *scrn)
+{
+	bufwin_add_buffer(scrn->bw);
+	screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
+}
+
 #define curcmd scrn->cmds->data[scrn->cmds->pos]->data
 static void run_current_cmd(struct Screen *scrn)
 {
@@ -217,8 +223,7 @@ static void run_current_cmd(struct Screen *scrn)
 	if (wcscmp(curcmd, L"save") == 0 || wcscmp(curcmd, L"s") == 0) {
 
 	} else if (wcscmp(curcmd, L"new") == 0 || wcscmp(curcmd, L"n") == 0) {
-		bufwin_add_buffer(scrn->bw);
-		screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
+		screen_add_new_buffer(scrn);
 	} else if (iswdigit(curcmd[0])) {
 		t_char *pEnd = NULL;
 		screen_change_to_buffer(scrn, wcstol(curcmd, &pEnd, 10));
