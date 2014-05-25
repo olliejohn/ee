@@ -163,7 +163,7 @@ void ast_dump_deleg(struct AST *ast, int offs)
 	unsigned int i;
 	for (i = 0; i < ast->size; i++)
 		if (ast->data[i]->type == CT_ATM) {
-			printf("%*s%ls\n", offs, "", ast->data[i]->data.as_atom);
+			printf("%*s%ls\n", offs, "",ast->data[i]->data.as_atom);
 		} else {
 			printf("%*s%s\n", offs, "", "Node:");
 			ast_dump_deleg(ast->data[i]->data.as_ast, offs + 4);
@@ -185,7 +185,7 @@ struct AST *ast_new_from_parse(wchar_t *data)
 
 	struct AST *ast = build_ast(ts);
 
-	ast_dump(ast);
+	// ast_dump(ast);
 
 	token_stream_free(ts);
 

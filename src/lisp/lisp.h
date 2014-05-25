@@ -27,6 +27,8 @@
 
 typedef void (*lisp_out_function)(wchar_t *fmt, ...);
 
+void lisp_init();
+void lisp_destroy();
 void lisp_set_out_function(lisp_out_function out);
 void lisp_execute(wchar_t *data);
 

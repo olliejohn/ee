@@ -26,6 +26,7 @@
 #include "parser.h"
 
 lisp_out_function lprintf;
+struct Context *GLOBAL;
 
 void lisp_set_out_function(lisp_out_function out)
 {
@@ -40,6 +41,16 @@ void interpret(struct AST *ast, struct Context *ctx)
 void lisp_execute(wchar_t *data)
 {
 	struct AST *ast = ast_new_from_parse(data);
-	//interpret(ast);
+	interpret(ast, GLOBAL);
 	ast_free(ast);
+}
+
+void lisp_init()
+{
+	// Set up GLOBAL context
+}
+
+void lisp_destroy()
+{
+
 }
