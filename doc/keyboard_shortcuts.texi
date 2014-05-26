@@ -31,6 +31,9 @@ Create a new buffer in a new tab
 @item C-O
 Open a file in a new buffer
 
+@item C-W
+Close the current buffer
+
 @item C-B
 Move the focus to the buffer window
 
