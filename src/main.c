@@ -28,6 +28,7 @@
 #include "color.h"
 #include "config.h"
 #include "screen.h"
+#include "lisp/lisp.h"
 #include "tui/tui.h"
 
 #define INFO_NAME 	"Yaw"
@@ -35,7 +36,7 @@
 #define INFO_AUTHOR 	"Ollie Etherington"
 #define INFO_LICENSE	"GNU GPLv2"
 #define INFO_COPYRIGHT	"Copyright 2014 Ollie Etherignton"
-#define INFO_DESC	"A simple command-line text editor"
+#define INFO_DESC	"A command-line text editor"
 #define INFO_WEBSITE	"http://github.com/olliejohn/Yaw"
 
 int version()
@@ -47,8 +48,9 @@ int version()
 int about()
 {
 	printf( "\n%s - %s by %s\nVersion %s\n"
-		"Available under the %s\n%s\n%s\n"
-		"Use the --help flag for usage information\n\n",
+		"Available as free software under the %s\n%s\n%s\n"
+		"Use the --help flag for usage information\n"
+		"Type 'info yaw' to read the full user manual\n\n",
 		INFO_NAME,
 		INFO_DESC,
 		INFO_AUTHOR,
@@ -64,9 +66,9 @@ int usage()
 	printf("Usage:\n"
 		"yaw [filename | flag]\n\n"
 		"Flags:\n"
-		"--about     Display the about dialog\n"
-		"--version   Display version information\n"
-		"--help      Display this help dialog\n");
+		"-a    --about     Display the about dialog\n"
+		"-v    --version   Display version information\n"
+		"-h    --help      Display this help dialog\n");
 	return 0;
 }
 
@@ -77,6 +79,7 @@ void register_default_binds()
 	bind(TK_CTRL_S, cb_save		);
 	bind(TK_CTRL_N, cb_new		);
 	bind(TK_CTRL_O, cb_open		);
+	bind(TK_CTRL_W, cb_close_buffer	);
 	bind(TK_CTRL_B, cb_visit_buf	);
 	bind(TK_CTRL_G, cb_visit_cli	);
 	bind(TK_CTRL_T, cb_visit_term	);
@@ -100,9 +103,9 @@ int main(int argc, char **argv)
 	/* Set mallopt options */
 #ifdef DEBUG
 	mallopt(M_CHECK_ACTION, MALLOPT_PRINT_DETAILED_WITH_STACK_AND_ABORT);
-#else
+#else	/* DEBUG not defined */
 	mallopt(M_CHECK_ACTION, MALLOPT_IGNORE_AND_CONTINUE);
-#endif
+#endif	/* DEBUG */
 
 	/* Parse args */
 	int FLAG_OPEN = 0;
@@ -122,6 +125,9 @@ int main(int argc, char **argv)
 		printf("Invalid arguments");
 		return 0;
 	}
+
+	/* Lisp engine init */
+	lisp_init();
 
 	/* tui init */
 	t_init(TUI_RAW | TUI_COLOR | TUI_KEYPAD);
@@ -155,6 +161,9 @@ int main(int argc, char **argv)
 
 	/* tui destroy */
 	t_destroy();
+
+	/* Lisp engine destroy */
+	lisp_destroy();
 
 	return status;
 }
