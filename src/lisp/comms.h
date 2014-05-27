@@ -1,5 +1,5 @@
 /*
- * lisp.h
+ * comms.h
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,16 +20,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
-
-#include "comms.h"
+#ifndef COMMS_H
+#define COMMS_H
 
 #include <wchar.h>
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
+typedef void (*lisp_out_function)(wchar_t *fmt, ...);
+extern lisp_out_function lprintf;
 
 #endif

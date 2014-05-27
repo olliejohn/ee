@@ -23,8 +23,18 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include "function.h"
+
+#include <wchar.h>
+
 struct Context;
 
-
+struct Context *context_new();
+struct Context *subcontext_new(struct Context *parent);
+void context_free(struct Context *ctx);
+unsigned int context_get_num_funcs(struct Context *ctx);
+void context_add_func(struct Context *ctx, struct LispFunc *func);
+void context_add_var(struct Context *ctx, wchar_t *var);
+struct LispFunc *context_lookup_function(struct Context *ctx, wchar_t *ident);
 
 #endif

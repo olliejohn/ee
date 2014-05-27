@@ -1,5 +1,5 @@
 /*
- * lisp.h
+ * stack.h
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,16 +20,55 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
+#ifndef STACK_H
+#define STACK_H
 
 #include "comms.h"
 
 #include <wchar.h>
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
+enum StackValue {
+	STACK_GOOD,
+	STACK_OVERFLOW,
+	STACK_UNDERFLOW,
+};
+
+#define STACK_SIZE 1500
+
+extern wchar_t *STACK[STACK_SIZE];
+extern unsigned int SP;
+
+inline enum StackValue push(wchar_t *val)
+{
+#ifdef DEBUG
+	lprintf(L"Pushing to %d: %ls\n", SP - 1, val);
+#endif /* DEBUG */
+
+	if (SP == 0) {
+#ifdef DEBUG
+		lprintf(L"*** STACK OVERFLOW ***");
+#endif /* DEBUG */
+		return STACK_OVERFLOW;
+	}
+
+	STACK[--SP] = val;
+	return STACK_GOOD;
+}
+
+inline wchar_t *pop()
+{
+#ifdef DEBUG
+	lprintf(L"Popping from %d\n", SP);
+#endif /* DEBUG */
+
+	if (SP >= STACK_SIZE) {
+#ifdef DEBUG
+		lprintf(L"*** STACK UNDERFLOW ***");
+#endif /* DEBUG */
+		return (wchar_t *) STACK_UNDERFLOW;
+	}
+
+	return STACK[SP++];
+}
 
 #endif

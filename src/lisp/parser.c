@@ -75,6 +75,27 @@ void ast_free(struct AST *ast)
 	}
 }
 
+unsigned int ast_get_size(struct AST *ast)
+{
+	return ast->size;
+}
+
+struct AST *ast_get_as_ast(struct AST *ast, int index)
+{
+	if (index >= ast->size || ast->data[index]->type == CT_ATM)
+		return NULL;
+
+	return ast->data[index]->data.as_ast;
+}
+
+wchar_t *ast_get_as_atom(struct AST *ast, int index)
+{
+	if (index >= ast->size || ast->data[index]->type == CT_AST)
+		return NULL;
+
+	return ast->data[index]->data.as_atom;
+}
+
 void ast_add(struct AST *ast, struct Cell *cell)
 {
 	if (ast->size >= ast->capacity - 1) {

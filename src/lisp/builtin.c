@@ -1,5 +1,5 @@
 /*
- * lisp.h
+ * builtin.c
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,16 +20,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
+#include "builtin.h"
 
 #include "comms.h"
+#include "stack.h"
 
-#include <wchar.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
+#define MAX_DIGITS_IN_SLONG 20 /* Max digits in a signed long plus 1 padding */
 
-#endif
+void builtin_add(struct Context *ctx, unsigned int stack_track)
+{
+	long result;
+
+	for (result = 0; stack_track; stack_track--)
+		result += wcstol(pop(), NULL, 10);
+
+	/* This is a memory leak */
+	wchar_t *ret = calloc(MAX_DIGITS_IN_SLONG, sizeof(wchar_t));
+	swprintf(ret, MAX_DIGITS_IN_SLONG, L"%ld", result);
+
+	push(ret);
+}
+
+void populate_global_context(struct Context *gbl)
+{
+	context_add_func(gbl, function_new_from_builtin(L"+", builtin_add));
+}

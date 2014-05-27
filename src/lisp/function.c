@@ -1,5 +1,5 @@
 /*
- * lisp.h
+ * function.c
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,16 +20,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
+#include "function.h"
 
-#include "comms.h"
+#include <stdlib.h>
 
-#include <wchar.h>
+struct LispFunc *function_new_from_builtin(wchar_t *ident, builtin_fp b)
+{
+	struct LispFunc *f = malloc(sizeof(struct LispFunc));
+	f->ident = ident;
+	f->func = malloc(sizeof(struct Function));
+	f->func->data.as_builtin = b;
+	f->func->type = FT_BUILTIN;
+	return f;
+}
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
+struct LispFunc *function_new_from_defun(wchar_t *ident, wchar_t *d)
+{
+	struct LispFunc *f = malloc(sizeof(struct LispFunc));
+	f->ident = ident;
+	f->func = malloc(sizeof(struct Function));
+	f->func->data.as_defun = d;
+	f->func->type = FT_DEFUN;
+	return f;
+}
 
-#endif
+void function_free(struct LispFunc *func)
+{
+	free(func->func);
+	free(func);
+}

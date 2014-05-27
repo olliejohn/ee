@@ -29,5 +29,8 @@ struct AST;
 
 struct AST *ast_new_from_parse(wchar_t *data);
 void ast_free(struct AST *ast);
+unsigned int ast_get_size(struct AST *ast);
+struct AST *ast_get_as_ast(struct AST *ast, int index);
+wchar_t *ast_get_as_atom(struct AST *ast, int index);
 
 #endif
