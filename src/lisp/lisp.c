@@ -36,6 +36,8 @@ wchar_t *STACK[STACK_SIZE];
 unsigned int SP;
 struct HeapTracker *HT;
 
+void lisp_silent_execute(wchar_t *data);
+
 void lisp_set_out_function(lisp_out_function out)
 {
 	lprintf = out;
@@ -59,9 +61,18 @@ void interpret(struct Walker *wkr, struct Context *ctx)
 		} else {
 			wchar_t *atom = walker_get_current_as_atom(wkr);
 
+			if (atom[0] == L'(') {
+				lisp_silent_execute(atom);
+				continue;
+			}
+
 			if (walker_get_position(wkr) == 0) {
 				struct LispFunc *f =
 					context_lookup_function(local, atom);
+
+				if (f == NULL) {
+					/* Handle malformed function calls */
+				}
 
 				if (f->func->type == FT_BUILTIN) {
 					f->func->data.as_builtin(local,
@@ -70,10 +81,10 @@ void interpret(struct Walker *wkr, struct Context *ctx)
 
 				}
 
-				goto INTERPRETER_CLEAN_UP;
 #ifdef DEBUG
 				lprintf(L"Lisp Function Call: %ls\n", atom);
 #endif /* DEBUG */
+				break;
 			} else {
 				push(atom);
 				stack_track++;
@@ -81,8 +92,16 @@ void interpret(struct Walker *wkr, struct Context *ctx)
 		}
 	}
 
-INTERPRETER_CLEAN_UP:
 	context_free(local);
+}
+
+void lisp_silent_execute(wchar_t *data)
+{
+	struct AST *ast = ast_new_from_parse(data);
+	struct Walker *wkr = walker_new(ast);
+	interpret(wkr, GLOBAL);
+	walker_free(wkr);
+	ast_free(ast);
 }
 
 void lisp_execute(wchar_t *data)
@@ -91,16 +110,16 @@ void lisp_execute(wchar_t *data)
 	lprintf(L"Executing: %ls\n\n", data);
 #endif /* DEBUG */
 
-	struct AST *ast = ast_new_from_parse(data);
-	struct Walker *wkr = walker_new(ast);
-	interpret(wkr, GLOBAL);
-	walker_free(wkr);
-	ast_free(ast);
+	lisp_silent_execute(data);
 
+	unsigned int i;
 #ifdef DEBUG
-	lprintf(L"\nFINAL:\nSP: %d - Value: %ls\n", SP, pop());
+	lprintf(L"\nFINAL:\n");
+	for (i = SP; i < STACK_SIZE; i++)
+		lprintf(L"Value: %ls at %d\n\n", pop(), i);
 #else /* DEBUG not defined */
-	lprintf(L"%ls\n", pop());
+	for (i = SP; i < STACK_SIZE; i++)
+		lprintf(L"%ls\n", pop());
 #endif /* DEBUG */
 
 	heap_tracker_clean(HT);

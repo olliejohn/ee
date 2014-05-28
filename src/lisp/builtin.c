@@ -24,9 +24,11 @@
 
 #include "comms.h"
 #include "heap_tracker.h"
+#include "lisp.h"
 #include "stack.h"
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define MAX_DIGITS_IN_SLONG 20 /* Max digits in a signed long plus 1 padding */
@@ -252,12 +254,8 @@ void builtin_eq(struct Context *ctx, unsigned int stack_track)
 	long previous = pop_to_long(), current;
 	for (stack_track-- ; stack_track; stack_track--) {
 		current = pop_to_long();
-
-		if (previous != current) {
-			result--;
-			break;
-		}
-
+		if (previous != current)
+			result = 0;
 		previous = current;
 	}
 
@@ -265,6 +263,82 @@ void builtin_eq(struct Context *ctx, unsigned int stack_track)
 		push_t();
 	else
 		push_nil();
+}
+
+void builtin_cons(struct Context *ctx, unsigned int stack_track)
+{
+	if (stack_track != 2) {
+		push_nil();
+		return;
+	}
+
+	wchar_t *elem0 = pop();
+	wchar_t *elem1 = pop();
+	unsigned int elem0len = wcslen(elem0);
+	unsigned int elem1len = wcslen(elem1);
+
+	/* 4 padding for '(', ' ', ')' and null terminator */
+	unsigned int len = 4 + elem0len + elem1len;
+
+	wchar_t *cons = malloc(len * sizeof(wchar_t));
+	heap_tracker_add(HT, cons);
+
+	cons[0] = L'(';
+	wcscpy(&cons[1], elem0);
+
+
+	if (elem1[0] == L'(')
+		wcscpy(&cons[elem0len + 1], elem1);
+	else
+		wcscpy(&cons[elem0len + 2], elem1);
+
+	/* Do this after copying elem1 so remove it's leading paren */
+	cons[elem0len + 1] = L' ';
+
+	cons[len - 2] = L')';
+	cons[len - 1] = 0;
+
+	push(cons);
+}
+
+void builtin_load(struct Context *ctx, unsigned int stack_track)
+{
+	/*
+	 * NOTE: This function if currently only vague - there's a lot of
+	 * memory errors
+	 */
+
+	if (stack_track != 1)
+		return;
+
+	wchar_t *wide_filename = pop();
+	char *filename = calloc(wcslen(wide_filename) + 1, sizeof(char));
+	sprintf(filename, "%ls", wide_filename);
+
+	FILE *input_file = fopen(filename, "rb");
+
+	free(filename);
+
+	if (input_file == NULL)
+		return;
+
+	fseek(input_file, 0, SEEK_END);
+	long input_file_size = ftell(input_file);
+	rewind(input_file);
+
+	char *file_contents = malloc((input_file_size + 1) * (sizeof(char)));
+	fread(file_contents, sizeof(char), input_file_size, input_file);
+	file_contents[input_file_size] = 0;
+
+	fclose(input_file);
+
+	wchar_t *wide_file = malloc((input_file_size + 1) * (sizeof(wchar_t)));
+	swprintf(wide_file, input_file_size + 1, L"%s", file_contents);
+	free(file_contents);
+
+	lisp_execute(wide_file);
+
+	free(wide_file);
 }
 
 void populate_global_context(struct Context *gbl)
@@ -279,4 +353,6 @@ void populate_global_context(struct Context *gbl)
 	context_add_func(gbl, function_new_from_builtin(L">=", builtin_gte));
 	context_add_func(gbl, function_new_from_builtin(L"<=", builtin_lte));
 	context_add_func(gbl, function_new_from_builtin(L"=", builtin_eq));
+	context_add_func(gbl, function_new_from_builtin(L"cons", builtin_cons));
+	context_add_func(gbl, function_new_from_builtin(L"load", builtin_load));
 }
