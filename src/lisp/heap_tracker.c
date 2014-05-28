@@ -64,7 +64,6 @@ void heap_tracker_add(struct HeapTracker *ht, wchar_t *pointer)
 
 void heap_tracker_clean(struct HeapTracker *ht)
 {
-
 	unsigned int i;
 	for (i = 0; i < ht->size; i++)
 		free(ht->allocs[i]);

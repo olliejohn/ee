@@ -16,9 +16,13 @@ int main(int argc, char **argv)
 	lisp_set_out_function(lisp_output_deleg);
 
 	//lisp_execute(L"(+ (* 3 4) (max 3 76))");
-	lisp_execute(L"(+ 3 (+ 4 10))");
-	//lisp_execute(L"(+ 3 (* 5 3) 3 (max 3 76) (y-or-n-p \"Hello World\"))");
-	//lisp_execute(L"(+ (max 3 76) (* (- 54 3) 5) 4)");
+	//lisp_execute(L"(+ 3 (- 10 4))");
+	//lisp_execute(L"(+ 3 (* 5 3) (max 3 76) (y-or-n-p \"Hello World\"))");
+	//lisp_execute(L"(+ (+ 3 76) (* (- 54 3) 5) 4)");
+	lisp_execute(L"(= )");
+	lisp_execute(L"(= 3)");
+	lisp_execute(L"(= 5 5 5)");
+	lisp_execute(L"(= 3 4 3)");
 
 	lisp_destroy();
 
