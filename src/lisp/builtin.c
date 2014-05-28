@@ -23,6 +23,7 @@
 #include "builtin.h"
 
 #include "comms.h"
+#include "heap_tracker.h"
 #include "stack.h"
 
 #include <stdarg.h>
@@ -42,6 +43,7 @@ void builtin_add(struct Context *ctx, unsigned int stack_track)
 	swprintf(ret, MAX_DIGITS_IN_SLONG, L"%ld", result);
 
 	push(ret);
+	heap_tracker_add(HT, ret);
 }
 
 void populate_global_context(struct Context *gbl)

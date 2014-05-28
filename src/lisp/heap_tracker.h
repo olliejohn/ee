@@ -1,5 +1,5 @@
 /*
- * stack.h
+ * heap_tracker.h
  * Part of the Lisp subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,55 +20,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef STACK_H
-#define STACK_H
-
-#include "comms.h"
+#ifndef HEAP_TRACKER_H
+#define HEAP_TRACKER_H
 
 #include <wchar.h>
 
-enum StackValue {
-	STACK_GOOD,
-	STACK_OVERFLOW,
-	STACK_UNDERFLOW,
-};
+struct HeapTracker;
 
-#define STACK_SIZE 1500
+extern struct HeapTracker *HT;
 
-extern wchar_t *STACK[STACK_SIZE];
-extern unsigned int SP;
-
-inline enum StackValue push(wchar_t *val)
-{
-#ifdef DEBUG
-	lprintf(L"Pushing %d (Value: %ls)\n", SP - 1, val);
-#endif /* DEBUG */
-
-	if (SP == 0) {
-#ifdef DEBUG
-		lprintf(L"*** STACK OVERFLOW ***");
-#endif /* DEBUG */
-		return STACK_OVERFLOW;
-	}
-
-	STACK[--SP] = val;
-	return STACK_GOOD;
-}
-
-inline wchar_t *pop()
-{
-#ifdef DEBUG
-	lprintf(L"Popping %d\n", SP);
-#endif /* DEBUG */
-
-	if (SP >= STACK_SIZE) {
-#ifdef DEBUG
-		lprintf(L"*** STACK UNDERFLOW ***");
-#endif /* DEBUG */
-		return (wchar_t *) STACK_UNDERFLOW;
-	}
-
-	return STACK[SP++];
-}
+struct HeapTracker *heap_tracker_new();
+void heap_tracker_free(struct HeapTracker *ht);
+void heap_tracker_add(struct HeapTracker *ht, wchar_t *pointer);
+void heap_tracker_clean(struct HeapTracker *ht);
 
 #endif

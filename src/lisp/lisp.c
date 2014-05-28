@@ -25,6 +25,7 @@
 #include "builtin.h"
 #include "context.h"
 #include "function.h"
+#include "heap_tracker.h"
 #include "parser.h"
 #include "stack.h"
 #include "walker.h"
@@ -33,6 +34,7 @@ lisp_out_function lprintf;
 struct Context *GLOBAL;
 wchar_t *STACK[STACK_SIZE];
 unsigned int SP;
+struct HeapTracker *HT;
 
 void lisp_set_out_function(lisp_out_function out)
 {
@@ -85,26 +87,41 @@ INTERPRETER_CLEAN_UP:
 
 void lisp_execute(wchar_t *data)
 {
+#ifdef DEBUG
+	lprintf(L"Executing: %ls\n\n", data);
+#endif /* DEBUG */
+
 	struct AST *ast = ast_new_from_parse(data);
 	struct Walker *wkr = walker_new(ast);
 	interpret(wkr, GLOBAL);
 	walker_free(wkr);
 	ast_free(ast);
+
 #ifdef DEBUG
 	lprintf(L"\nFINAL:\nSP: %d - Value: %ls\n", SP, pop());
 #else /* DEBUG not defined */
 	lprintf(L"%ls\n", pop());
 #endif /* DEBUG */
+
+	heap_tracker_clean(HT);
 }
 
 void lisp_init()
 {
+	/* Set up the stack */
 	SP = STACK_SIZE;
+	HT = heap_tracker_new();
+
+	/* Set up the environment */
 	GLOBAL = context_new();
 	populate_global_context(GLOBAL);
 }
 
 void lisp_destroy()
 {
+	/* Destroy the environment */
 	context_free(GLOBAL);
+
+	/* Destroy the stack */
+	heap_tracker_free(HT);
 }
