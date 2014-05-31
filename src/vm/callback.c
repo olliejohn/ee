@@ -81,12 +81,39 @@ int cb_popf()
 	return 0;
 }
 
-int cb_dup()
+int cb_mov()
 {
-	if (reg[ESP] >= STACK_SIZE)
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
 		return -1;
 
-	pushint(STACK[reg[ESP]].as_i);
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	/* Do the move */
+	reg[dest_reg] = exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_movr()
+{
+	/* Make sure the dest register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	/* Do the move */
+	reg[dest_reg] = reg[exec_ctx[reg[EIP]]];
+
 	return 0;
 }
 
@@ -228,6 +255,40 @@ int cb_divr()
 	return 0;
 }
 
+int cb_mod()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] %= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_modr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] %= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
 int cb_inc()
 {
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
@@ -246,7 +307,7 @@ int cb_dec()
 	return 0;
 }
 
-int cb_mov()
+int cb_and()
 {
 	/* Make sure the register operand exists and is a register */
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
@@ -258,27 +319,111 @@ int cb_mov()
 	if (exec_ctx[++reg[EIP]] == OP_END)
 		return -1;
 
-	/* Do the move */
-	reg[dest_reg] = exec_ctx[reg[EIP]];
+	reg[dest_reg] &= exec_ctx[reg[EIP]];
 
 	return 0;
 }
 
-int cb_movr()
+int cb_andr()
 {
-	/* Make sure the dest register operand exists and is a register */
+	/* Make sure the register operand exists and is a register */
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
 		return -1;
 
 	int dest_reg = exec_ctx[reg[EIP]];
 
-	/* Make sure the value register operand exists and is a register */
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] &= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_or()
+{
+	/* Make sure the register operand exists and is a register */
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
 		return -1;
 
-	/* Do the move */
-	reg[dest_reg] = reg[exec_ctx[reg[EIP]]];
+	int dest_reg = exec_ctx[reg[EIP]];
 
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] |= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_orr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] |= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_xor()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] ^= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_xorr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] ^= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_not()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	reg[exec_ctx[reg[EIP]]] ^= -1;
+	return 0;
+}
+
+int cb_neg()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	reg[exec_ctx[reg[EIP]]] *= -1;
 	return 0;
 }
 
@@ -291,8 +436,21 @@ int cb_echo()
 	return 0;
 }
 
+int cb_nop()
+{
+	return 0;
+}
 
+int cb_hlt()
+{
+	for (;;); /* No return needed :) */
+}
 
+int cb_dup()
+{
+	if (reg[ESP] >= STACK_SIZE)
+		return -1;
 
-
-
+	pushint(STACK[reg[ESP]].as_i);
+	return 0;
+}

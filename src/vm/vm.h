@@ -53,7 +53,8 @@ enum Opcode {
 	OP_MULR,	/* Multiply a register by another register */
 	OP_DIV,		/* Divide a register by a literal */
 	OP_DIVR,	/* Divide a register by another register */
-	OP_MOD,		/*  */
+	OP_MOD,		/* Modulo a register with a literal */
+	OP_MODR,	/* Modulo a register with another register */
 	OP_INC,		/* Increment the value in the given register */
 	OP_DEC,		/* Deccrement the value in the given register */
 
@@ -65,8 +66,11 @@ enum Opcode {
 
 	/* Logical/Bit Manipulation */
 	OP_AND,		/*  */
+	OP_ANDR,	/*  */
 	OP_OR,		/*  */
+	OP_ORR,		/*  */
 	OP_XOR,		/*  */
+	OP_XORR,	/*  */
 	OP_NOT,		/*  */
 	OP_NEG,		/*  */
 
@@ -78,13 +82,13 @@ enum Opcode {
 	// jcc go here
 
 	/* Builtin IO */
+	OP_ECHO,	/* Dump the value of a register to stdout */
 	// io codes go here
 
 	/* Misc */
-	OP_ECHO,	/* Dump the value of a register to stdout */
-	OP_NOP,		/*  */
+	OP_NOP,		/* No affect but guaranteed not to be optimized out */
 	OP_DUP,		/* Duplicate the element on the top of the stack */
-	OP_HLT,		/*  */
+	OP_HLT,		/* Enter the halted state */
 	OP_END,		/* Exit running program */
 };
 
