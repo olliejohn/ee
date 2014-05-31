@@ -1,6 +1,6 @@
 /*
- * lisp.h
- * Part of the Lisp subsystem in the Yaw text editor
+ * ltype.c
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -20,17 +20,47 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
+#include "ltype.h"
 
-#include "comms.h"
+#include <wctype.h>
 
-#include <wchar.h>
+unsigned int is_an_int(const wchar_t *atom)
+{
+	size_t len = wcslen(atom);
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
-void lisp_silent_execute(wchar_t *data);
+	unsigned int i;
+	for (i = 0; i < len; i++)
+		if (!iswdigit(atom[i]))
+			return 1;
 
-#endif
+	return 0;
+}
+
+unsigned int is_a_double(const wchar_t *atom)
+{
+	size_t len = wcslen(atom);
+
+	unsigned int i, dot = 0;
+	for (i = 0; i < len; i++) {
+		if (atom[i] == L'.') {
+			if (dot)
+				return 1;
+			dot++;
+		} else if (!iswdigit(atom[i])) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+unsigned int is_nil(const wchar_t *atom)
+{
+	if (wcscasecmp(atom, L"nil") == 0)
+		return 1;
+
+	if (wcscmp(atom, L"()") == 0)
+		return 1;
+
+	return 0;
+}

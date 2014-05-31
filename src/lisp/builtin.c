@@ -98,7 +98,7 @@ void builtin_mult(struct Context *ctx, unsigned int stack_track)
 
 	long result = pop_to_long();
 	for (stack_track--; stack_track; stack_track--)
-		result *= wcstol(pop(), NULL, 10);
+		result *= pop_to_long();
 
 	push_from_long(result);
 }
@@ -117,7 +117,7 @@ void builtin_div(struct Context *ctx, unsigned int stack_track)
 
 	long result = pop_to_long();
 	for (stack_track--; stack_track; stack_track--)
-		result /= wcstol(pop(), NULL, 10);
+		result /= pop_to_long();
 
 	push_from_long(result);
 }
@@ -292,13 +292,23 @@ void builtin_cons(struct Context *ctx, unsigned int stack_track)
 	else
 		wcscpy(&cons[elem0len + 2], elem1);
 
-	/* Do this after copying elem1 so remove it's leading paren */
+	/* Do this after copying elem1 to remove it's leading paren */
 	cons[elem0len + 1] = L' ';
 
 	cons[len - 2] = L')';
 	cons[len - 1] = 0;
 
 	push(cons);
+}
+
+void builtin_car(struct Context *ctx, unsigned int stack_track)
+{
+
+}
+
+void builtin_cdr(struct Context *ctx, unsigned int stack_track)
+{
+
 }
 
 void builtin_load(struct Context *ctx, unsigned int stack_track)
@@ -336,7 +346,7 @@ void builtin_load(struct Context *ctx, unsigned int stack_track)
 	swprintf(wide_file, input_file_size + 1, L"%s", file_contents);
 	free(file_contents);
 
-	lisp_execute(wide_file);
+	lisp_silent_execute(wide_file);
 
 	free(wide_file);
 }
@@ -354,5 +364,7 @@ void populate_global_context(struct Context *gbl)
 	context_add_func(gbl, function_new_from_builtin(L"<=", builtin_lte));
 	context_add_func(gbl, function_new_from_builtin(L"=", builtin_eq));
 	context_add_func(gbl, function_new_from_builtin(L"cons", builtin_cons));
+	context_add_func(gbl, function_new_from_builtin(L"car", builtin_car));
+	context_add_func(gbl, function_new_from_builtin(L"cdr", builtin_cdr));
 	context_add_func(gbl, function_new_from_builtin(L"load", builtin_load));
 }

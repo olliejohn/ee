@@ -71,3 +71,9 @@ void heap_tracker_clean(struct HeapTracker *ht)
 	heap_tracker_free(ht);
 	HT = heap_tracker_new();
 }
+
+wchar_t *ht_malloc(struct HeapTracker *ht, unsigned int size)
+{
+	heap_tracker_add(ht, malloc(size));
+	return ht->allocs[ht->size - 1];
+}

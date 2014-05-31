@@ -36,8 +36,6 @@ wchar_t *STACK[STACK_SIZE];
 unsigned int SP;
 struct HeapTracker *HT;
 
-void lisp_silent_execute(wchar_t *data);
-
 void lisp_set_out_function(lisp_out_function out)
 {
 	lprintf = out;
@@ -70,8 +68,11 @@ void interpret(struct Walker *wkr, struct Context *ctx)
 				struct LispFunc *f =
 					context_lookup_function(local, atom);
 
-				if (f == NULL) {
-					/* Handle malformed function calls */
+				if (f == NULL) { /* Handle invalid function */
+					while (pop() !=
+						(wchar_t *) STACK_UNDERFLOW);
+					push(L"*** Invalid Function ***");
+					break;
 				}
 
 				if (f->func->type == FT_BUILTIN) {

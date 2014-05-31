@@ -1,6 +1,6 @@
 /*
- * lisp.h
- * Part of the Lisp subsystem in the Yaw text editor
+ * ltype.h
+ * Part of the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
  * All Rights Reserved.
@@ -20,17 +20,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef LISP_H
-#define LISP_H
-
-#include "comms.h"
+#ifndef LTYPE_H
+#define LTYPE_H
 
 #include <wchar.h>
 
-void lisp_init();
-void lisp_destroy();
-void lisp_set_out_function(lisp_out_function out);
-void lisp_execute(wchar_t *data);
-void lisp_silent_execute(wchar_t *data);
+typedef enum {
+	LT_INT,
+	LT_DBL,
+	LT_NIL,
+	LT_OTHER,
+} LispType;
+
+unsigned int is_an_int(const wchar_t *atom);
+unsigned int is_a_double(const wchar_t *atom);
+unsigned int is_nil(const wchar_t *atom);
+
+inline unsigned int is_a_number(const wchar_t *atom)
+{
+	return (is_an_int(atom) | is_a_double(atom));
+}
+
+inline unsigned int is_t(const wchar_t *atom)
+{
+	return !(is_nil(atom));
+}
 
 #endif

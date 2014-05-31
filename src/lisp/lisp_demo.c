@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 	//lisp_execute(L"(+ (+ 3 76) (* (- 54 3) 5) 4)");
 	//lisp_execute(L"(load stdlib/stdlib.lisp)");
 	//lisp_execute(L"(+ 3 (- 10 4)) (= 3 3 4)");
-	lisp_execute(L"(cons 300 (cons 45 32))");
+	lisp_execute(L"(cons 300 (45 32))");
 	lisp_execute(L"(cons 45 32)");
 
 	lisp_destroy();
