@@ -25,6 +25,15 @@
 
 #include <stdio.h>
 
+#define check_for_flags(result)		\
+{					\
+	if (result == 0)		\
+		set_flag(F_ZERO);	\
+					\
+	if (result < 0)			\
+		set_flag(F_SIGN);	\
+}
+
 int cb_push()
 {
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
@@ -132,6 +141,8 @@ int cb_add()
 	/* Do the add */
 	reg[dest_reg] += exec_ctx[reg[EIP]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -150,6 +161,8 @@ int cb_addr()
 	/* Do the add */
 	reg[dest_reg] += reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -166,6 +179,8 @@ int cb_sub()
 		return -1;
 
 	reg[dest_reg] -= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -184,6 +199,8 @@ int cb_subr()
 
 	reg[dest_reg] -= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -200,6 +217,8 @@ int cb_mul()
 		return -1;
 
 	reg[dest_reg] *= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -218,6 +237,8 @@ int cb_mulr()
 
 	reg[dest_reg] *= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -234,6 +255,8 @@ int cb_div()
 		return -1;
 
 	reg[dest_reg] /= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -252,6 +275,8 @@ int cb_divr()
 
 	reg[dest_reg] /= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -268,6 +293,8 @@ int cb_mod()
 		return -1;
 
 	reg[dest_reg] %= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -286,6 +313,8 @@ int cb_modr()
 
 	reg[dest_reg] %= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -295,6 +324,9 @@ int cb_inc()
 		return -1;
 
 	reg[exec_ctx[reg[EIP]]]++;
+
+	check_for_flags(reg[exec_ctx[reg[EIP]]]);
+
 	return 0;
 }
 
@@ -304,6 +336,9 @@ int cb_dec()
 		return -1;
 
 	reg[exec_ctx[reg[EIP]]]--;
+
+	check_for_flags(reg[exec_ctx[reg[EIP]]]);
+
 	return 0;
 }
 
@@ -320,6 +355,8 @@ int cb_and()
 		return -1;
 
 	reg[dest_reg] &= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -338,6 +375,8 @@ int cb_andr()
 
 	reg[dest_reg] &= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -354,6 +393,8 @@ int cb_or()
 		return -1;
 
 	reg[dest_reg] |= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -372,6 +413,8 @@ int cb_orr()
 
 	reg[dest_reg] |= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -388,6 +431,8 @@ int cb_xor()
 		return -1;
 
 	reg[dest_reg] ^= exec_ctx[reg[EIP]];
+
+	check_for_flags(reg[dest_reg]);
 
 	return 0;
 }
@@ -406,6 +451,8 @@ int cb_xorr()
 
 	reg[dest_reg] ^= reg[exec_ctx[reg[EIP]]];
 
+	check_for_flags(reg[dest_reg]);
+
 	return 0;
 }
 
@@ -415,6 +462,9 @@ int cb_not()
 		return -1;
 
 	reg[exec_ctx[reg[EIP]]] ^= -1;
+
+	check_for_flags(reg[exec_ctx[reg[EIP]]]);
+
 	return 0;
 }
 
@@ -424,6 +474,18 @@ int cb_neg()
 		return -1;
 
 	reg[exec_ctx[reg[EIP]]] *= -1;
+
+	check_for_flags(reg[exec_ctx[reg[EIP]]]);
+
+	return 0;
+}
+
+int cb_jmp()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[EIP] = exec_ctx[reg[EIP]] - 1;
 	return 0;
 }
 

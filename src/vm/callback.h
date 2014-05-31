@@ -51,6 +51,7 @@ int cb_xor();
 int cb_xorr();
 int cb_not();
 int cb_neg();
+int cb_jmp();
 int cb_stc();
 int cb_clc();
 int cb_cmc();

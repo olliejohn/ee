@@ -78,7 +78,7 @@ enum Opcode {
 	OP_CMP,		/*  */
 	OP_CALL,	/*  */
 	OP_RET,		/*  */
-	OP_JMP,		/*  */
+	OP_JMP,		/* Set EIP to the specified location */
 	// jcc go here
 
 	/* Flag Operations */

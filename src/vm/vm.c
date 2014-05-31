@@ -62,6 +62,7 @@ void init_instructions()
 	codes[OP_XORR] = (struct Instruction) { cb_xorr, 2 };
 	codes[OP_NOT] = (struct Instruction) { cb_not, 1 };
 	codes[OP_NEG] = (struct Instruction) { cb_neg, 1 };
+	codes[OP_JMP] = (struct Instruction) { cb_jmp, 1 };
 	codes[OP_STC] = (struct Instruction) { cb_stc, 0 };
 	codes[OP_CLC] = (struct Instruction) { cb_clc, 0 };
 	codes[OP_CMC] = (struct Instruction) { cb_cmc, 0 };
@@ -120,11 +121,16 @@ int vm_execute(int *program)
 
 void dump_regs()
 {
-	printf("EAX: %d\nEBX: %d\nECX: %d\nEDX: %d\nCS: %d\nDS: %d\nES: %d\n\
-FS: %d\nGS: %d\nSS: %d\nEDI: %d\nESI: %d\nEBP: %d\nESP: %d\nEIP: %d\nEFLAGS: \
-%d\n", 		reg[EAX], reg[EBX], reg[ECX], reg[EDX], reg[CS], reg[DS],
+	printf("\nRegisters:\n\
+EAX: %d      EBX: %d      ECX: %d      EDX: %d\n\
+CS: %d      DS: %d      ES: %d      FS: %d      GS: %d      SS: %d\n\
+EDI: %d      ESI: %d      EBP: %d      ESP: %d      EIP: %d      EFLAGS: %d\n\n\
+Flags:\n\
+Carry: %d   Overflow: %d   Sign: %d   Zero: %d\n\n",
+ 		reg[EAX], reg[EBX], reg[ECX], reg[EDX], reg[CS], reg[DS],
 		reg[ES], reg[FS], reg[GS], reg[SS], reg[EDI], reg[ESI],
-		reg[EBP], reg[ESP], reg[EIP], reg[EFLAGS]);
+		reg[EBP], reg[ESP], reg[EIP], reg[EFLAGS], get_flag(F_CARRY),
+		get_flag(F_OVERFLOW), get_flag(F_SIGN), get_flag(F_ZERO));
 }
 
 void dump_stack()
