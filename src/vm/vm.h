@@ -119,7 +119,7 @@ enum Opcode {
 #define NUM_OPS (OP_END + 1)
 
 enum Register {
-	/* General purpose */
+	/* General Purpose */
 	EAX,	/* Accumulator */
 	EBX,	/* Base */
 	ECX,	/* Counter */

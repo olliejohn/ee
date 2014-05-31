@@ -7,22 +7,38 @@ NDEBUG=-UDEBUG -DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 DEMO=vm_demo
 SOURCES:=$(shell ls | grep \\.c | grep -v demo)
+ASM=yawsembler
 OBJECTS=*.o
 
-all: demo
+all: demo assembler
 	@echo -- VM Make Success --
 
-demo: build
+debug: demoDebug assemblerDebug
+
+demo: buildVM
 	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(NDEBUG) -o $(DEMO)
 
-demoDebug: debug
+demoDebug: debugVM
 	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(CDEBUG) -o $(DEMO)
 
-build:
+buildVM:
 	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
 
-debug:
+debugVM:
 	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
+
+assembler: buildAssembler linkAssembler
+
+assemblerDebug: buildAssemblerDebug linkAssembler
+
+linkAssembler:
+	$(CC) $(ASM).o -o yawsembler
+
+buildAssembler:
+	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_ASSEMBLER $(NDEBUG) $(ASM).c
+
+buildAssemblerDebug:
+	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_ASSEMBLER $(CDEBUG) $(ASM).c
 
 clean:
 	rm -rf *.o
