@@ -66,6 +66,13 @@ void init_instructions()
 	codes[OP_CMPR] = (struct Instruction) { cb_cmpr, 2 };
 	codes[OP_JMP] = (struct Instruction) { cb_jmp, 1 };
 	codes[OP_JE] = (struct Instruction) { cb_je, 1 };
+	codes[OP_JZ] = (struct Instruction) { cb_je, 1 }; /* Same as je */
+	codes[OP_JNE] = (struct Instruction) { cb_jne, 1 };
+	codes[OP_JNZ] = (struct Instruction) { cb_jne, 1 }; /* Same as jne */
+	codes[OP_JG] = (struct Instruction) { cb_jg, 1 };
+	codes[OP_JGE] = (struct Instruction) { cb_jge, 1 };
+	codes[OP_JL] = (struct Instruction) { cb_jl, 1 };
+	codes[OP_JLE] = (struct Instruction) { cb_jle, 1 };
 	codes[OP_STC] = (struct Instruction) { cb_stc, 0 };
 	codes[OP_CLC] = (struct Instruction) { cb_clc, 0 };
 	codes[OP_CMC] = (struct Instruction) { cb_cmc, 0 };
@@ -116,8 +123,8 @@ int vm_execute(int *program)
 			return -1;
 		}
 
-	dump_regs();
-	dump_stack();
+//	dump_regs();
+//	dump_stack();
 
 	return 0;
 }

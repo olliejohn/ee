@@ -494,8 +494,12 @@ static void do_comparison(int a, int b)
 	else
 		clear_flag(F_SIGN);
 
+	if (b < temp && a > 0)
+		set_flag(F_OVERFLOW);
+	else
+		clear_flag(F_OVERFLOW);
+
 	clear_flag(F_CARRY);
-	clear_flag(F_OVERFLOW);
 }
 
 int cb_cmp()
@@ -547,6 +551,68 @@ int cb_je()
 		return -1;
 
 	if (get_flag(F_ZERO))
+		jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_jne()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (!get_flag(F_ZERO))
+		jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+/*
+VALS	SIGN	ZERO
+EQ	0	1		1
+LT	1	0		1
+GT	0	0		1
+*/
+
+int cb_jg()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (!get_flag(F_SIGN) && !get_flag(F_ZERO))
+		jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_jge()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (get_flag(F_ZERO) || (!get_flag(F_SIGN) && !get_flag(F_ZERO)))
+		jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_jl()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (get_flag(F_SIGN) && !get_flag(F_ZERO))
+		jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_jle()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (get_flag(F_ZERO) || (get_flag(F_SIGN) && !get_flag(F_ZERO)))
 		jump_to(exec_ctx[reg[EIP]]);
 
 	return 0;

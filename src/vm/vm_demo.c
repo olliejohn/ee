@@ -8,10 +8,9 @@ int main(int argc, char **argv)
 
 	int program[] = {
 		OP_MOV, EAX, 10,
-		OP_MOV, EBX, 10,
-		OP_CMPR, EAX, EBX,
-		OP_JE, 13,
-		OP_ECHO, EFLAGS,
+		OP_CMP, EAX, 8,
+		OP_JLE, 10,
+		OP_ECHO, EAX,
 		OP_END
 	};
 

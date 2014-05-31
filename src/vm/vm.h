@@ -81,7 +81,13 @@ enum Opcode {
 	OP_RET,		/*  */
 	OP_JMP,		/* Set EIP to the specified location */
 	OP_JE,		/* Jump if equal (zero flag is set) */
-	// jcc go here
+	OP_JZ,		/* Jump if zero (exactly the same as je) */
+	OP_JNE,		/* Jump if not equal (zero flag is not set) */
+	OP_JNZ,		/* Jump if not zero (exactly the same as jne) */
+	OP_JG,		/* Jump if greater than */
+	OP_JGE,		/* Jump if greater than or equal to */
+	OP_JL,		/* Jump if less than */
+	OP_JLE,		/* Jump if less than or equal to */
 
 	/* Flag Operations */
 	OP_STC,		/* Set the carry flag */
