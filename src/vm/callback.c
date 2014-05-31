@@ -536,6 +536,35 @@ int cb_cmpr()
 	return 0;
 }
 
+int cb_call()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	pushint(reg[EIP] + 1);
+	jump_to(exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_ret()
+{
+	jump_to(popint());
+	return 0;
+}
+
+int cb_retp()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || cb_ret() == -1)
+		return -1;
+
+	int to_pop;
+	for (to_pop = exec_ctx[reg[EIP]]; to_pop; to_pop--)
+		pop();
+
+	return 0;
+}
+
 int cb_jmp()
 {
 	if (exec_ctx[++reg[EIP]] == OP_END)

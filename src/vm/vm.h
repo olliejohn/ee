@@ -79,6 +79,7 @@ enum Opcode {
 	OP_CMPR,	/* Compare a register against another register */
 	OP_CALL,	/*  */
 	OP_RET,		/*  */
+	OP_RETP,	/*  */
 	OP_JMP,		/* Set EIP to the specified location */
 	OP_JE,		/* Jump if equal (zero flag is set) */
 	OP_JZ,		/* Jump if zero (exactly the same as je) */
@@ -105,7 +106,7 @@ enum Opcode {
 
 	/* Builtin IO */
 	OP_ECHO,	/* Dump the value of a register to stdout */
-	// io codes go here
+	/* Possibly add more io opcodes here? */
 
 	/* Misc */
 	OP_NOP,		/* No affect but guaranteed not to be optimized out */

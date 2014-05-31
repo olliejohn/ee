@@ -64,6 +64,9 @@ void init_instructions()
 	codes[OP_NEG] = (struct Instruction) { cb_neg, 1 };
 	codes[OP_CMP] = (struct Instruction) { cb_cmp, 2 };
 	codes[OP_CMPR] = (struct Instruction) { cb_cmpr, 2 };
+	codes[OP_CALL] = (struct Instruction) { cb_call, 1 };
+	codes[OP_RET] = (struct Instruction) { cb_ret, 0 };
+	codes[OP_RETP] = (struct Instruction) { cb_retp, 1 };
 	codes[OP_JMP] = (struct Instruction) { cb_jmp, 1 };
 	codes[OP_JE] = (struct Instruction) { cb_je, 1 };
 	codes[OP_JZ] = (struct Instruction) { cb_je, 1 }; /* Same as je */
@@ -124,7 +127,7 @@ int vm_execute(int *program)
 		}
 
 //	dump_regs();
-//	dump_stack();
+	dump_stack();
 
 	return 0;
 }
