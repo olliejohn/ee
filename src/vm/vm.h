@@ -25,7 +25,9 @@
 
 void vm_init();
 void vm_destroy();
-void vm_execute(unsigned int program[]);
+int vm_execute(int *program);
+void dump_regs();
+void dump_stack();
 
 enum Opcode {
 	OP_PUSH,
@@ -61,6 +63,35 @@ enum Opcode {
 	OP_JMP,
 	// jcc
 	// io codes
+	OP_END,
+};
+
+enum Register {
+	/* General purpose */
+	EAX,	/* Accumulator */
+	EBX,	/* Base */
+	ECX,	/* Counter */
+	EDX,	/* Data */
+
+	/* Segments */
+	CS,	/* Code */
+	DS,	/* Data */
+	ES,	/* Extra */
+	FS,	/* Extra */
+	GS,	/* Extra */
+	SS,	/* Stack */
+
+	/* Indexes */
+	EDI,	/* Destination */
+	ESI,	/* Source */
+
+	/* Pointers */
+	EBP,	/* Stack Base */
+	ESP,	/* Stack */
+	EIP,	/* Index */
+
+	/* Flags */
+	EFLAGS,
 };
 
 #endif

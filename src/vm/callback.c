@@ -25,16 +25,23 @@
 
 #include <stdio.h>
 
-void cb_push()
+int cb_push()
 {
-	printf("Push!\n");
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	pushint(exec_ctx[reg[EIP]]);
+	return 0;
 }
 
+int cb_pop()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
 
-
-
-
-
+	reg[exec_ctx[reg[EIP]]] = popint();
+	return 0;
+}
 
 
 

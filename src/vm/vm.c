@@ -29,22 +29,28 @@
 int reg[NUM_REGISTERS];
 union stk_elem STACK[STACK_SIZE];
 struct Instruction codes[NUM_OPS];
-unsigned int *exec_ctx;
+int *exec_ctx;
 
 void init_instructions()
 {
 	codes[OP_PUSH] = (struct Instruction) { cb_push, 1 };
+	codes[OP_POP] = (struct Instruction) { cb_pop, 1 };
 }
 
 void vm_init()
 {
+	/* Build the instruction table */
 	init_instructions();
+
 	/* Set up the stack */
 	reg[EBP] = STACK_SIZE;
 	reg[ESP] = reg[EBP];
 
 	/* Zero the flags */
 	reg[EFLAGS] = 0;
+
+	/* Set the current program to NULL */
+	exec_ctx = NULL;
 }
 
 void vm_destroy()
@@ -52,18 +58,30 @@ void vm_destroy()
 
 }
 
-void vm_execute(unsigned int program[])
+int vm_execute(int *program)
 {
 	exec_ctx = program;
 	reg[EIP] = 0;
-	long unsigned int num_instructions = ARRAY_SIZE(program);
 
-	printf("%ld\n", num_instructions);
+	for ( ; exec_ctx[reg[EIP]] != OP_END; reg[EIP]++)
+		if (reg[EIP] >= NUM_OPS || codes[exec_ctx[reg[EIP]]].cb() != 0)
+			return -1;
+
+	return 0;
 }
 
+void dump_regs()
+{
+	printf("EAX: %d\nEBX: %d\nECX: %d\nEDX: %d\nCS: %d\nDS: %d\nES: %d\n\
+FS: %d\nGS: %d\nSS: %d\nEDI: %d\nESI: %d\nEBP: %d\nESP: %d\nEIP: %d\nEFLAGS: \
+%d\n", 		reg[EAX], reg[EBX], reg[ECX], reg[EDX], reg[CS], reg[DS],
+		reg[ES], reg[FS], reg[GS], reg[SS], reg[EDI], reg[ESI],
+		reg[EBP], reg[ESP], reg[EIP], reg[EFLAGS]);
+}
 
-
-
-
-
-
+void dump_stack()
+{
+	unsigned int i;
+	for (i = reg[ESP]; i < STACK_SIZE; i++)
+		printf("%d: %d\n", i, STACK[i].as_i);
+}

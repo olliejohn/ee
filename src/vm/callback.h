@@ -23,6 +23,7 @@
 #ifndef CALLBACK_H
 #define CALLBACK_C
 
-void cb_push();
+int cb_push();
+int cb_pop();
 
 #endif

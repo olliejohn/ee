@@ -25,36 +25,6 @@
 
 #include "vm.h"
 
-#define ARRAY_SIZE(ARRAY) (sizeof(ARRAY) / sizeof((ARRAY)[0]))
-
-enum register_ident {
-	/* General purpose */
-	EAX,	/* Accumulator */
-	EBX,	/* Base */
-	ECX,	/* Counter */
-	EDX,	/* Data */
-
-	/* Segments */
-	CS,	/* Code */
-	DS,	/* Data */
-	ES,	/* Extra */
-	FS,	/* Extra */
-	GS,	/* Extra */
-	SS,	/* Stack */
-
-	/* Indexes */
-	EDI,	/* Destination */
-	ESI,	/* Source */
-
-	/* Pointers */
-	EBP,	/* Stack Base */
-	ESP,	/* Stack */
-	EIP,	/* Index */
-
-	/* Flags */
-	EFLAGS,
-};
-
 /* Get the number of registers from the last register listed */
 #define NUM_REGISTERS (EFLAGS + 1)
 
@@ -119,7 +89,7 @@ inline float popflt()
 /* Get number of opcodes from last entry */
 #define NUM_OPS (OP_JMP + 1)
 
-typedef void (*callback)();
+typedef int (*callback)();
 
 struct Instruction {
 	callback cb;
@@ -129,6 +99,6 @@ struct Instruction {
 extern struct Instruction codes[NUM_OPS];
 
 /* The current program being run is stored in exec_ctx */
-extern unsigned int *exec_ctx;
+extern int *exec_ctx;
 
 #endif
