@@ -30,6 +30,7 @@
 #include "screen.h"
 #include "lisp/lisp.h"
 #include "tui/tui.h"
+#include "vm/vm.h"
 
 #define INFO_NAME 	"Yaw"
 #define INFO_VERSION 	"0.0.1"
@@ -126,6 +127,8 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	vm_init();
+
 	/* Lisp engine init */
 	//lisp_init();
 
@@ -164,6 +167,8 @@ int main(int argc, char **argv)
 
 	/* tui destroy */
 	t_destroy();
+
+	//vm_destroy();
 
 	return status;
 }

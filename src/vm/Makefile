@@ -1,0 +1,29 @@
+# Yaw VM Makefile
+
+CC=gcc
+CFLAGS=-c -Wall -std=gnu99 -O3
+DEFS=-D_GNU_SOURCE
+NDEBUG=-UDEBUG -DNDEBUG
+CDEBUG=-g -UNDEBUG -DDEBUG
+DEMO=vm_demo
+SOURCES:=$(shell ls | grep \\.c | grep -v demo)
+OBJECTS=*.o
+
+all: demo
+	@echo -- VM Make Success --
+
+demo: build
+	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(NDEBUG) -o $(DEMO)
+
+demoDebug: debug
+	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(CDEBUG) -o $(DEMO)
+
+build:
+	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
+
+debug:
+	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
+
+clean:
+	rm -rf *.o
+	rm -rf $(DEMO)

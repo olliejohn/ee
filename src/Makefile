@@ -7,7 +7,7 @@ DEFS=-D_GNU_SOURCE
 NDEBUG=-DNDEBUG -UDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 TARGET=yaw
-OBJECTS=*.o lisp/*.o tui/*.o vte/*.o
+OBJECTS=*.o vm/*.o lisp/*.o tui/*.o vte/*.o
 SOURCES=*.c
 BINDIR=/usr/bin
 LIBDIR=/usr/lib
@@ -16,15 +16,18 @@ all: exec
 	@echo -- Yaw Make Success --
 
 d: debug
-debug: buildLispDebug buildTuiDebug buildVteDebug buildDebug link
+debug: buildVMDebug buildLispDebug buildTuiDebug buildVteDebug buildDebug link
 
-exec: buildLisp buildTui buildVte build link
+exec: buildVM buildLisp buildTui buildVte build link
 
 link:
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET)
 
 build:
 	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
+
+buildVM:
+	$(MAKE) -C vm
 
 buildLisp:
 	$(MAKE) -C lisp
@@ -37,6 +40,9 @@ buildVte:
 
 buildDebug:
 	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
+
+buildVMDebug:
+	$(MAKE) -C debug vm
 
 buildLispDebug:
 	$(MAKE) debug -C lisp
@@ -52,6 +58,8 @@ clean:
 	rm $(TARGET)
 	$(MAKE) clean -C vte
 	$(MAKE) clean -C tui
+	$(MAKE) clean -C lisp
+	$(MAKE) clean -C vm
 	@echo -- Clean Success --
 
 install:
