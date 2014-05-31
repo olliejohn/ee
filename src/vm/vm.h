@@ -29,42 +29,46 @@ int vm_execute(int *program);
 void dump_regs();
 void dump_stack();
 
+extern int vm_errpos;
+
 enum Opcode {
-	OP_PUSH,
-	OP_POP,
-	OP_PUSHA,
-	OP_POPA,
-	OP_PUSHI,
-	OP_PUSHF,
-	OP_POPF,
-	OP_EXCH,
-	OP_DUP,
-	OP_ADDF,
-	OP_ADD,
-	OP_SUBF,
-	OP_SUB,
-	OP_MULF,
-	OP_MUL,
-	OP_DIVF,
-	OP_DIV,
-	OP_MOD,
-	OP_INC,
-	OP_DEC,
-	OP_AND,
-	OP_OR,
-	OP_XOR,
-	OP_NOT,
-	OP_NEG,
-	OP_CMP,
-	OP_NOP,
-	OP_HLT,
-	OP_CALL,
-	OP_RET,
-	OP_JMP,
+	OP_PUSH,	/* Push from register */
+	OP_POP,		/* Pop to register */
+	OP_PUSHA,	/* Push all registers */
+	OP_POPA,	/* Pop all registers */
+	OP_PUSHF,	/* Push from flags */
+	OP_POPF,	/* Pop to flags */
+	OP_DUP,		/* Duplicate the element on the top of the stack */
+	OP_ADDF,	/*  */
+	OP_ADD,		/*  */
+	OP_SUBF,	/*  */
+	OP_SUB,		/*  */
+	OP_MULF,	/*  */
+	OP_MUL,		/*  */
+	OP_DIVF,	/*  */
+	OP_DIV,		/*  */
+	OP_MOD,		/*  */
+	OP_INC,		/*  */
+	OP_DEC,		/*  */
+	OP_AND,		/*  */
+	OP_OR,		/*  */
+	OP_XOR,		/*  */
+	OP_NOT,		/*  */
+	OP_NEG,		/*  */
+	OP_CMP,		/*  */
+	OP_NOP,		/*  */
+	OP_HLT,		/*  */
+	OP_MOV,		/*  */
+	OP_CALL,	/*  */
+	OP_RET,		/*  */
+	OP_JMP,		/*  */
 	// jcc
 	// io codes
-	OP_END,
+	OP_END,		/* Exit running program */
 };
+
+/* Get number of opcodes from last entry */
+#define NUM_OPS (OP_END + 1)
 
 enum Register {
 	/* General purpose */
@@ -93,5 +97,8 @@ enum Register {
 	/* Flags */
 	EFLAGS,
 };
+
+/* Get the number of registers from the last register listed */
+#define NUM_REGS (EFLAGS + 1)
 
 #endif

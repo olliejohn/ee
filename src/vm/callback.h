@@ -25,5 +25,14 @@
 
 int cb_push();
 int cb_pop();
+int cb_pusha();
+int cb_popa();
+int cb_pushf();
+int cb_popf();
+int cb_dup();
+int cb_add();
+int cb_inc();
+int cb_dec();
+int cb_mov();
 
 #endif

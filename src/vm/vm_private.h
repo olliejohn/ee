@@ -25,10 +25,7 @@
 
 #include "vm.h"
 
-/* Get the number of registers from the last register listed */
-#define NUM_REGISTERS (EFLAGS + 1)
-
-extern int reg[NUM_REGISTERS];
+extern int reg[NUM_REGS];
 
 union stk_elem {
 	int as_i;
@@ -85,9 +82,6 @@ inline float popflt()
 {
 	return pop().as_f;
 }
-
-/* Get number of opcodes from last entry */
-#define NUM_OPS (OP_JMP + 1)
 
 typedef int (*callback)();
 

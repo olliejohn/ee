@@ -27,33 +27,109 @@
 
 int cb_push()
 {
-	if (exec_ctx[++reg[EIP]] == OP_END)
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
 		return -1;
 
-	pushint(exec_ctx[reg[EIP]]);
+	pushint(reg[exec_ctx[reg[EIP]]]);
 	return 0;
 }
 
 int cb_pop()
 {
-	if (exec_ctx[++reg[EIP]] == OP_END)
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
 		return -1;
 
 	reg[exec_ctx[reg[EIP]]] = popint();
 	return 0;
 }
 
+int cb_pusha()
+{
+	pushint(reg[EAX]);
+	pushint(reg[EBX]);
+	pushint(reg[ECX]);
+	pushint(reg[EDX]);
+	pushint(reg[ESP]);
+	pushint(reg[EBP]);
+	pushint(reg[ESI]);
+	pushint(reg[EDI]);
+	return 0;
+}
 
+int cb_popa()
+{
+	reg[EDI] = popint();
+	reg[ESI] = popint();
+	reg[EBP] = popint();
+	reg[EAX] = popint(); /* No pop esp here - just increment */
+	reg[EDX] = popint();
+	reg[ECX] = popint();
+	reg[EBX] = popint();
+	reg[EAX] = popint();
+	return 0;
+}
 
+int cb_pushf()
+{
+	pushint(reg[EFLAGS]);
+	return 0;
+}
 
+int cb_popf()
+{
+	reg[EFLAGS] = popint();
+	return 0;
+}
 
+int cb_dup()
+{
+	if (reg[ESP] >= STACK_SIZE)
+		return -1;
 
+	pushint(STACK[reg[ESP]].as_i);
+	return 0;
+}
 
+int cb_add()
+{
+	return 0;
+}
 
+int cb_inc()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
 
+	reg[exec_ctx[reg[EIP]]]++;
+	return 0;
+}
 
+int cb_dec()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
 
+	reg[exec_ctx[reg[EIP]]]--;
+	return 0;
+}
 
+int cb_mov()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	/* Do the move */
+	reg[dest_reg] = exec_ctx[reg[EIP]];
+
+	return 0;
+}
 
 
 

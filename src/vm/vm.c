@@ -26,15 +26,25 @@
 
 #include <stdio.h>
 
-int reg[NUM_REGISTERS];
+int reg[NUM_REGS];
 union stk_elem STACK[STACK_SIZE];
 struct Instruction codes[NUM_OPS];
 int *exec_ctx;
+int vm_errpos;
 
 void init_instructions()
 {
 	codes[OP_PUSH] = (struct Instruction) { cb_push, 1 };
 	codes[OP_POP] = (struct Instruction) { cb_pop, 1 };
+	codes[OP_PUSHA] = (struct Instruction) { cb_pusha, 0 };
+	codes[OP_POPA] = (struct Instruction) { cb_popa, 0 };
+	codes[OP_PUSHF] = (struct Instruction) { cb_pushf, 0 };
+	codes[OP_POPF] = (struct Instruction) { cb_popf, 0 };
+	codes[OP_DUP] = (struct Instruction) { cb_dup, 0 };
+	codes[OP_ADD] = (struct Instruction) { cb_add, 0 };
+	codes[OP_INC] = (struct Instruction) { cb_inc, 0 };
+	codes[OP_DEC] = (struct Instruction) { cb_dec, 0 };
+	codes[OP_MOV] = (struct Instruction) { cb_mov, 2 };
 }
 
 void vm_init()
@@ -64,8 +74,13 @@ int vm_execute(int *program)
 	reg[EIP] = 0;
 
 	for ( ; exec_ctx[reg[EIP]] != OP_END; reg[EIP]++)
-		if (reg[EIP] >= NUM_OPS || codes[exec_ctx[reg[EIP]]].cb() != 0)
+		if (reg[EIP] >= NUM_OPS || codes[exec_ctx[reg[EIP]]].cb() != 0){
+			vm_errpos = reg[EIP];
 			return -1;
+		}
+
+	dump_regs();
+	dump_stack();
 
 	return 0;
 }
