@@ -53,6 +53,7 @@ struct BufWin {
 struct BufWin *bufwin_new(int x, int y, unsigned int w, unsigned int h);
 void bufwin_free(struct BufWin *bufwin);
 void bufwin_resize_linums(struct BufWin *bufwin);
+void bufwin_check_line_number_digit_change(struct BufWin *bw);
 void bufwin_redraw(struct BufWin *bufwin);
 void bufwin_process_char(struct BufWin *bufwin, t_char ch);
 void bufwin_place_cursor(struct BufWin *bufwin);
@@ -61,7 +62,23 @@ void bufwin_set_color_scheme(struct BufWin *bufwin, int colpair);
 void bufwin_set_linum_color_scheme(struct BufWin *bufwin, int colpair);
 int bufwin_add_buffer(struct BufWin *bufwin);
 int bufwin_add_buffer_from_file(struct BufWin *bufwin, char *file);
+void bufwin_close_buffer(struct BufWin *bufwin, unsigned int index);
 void bufwin_set_active_buffer(struct BufWin *bufwin, int index);
 void bufwin_toggle_draw_linums(struct BufWin *bufwin);
+
+inline int bufwin_get_curbuf_index(struct BufWin *bufwin)
+{
+	for (int i = 0; i < bufwin->num_bufs; i++)
+		if (bufwin->buffers[i] == bufwin->curbuf)
+			return i;
+	return -1;
+}
+
+inline void bufwin_close_current_buffer(struct BufWin *bufwin)
+{
+	register int index = bufwin_get_curbuf_index(bufwin);
+	if (index > -1)
+		bufwin_close_buffer(bufwin, index);
+}
 
 #endif

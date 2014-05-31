@@ -66,5 +66,7 @@ void screen_set_status(struct Screen *scrn, t_char *status, ...);
 void screen_vset_status(struct Screen *scrn, t_char *status, va_list args);
 void screen_print_ch_info(struct Screen *scrn);
 void screen_do_save_prompt(struct Screen *scrn);
+void screen_open_buffer_prompt(struct Screen *scrn);
+void screen_close_current_buffer(struct Screen *scrn);
 
 #endif

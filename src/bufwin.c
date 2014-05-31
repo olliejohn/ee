@@ -40,6 +40,7 @@
 
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wctype.h>
 
 /* This will eventually be replaced with an option in the Settings struct */
@@ -445,6 +446,30 @@ int bufwin_add_buffer_from_file(struct BufWin *bw, char *file)
 	/* Second call to set_active_buffer handles rendering correctly */
 	bufwin_set_active_buffer(bw, bw->num_bufs - 1);
 	return status;
+}
+
+/* Remove buffer number INDEX from BW if it exists */
+void bufwin_close_buffer(struct BufWin *bw, unsigned int index)
+{
+	if (index >= bw->num_bufs || bw->num_bufs < 2)
+		return;
+
+	unsigned int is_current = (bw->buffers[index] == bw->curbuf) ? 1 : 0;
+
+	buffer_free(bw->buffers[index]);
+
+	if (index < --bw->num_bufs) {
+		memmove(bw->buffers[index],
+			bw->buffers[index + 1],
+			bw->num_bufs - index);
+
+		if (is_current)
+			bw->curbuf = bw->buffers[(index == 0) ? 0 : index - 1];
+	} else if (is_current) {
+		bw->curbuf = bw->buffers[bw->num_bufs - 1];
+	}
+
+	bufwin_redraw(bw);
 }
 
 /* Set the active buffer and redraw the screen */

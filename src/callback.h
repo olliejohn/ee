@@ -31,6 +31,7 @@ void cb_save(struct Screen *scrn);
 void cb_save_as(struct Screen *scrn);
 void cb_new(struct Screen *scrn);
 void cb_open(struct Screen *scrn);
+void cb_close_buffer(struct Screen *scrn);
 void cb_visit_buf(struct Screen *scrn);
 void cb_visit_cli(struct Screen *scrn);
 void cb_visit_term(struct Screen *scrn);

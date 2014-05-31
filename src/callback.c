@@ -55,7 +55,12 @@ void cb_new(struct Screen *scrn)
 
 void cb_open(struct Screen *scrn)
 {
+	screen_open_buffer_prompt(scrn);
+}
 
+void cb_close_buffer(struct Screen *scrn)
+{
+	screen_close_current_buffer(scrn);
 }
 
 void cb_visit_buf(struct Screen *scrn)

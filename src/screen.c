@@ -25,7 +25,7 @@
 #include "binds.h"
 #include "buffer.h"
 #include "color.h"
-#include "lisp/lisp.h"
+//#include "lisp/lisp.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -135,6 +135,22 @@ void screen_vset_status(struct Screen *scrn, t_char *status, va_list args)
 	t_wrefresh(scrn->bbar);
 }
 
+//struct Screen *lisp_screen_context = NULL;
+void screen_lisp_status_bar_deleg(t_char *fmt, ...)
+{
+	/*
+	va_list args;
+	va_start(args, fmt);
+
+	if (lisp_screen_context == NULL)
+		vwprintf(fmt, args);
+	else
+		screen_vset_status(lisp_screen_context, fmt, args);
+
+	va_end(args);
+	*/
+}
+
 /* Prints line number and character number information */
 #define CH_INFO_FMT L"L:%d/%d    C:%d/%d        "
 #define CH_INFO_OFFS 24
@@ -219,6 +235,85 @@ void screen_add_new_buffer(struct Screen *scrn)
 {
 	bufwin_add_buffer(scrn->bw);
 	screen_change_to_buffer(scrn, scrn->bw->num_bufs - 1);
+	screen_set_status(scrn, L"Created and switched to new buffer");
+}
+
+void screen_open_buffer_prompt(struct Screen *scrn)
+{
+	screen_set_status(scrn, L"Enter filename to open...");
+	t_wclear(scrn->cbar);
+	t_wrefresh(scrn->cbar);
+
+	struct Line *filename = line_new();
+	char *shortfn;
+	t_char ch = 0;
+
+	for (;;) {
+		t_getch(&ch);
+
+		switch (ch) {
+		case TK_BKSPC:
+			line_backspace(filename);
+			t_wclear(scrn->cbar);
+			break;
+		case TK_DELETE:
+			if (line_move_forward(filename) == 0) {
+				line_backspace(filename);
+				t_wclear(scrn->cbar);
+			}
+			break;
+		case TK_LEFT:
+			line_move_backward(filename);
+			break;
+		case TK_RIGHT:
+			line_move_forward(filename);
+			break;
+		case TK_ENTER:
+			goto do_open;
+		case TK_ESC:
+			screen_set_status(scrn, L"Open cancelled");
+			t_wclear(scrn->cbar);
+			t_wrefresh(scrn->cbar);
+			return;
+		default:
+			if (iswprint(ch))
+				line_add(filename, ch);
+			else
+				continue;
+		}
+
+		t_mv_wprint(scrn->cbar, 0, 0, filename->data);
+		t_wrefresh(scrn->cbar);
+		t_wmove(scrn->cbar, filename->pos, 0);
+	}
+
+do_open:
+	shortfn = calloc(filename->size + 1, sizeof(char));
+	sprintf(shortfn, "%ls", filename->data);
+
+	int status;
+
+	if (strcmp(shortfn, DEFAULT_BUFFER_FILENAME))
+		status = buffer_open(scrn->bw->curbuf, shortfn);
+	else
+		status = bufwin_add_buffer_from_file(scrn->bw, shortfn);
+
+	if (status)
+		screen_set_status(scrn, L"Couldn't open from '%s'", shortfn);
+	else
+		screen_set_status(scrn, L"Opened buffer from '%s'", shortfn);
+
+	free(shortfn);
+	line_free(filename);
+
+	t_wclear(scrn->cbar);
+	t_wrefresh(scrn->cbar);
+
+	screen_draw_tabs(scrn);
+	t_wrefresh(scrn->tbar);
+
+	bufwin_check_line_number_digit_change(scrn->bw);
+	bufwin_redraw(scrn->bw);
 }
 
 #define buf scrn->bw->curbuf
@@ -245,6 +340,14 @@ void screen_save_current_buffer(struct Screen *scrn)
 		bufwin_refresh(scrn->bw);
 }
 #undef buf
+
+void screen_close_current_buffer(struct Screen *scrn)
+{
+	bufwin_close_current_buffer(scrn->bw);
+	screen_set_status(scrn, L"Closed buffer");
+	screen_draw_tabs(scrn);
+	bufwin_refresh(scrn->bw);
+}
 
 #define curcmd scrn->cmds->data[scrn->cmds->pos]->data
 static void run_current_cmd(struct Screen *scrn)
@@ -333,6 +436,9 @@ static void buffer_process_char(struct Screen *scrn, t_char ch)
 #define win scrn->bw->win
 int screen_run(struct Screen *scrn, char *filepath)
 {
+	//lisp_screen_context = scrn;
+	//lisp_set_out_function(screen_lisp_status_bar_deleg);
+
 	enum Focus {
 		FOCUS_BUF,
 		FOCUS_CLI,
@@ -374,6 +480,7 @@ int screen_run(struct Screen *scrn, char *filepath)
 
 	enum Focus FOCUS = FOCUS_BUF;
 
+	int ret = 0;
 	t_char ch;
 	cb_ptr callback;
 	dirty_t persistent_dirty = BUF_CLEAN;
@@ -400,10 +507,12 @@ run_loop:
 			screen_clear_flags(scrn);
 
 		if (screen_get_flag(scrn, SF_EXIT))
-			return 0;
+			goto exit_run_loop; /* ret = 0 implicitly */
 
-		if (screen_get_flag(scrn, SF_SAVE_EXIT))
-			return 1;
+		if (screen_get_flag(scrn, SF_SAVE_EXIT)) {
+			ret = 1;
+			goto exit_run_loop;
+		}
 
 		if (screen_get_flag(scrn, SF_BUF)) {
 			FOCUS = FOCUS_BUF;
@@ -438,9 +547,13 @@ run_loop:
 		t_doupdate();
 	}
 
-	/* This should never be reached */
+	/* These two lines should never be reached */
 	screen_set_status(scrn, L"ERROR: Invalid input");
 	goto run_loop;
+
+exit_run_loop:
+	//lisp_screen_context = NULL;
+	return ret;
 }
 #undef buf
 #undef win

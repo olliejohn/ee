@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Lisp engine init */
-	lisp_init();
+	//lisp_init();
 
 	/* tui init */
 	t_init(TUI_RAW | TUI_COLOR | TUI_KEYPAD);
@@ -159,11 +159,11 @@ int main(int argc, char **argv)
 	config_destroy();
 	binds_destroy();
 
+	/* Lisp engine destroy */
+	//lisp_destroy();
+
 	/* tui destroy */
 	t_destroy();
-
-	/* Lisp engine destroy */
-	lisp_destroy();
 
 	return status;
 }
