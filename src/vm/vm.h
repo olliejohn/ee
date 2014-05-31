@@ -75,10 +75,12 @@ enum Opcode {
 	OP_NEG,		/* Negate the value in a register */
 
 	/* Comparing/Jumping */
-	OP_CMP,		/*  */
+	OP_CMP,		/* Compare a register against a literal value */
+	OP_CMPR,	/* Compare a register against another register */
 	OP_CALL,	/*  */
 	OP_RET,		/*  */
 	OP_JMP,		/* Set EIP to the specified location */
+	OP_JE,		/* Jump if equal (zero flag is set) */
 	// jcc go here
 
 	/* Flag Operations */

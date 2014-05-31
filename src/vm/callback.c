@@ -480,12 +480,75 @@ int cb_neg()
 	return 0;
 }
 
+static void do_comparison(int a, int b)
+{
+	int temp = b - a;
+
+	if (temp == 0)
+		set_flag(F_ZERO);
+	else
+		clear_flag(F_ZERO);
+
+	if (temp < 0)
+		set_flag(F_SIGN);
+	else
+		clear_flag(F_SIGN);
+
+	clear_flag(F_CARRY);
+	clear_flag(F_OVERFLOW);
+}
+
+int cb_cmp()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int val = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	do_comparison(reg[val], exec_ctx[reg[EIP]]);
+
+	return 0;
+}
+
+int cb_cmpr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int val = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	do_comparison(reg[val], reg[exec_ctx[reg[EIP]]]);
+
+	return 0;
+}
+
 int cb_jmp()
 {
 	if (exec_ctx[++reg[EIP]] == OP_END)
 		return -1;
 
-	reg[EIP] = exec_ctx[reg[EIP]] - 1;
+	jump_to(exec_ctx[reg[EIP]]);
+	return 0;
+}
+
+int cb_je()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	if (get_flag(F_ZERO))
+		jump_to(exec_ctx[reg[EIP]]);
+
 	return 0;
 }
 

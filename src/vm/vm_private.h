@@ -83,6 +83,11 @@ inline float popflt()
 	return pop().as_f;
 }
 
+inline void jump_to(unsigned int pos)
+{
+	reg[EIP] = pos - 1;
+}
+
 typedef int (*callback)();
 
 struct Instruction {
@@ -119,7 +124,12 @@ inline void toggle_flag(enum Flag f)
 
 inline int get_flag(enum Flag f)
 {
-	return reg[EFLAGS] & (1 << f);
+	return (reg[EFLAGS] & (1 << f)) ? 1 : 0;
+}
+
+inline void clear_all_flags()
+{
+	reg[EFLAGS] = 0;
 }
 
 #endif

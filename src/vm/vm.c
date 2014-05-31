@@ -62,7 +62,10 @@ void init_instructions()
 	codes[OP_XORR] = (struct Instruction) { cb_xorr, 2 };
 	codes[OP_NOT] = (struct Instruction) { cb_not, 1 };
 	codes[OP_NEG] = (struct Instruction) { cb_neg, 1 };
+	codes[OP_CMP] = (struct Instruction) { cb_cmp, 2 };
+	codes[OP_CMPR] = (struct Instruction) { cb_cmpr, 2 };
 	codes[OP_JMP] = (struct Instruction) { cb_jmp, 1 };
+	codes[OP_JE] = (struct Instruction) { cb_je, 1 };
 	codes[OP_STC] = (struct Instruction) { cb_stc, 0 };
 	codes[OP_CLC] = (struct Instruction) { cb_clc, 0 };
 	codes[OP_CMC] = (struct Instruction) { cb_cmc, 0 };
