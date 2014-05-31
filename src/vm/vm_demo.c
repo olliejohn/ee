@@ -12,8 +12,14 @@ int main(int argc, char **argv)
 		OP_POP, EAX,
 		OP_INC, EAX,
 		OP_INC, EAX,
-		OP_MOVR, EBX, EAX,
+		OP_MOV, EBX, 4,
 		OP_DEC, EAX,
+		OP_ECHO, EAX,
+		OP_MULR, EAX, EBX,
+		OP_ECHO, EAX,
+		OP_DIV, EBX, 2,
+		OP_DIVR, EAX, EBX,
+		OP_ECHO, EAX,
 		OP_END
 	};
 

@@ -31,9 +31,17 @@ int cb_pushf();
 int cb_popf();
 int cb_dup();
 int cb_add();
+int cb_addr();
+int cb_sub();
+int cb_subr();
+int cb_mul();
+int cb_mulr();
+int cb_div();
+int cb_divr();
 int cb_inc();
 int cb_dec();
 int cb_mov();
 int cb_movr();
+int cb_echo();
 
 #endif

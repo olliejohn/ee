@@ -61,7 +61,7 @@ int cb_popa()
 	reg[EDI] = popint();
 	reg[ESI] = popint();
 	reg[EBP] = popint();
-	reg[EAX] = popint(); /* No pop esp here - just increment */
+	reg[EAX] = popint(); /* Don't pop esp here - just increment */
 	reg[EDX] = popint();
 	reg[ECX] = popint();
 	reg[EBX] = popint();
@@ -92,6 +92,139 @@ int cb_dup()
 
 int cb_add()
 {
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	/* Do the add */
+	reg[dest_reg] += exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_addr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	/* Do the add */
+	reg[dest_reg] += reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_sub()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] -= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_subr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	reg[dest_reg] -= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_mul()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] *= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_mulr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] *= reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
+
+int cb_div()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] /= exec_ctx[reg[EIP]];
+
+	return 0;
+}
+
+int cb_divr()
+{
+	/* Make sure the register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value exists */
+	if (exec_ctx[++reg[EIP]] == OP_END)
+		return -1;
+
+	reg[dest_reg] /= reg[exec_ctx[reg[EIP]]];
+
 	return 0;
 }
 
@@ -149,6 +282,14 @@ int cb_movr()
 	return 0;
 }
 
+int cb_echo()
+{
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	printf("%d\n", reg[exec_ctx[reg[EIP]]]);
+	return 0;
+}
 
 
 

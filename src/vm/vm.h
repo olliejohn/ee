@@ -32,39 +32,59 @@ void dump_stack();
 extern int vm_errpos;
 
 enum Opcode {
+	/* Stack Management */
 	OP_PUSH,	/* Push from register */
 	OP_POP,		/* Pop to register */
 	OP_PUSHA,	/* Push all registers */
 	OP_POPA,	/* Pop all registers */
 	OP_PUSHF,	/* Push from flags */
 	OP_POPF,	/* Pop to flags */
-	OP_DUP,		/* Duplicate the element on the top of the stack */
-	OP_ADDF,	/*  */
-	OP_ADD,		/*  */
-	OP_SUBF,	/*  */
-	OP_SUB,		/*  */
-	OP_MULF,	/*  */
-	OP_MUL,		/*  */
-	OP_DIVF,	/*  */
-	OP_DIV,		/*  */
+
+	/* Moving */
+	OP_MOV,		/* Move a numeric literal to a register */
+	OP_MOVR,	/* Move a value from one register to another */
+
+	/* Integer Math */
+	OP_ADD,		/* Add a literal to a register */
+	OP_ADDR,	/* Add a register to another register */
+	OP_SUB,		/* Subtract a literal from a register */
+	OP_SUBR,	/* Subtract a register from another register */
+	OP_MUL,		/* Multiply a register by a literal */
+	OP_MULR,	/* Multiply a register by another register */
+	OP_DIV,		/* Divide a register by a literal */
+	OP_DIVR,	/* Divide a register by another register */
 	OP_MOD,		/*  */
 	OP_INC,		/* Increment the value in the given register */
 	OP_DEC,		/* Deccrement the value in the given register */
+
+	/* Floating Point Math */
+	OP_ADDF,	/*  */
+	OP_SUBF,	/*  */
+	OP_MULF,	/*  */
+	OP_DIVF,	/*  */
+
+	/* Logical/Bit Manipulation */
 	OP_AND,		/*  */
 	OP_OR,		/*  */
 	OP_XOR,		/*  */
 	OP_NOT,		/*  */
 	OP_NEG,		/*  */
+
+	/* Comparing/Jumping */
 	OP_CMP,		/*  */
-	OP_NOP,		/*  */
-	OP_HLT,		/*  */
-	OP_MOV,		/* Move a numeric literal to a register */
-	OP_MOVR,	/* Move a value from one register to another */
 	OP_CALL,	/*  */
 	OP_RET,		/*  */
 	OP_JMP,		/*  */
-	// jcc
-	// io codes
+	// jcc go here
+
+	/* Builtin IO */
+	// io codes go here
+
+	/* Misc */
+	OP_ECHO,	/* Dump the value of a register to stdout */
+	OP_NOP,		/*  */
+	OP_DUP,		/* Duplicate the element on the top of the stack */
+	OP_HLT,		/*  */
 	OP_END,		/* Exit running program */
 };
 

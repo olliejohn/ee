@@ -41,11 +41,19 @@ void init_instructions()
 	codes[OP_PUSHF] = (struct Instruction) { cb_pushf, 0 };
 	codes[OP_POPF] = (struct Instruction) { cb_popf, 0 };
 	codes[OP_DUP] = (struct Instruction) { cb_dup, 0 };
-	codes[OP_ADD] = (struct Instruction) { cb_add, 0 };
-	codes[OP_INC] = (struct Instruction) { cb_inc, 0 };
-	codes[OP_DEC] = (struct Instruction) { cb_dec, 0 };
+	codes[OP_ADD] = (struct Instruction) { cb_add, 2 };
+	codes[OP_ADDR] = (struct Instruction) { cb_addr, 2 };
+	codes[OP_SUB] = (struct Instruction) { cb_sub, 2 };
+	codes[OP_SUBR] = (struct Instruction) { cb_subr, 2 };
+	codes[OP_MUL] = (struct Instruction) { cb_mul, 2 };
+	codes[OP_MULR] = (struct Instruction) { cb_mulr, 2 };
+	codes[OP_DIV] = (struct Instruction) { cb_div, 2 };
+	codes[OP_DIVR] = (struct Instruction) { cb_divr, 2 };
+	codes[OP_INC] = (struct Instruction) { cb_inc, 1 };
+	codes[OP_DEC] = (struct Instruction) { cb_dec, 1 };
 	codes[OP_MOV] = (struct Instruction) { cb_mov, 2 };
 	codes[OP_MOVR] = (struct Instruction) { cb_movr, 2 };
+	codes[OP_ECHO] = (struct Instruction) { cb_echo, 1 };
 }
 
 void vm_init()
