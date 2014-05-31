@@ -34,5 +34,6 @@ int cb_add();
 int cb_inc();
 int cb_dec();
 int cb_mov();
+int cb_movr();
 
 #endif

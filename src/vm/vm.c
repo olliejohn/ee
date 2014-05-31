@@ -45,6 +45,7 @@ void init_instructions()
 	codes[OP_INC] = (struct Instruction) { cb_inc, 0 };
 	codes[OP_DEC] = (struct Instruction) { cb_dec, 0 };
 	codes[OP_MOV] = (struct Instruction) { cb_mov, 2 };
+	codes[OP_MOVR] = (struct Instruction) { cb_movr, 2 };
 }
 
 void vm_init()

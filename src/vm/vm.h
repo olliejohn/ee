@@ -48,8 +48,8 @@ enum Opcode {
 	OP_DIVF,	/*  */
 	OP_DIV,		/*  */
 	OP_MOD,		/*  */
-	OP_INC,		/*  */
-	OP_DEC,		/*  */
+	OP_INC,		/* Increment the value in the given register */
+	OP_DEC,		/* Deccrement the value in the given register */
 	OP_AND,		/*  */
 	OP_OR,		/*  */
 	OP_XOR,		/*  */
@@ -58,7 +58,8 @@ enum Opcode {
 	OP_CMP,		/*  */
 	OP_NOP,		/*  */
 	OP_HLT,		/*  */
-	OP_MOV,		/*  */
+	OP_MOV,		/* Move a numeric literal to a register */
+	OP_MOVR,	/* Move a value from one register to another */
 	OP_CALL,	/*  */
 	OP_RET,		/*  */
 	OP_JMP,		/*  */

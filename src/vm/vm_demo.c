@@ -12,14 +12,11 @@ int main(int argc, char **argv)
 		OP_POP, EAX,
 		OP_INC, EAX,
 		OP_INC, EAX,
+		OP_MOVR, EBX, EAX,
 		OP_DEC, EAX,
 		OP_END
 	};
-/*
-	int program[] = {
-		OP_MOV, EAX, 134, OP_END
-	};
-*/
+
 	if (vm_execute(program) == 0)
 		printf("Success\n");
 	else

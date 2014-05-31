@@ -131,7 +131,23 @@ int cb_mov()
 	return 0;
 }
 
+int cb_movr()
+{
+	/* Make sure the dest register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
 
+	int dest_reg = exec_ctx[reg[EIP]];
+
+	/* Make sure the value register operand exists and is a register */
+	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)
+		return -1;
+
+	/* Do the move */
+	reg[dest_reg] = reg[exec_ctx[reg[EIP]]];
+
+	return 0;
+}
 
 
 
