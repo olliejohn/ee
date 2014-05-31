@@ -427,6 +427,78 @@ int cb_neg()
 	return 0;
 }
 
+int cb_stc()
+{
+	set_flag(F_CARRY);
+	return 0;
+}
+
+int cb_clc()
+{
+	clear_flag(F_CARRY);
+	return 0;
+}
+
+int cb_cmc()
+{
+	toggle_flag(F_CARRY);
+	return 0;
+}
+
+int cb_sto()
+{
+	set_flag(F_OVERFLOW);
+	return 0;
+}
+
+int cb_clo()
+{
+	clear_flag(F_OVERFLOW);
+	return 0;
+}
+
+int cb_cmo()
+{
+	toggle_flag(F_OVERFLOW);
+	return 0;
+}
+
+int cb_stz()
+{
+	set_flag(F_ZERO);
+	return 0;
+}
+
+int cb_clz()
+{
+	clear_flag(F_ZERO);
+	return 0;
+}
+
+int cb_cmz()
+{
+	toggle_flag(F_ZERO);
+	return 0;
+}
+
+int cb_sts()
+{
+	set_flag(F_SIGN);
+	return 0;
+}
+
+int cb_cls()
+{
+	clear_flag(F_SIGN);
+	return 0;
+}
+
+int cb_cms()
+{
+	toggle_flag(F_SIGN);
+	return 0;
+}
+
 int cb_echo()
 {
 	if (exec_ctx[++reg[EIP]] == OP_END || exec_ctx[reg[EIP]] >= NUM_REGS)

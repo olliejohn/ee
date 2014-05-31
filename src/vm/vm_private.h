@@ -95,4 +95,31 @@ extern struct Instruction codes[NUM_OPS];
 /* The current program being run is stored in exec_ctx */
 extern int *exec_ctx;
 
+enum Flag {
+	F_CARRY,
+	F_OVERFLOW,
+	F_ZERO,
+	F_SIGN,
+};
+
+inline void set_flag(enum Flag f)
+{
+	reg[EFLAGS] |= 1 << f;
+}
+
+inline void clear_flag(enum Flag f)
+{
+	reg[EFLAGS] &= ~(1 << f);
+}
+
+inline void toggle_flag(enum Flag f)
+{
+	reg[EFLAGS] ^= 1 << f;
+}
+
+inline int get_flag(enum Flag f)
+{
+	return reg[EFLAGS] & (1 << f);
+}
+
 #endif

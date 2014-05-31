@@ -65,14 +65,14 @@ enum Opcode {
 	OP_DIVF,	/*  */
 
 	/* Logical/Bit Manipulation */
-	OP_AND,		/*  */
-	OP_ANDR,	/*  */
-	OP_OR,		/*  */
-	OP_ORR,		/*  */
-	OP_XOR,		/*  */
-	OP_XORR,	/*  */
-	OP_NOT,		/*  */
-	OP_NEG,		/*  */
+	OP_AND,		/* Bitwise and a register with a literal */
+	OP_ANDR,	/* Bitwise and a register with another register */
+	OP_OR,		/* Bitwise or a register with a literal */
+	OP_ORR,		/* Bitwise or a register with another register */
+	OP_XOR,		/* Bitwise xor a register with a literal */
+	OP_XORR,	/* Bitwise xor a register with another register */
+	OP_NOT,		/* Bitwise not the value in a register */
+	OP_NEG,		/* Negate the value in a register */
 
 	/* Comparing/Jumping */
 	OP_CMP,		/*  */
@@ -80,6 +80,20 @@ enum Opcode {
 	OP_RET,		/*  */
 	OP_JMP,		/*  */
 	// jcc go here
+
+	/* Flag Operations */
+	OP_STC,		/* Set the carry flag */
+	OP_CLC,		/* Clear the carry flag */
+	OP_CMC,		/* Complement (toggle) the carry flag */
+	OP_STO,		/* Set the overflow flag */
+	OP_CLO,		/* Clear the overflow flag */
+	OP_CMO,		/* Complement (toggle) the overflow flag */
+	OP_STZ,		/* Set the zero flag */
+	OP_CLZ,		/* Clear the zero flag */
+	OP_CMZ,		/* Complement (toggle) the zero flag */
+	OP_STS,		/* Set the sign flag */
+	OP_CLS,		/* Clear the sign flag */
+	OP_CMS,		/* Complement (toggle) the sign flag */
 
 	/* Builtin IO */
 	OP_ECHO,	/* Dump the value of a register to stdout */
