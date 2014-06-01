@@ -23,6 +23,13 @@
 #ifndef YAWSEMBLER_H
 #define YAWSEMBLER_H
 
-unsigned int *assemble(char *data);
+struct CodeStream {
+	unsigned int *ops;
+	unsigned int size;
+	unsigned int capacity;
+};
+
+struct CodeStream *assemble(char *data);
+void code_stream_free(struct CodeStream *cs);
 
 #endif

@@ -9,6 +9,7 @@ DEMO=vm_demo
 SOURCES:=$(shell ls | grep \\.c | grep -v demo)
 ASM=yawsembler
 OBJECTS=*.o
+BINDIR=/usr/bin
 
 all: demo assembler
 	@echo -- VM Make Success --
@@ -39,6 +40,14 @@ buildAssembler:
 
 buildAssemblerDebug:
 	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_ASSEMBLER $(CDEBUG) $(ASM).c
+
+installAssembler:
+	strip $(ASM)
+	cp $(ASM) $(BINDIR)
+	chmod 755 $(BINDIR)/$(ASM)
+
+uninstallAssembler:
+	rm -rf $(BINDIR)/$(ASM)
 
 clean:
 	rm -rf *.o

@@ -66,6 +66,8 @@ install:
 	strip $(TARGET)
 	cp $(TARGET) $(BINDIR)
 	chmod 755 $(BINDIR)/$(TARGET)
+	$(MAKE) installAssembler -C vm
 
 uninstall:
 	rm $(BINDIR)/$(TARGET)
+	$(MAKE) uninstallAssembler -C vm
