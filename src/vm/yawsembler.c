@@ -24,6 +24,7 @@
 
 #include "vm.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,53 @@
 #define AST_INITIAL_SIZE 32
 #define LABEL_TABLE_INITIAL_LABELS 32
 #define CODE_STREAM_INITIAL_SIZE 32
+
+struct AsmRegister {
+	char *str;
+	int code;
+};
+
+const static struct AsmRegister registers[] = {
+	{ "eax",	EAX	},
+	{ "ebx",	EBX	},
+	{ "ecx",	ECX	},
+	{ "edx",	EDX	},
+	{ "cs",		CS	},
+	{ "ds",		DS	},
+	{ "es",		ES	},
+	{ "fs",		FS	},
+	{ "gs",		GS	},
+	{ "ss",		SS	},
+	{ "edi",	EDI	},
+	{ "esi",	ESI	},
+	{ "ebp",	EBP	},
+	{ "esp",	ESP	},
+	{ "eip",	EIP	},
+	{ "eflags",	EFLAGS	},
+};
+
+/*
+ * Binary search for the register associated with ident. Returns the p-code
+ * number or -1 if no match is found.
+ */
+int get_register(char *ident)
+{
+	int min = 0, max = NUM_REGS - 1, cur, match;
+
+	while (min <= max) {
+		cur = (min + max) / 2;
+
+		if ((match = strcmp(ident, registers[cur].str)) == 0)
+			return registers[cur].code;
+
+		if (match > 0)
+			min = cur + 1;
+		else
+			max = cur - 1;
+	}
+
+	return -1;
+}
 
 enum AsmOperand {
 	AO_NUL,		/* No operand */
@@ -180,7 +228,7 @@ void tree_add(struct Tree *tree, char *tkn, size_t tknlen,
 {
 	if (tree->size >= tree->capacity) {
 		tree->capacity <<= 1;
-		tree->tkns = realloc(tree->tkns, tree->capacity * sizeof(char *));
+		tree->tkns = realloc(tree->tkns, tree->capacity*sizeof(char *));
 	}
 
 	tree->tkns[tree->size] = malloc(sizeof(struct Token));
@@ -319,11 +367,63 @@ void code_stream_dump(struct CodeStream *cs)
 	printf("\n");
 }
 
+int parse_int_string(char *src, int *dest)
+{
+	size_t len = strlen(src);
+	unsigned int i;
+	for (i = 0; i < len; i++)
+		if (!isdigit(src[i]))
+			return -1;
+
+	long int res = strtol(src, NULL, 10);
+
+	*dest = (int) res;
+
+	return 0;
+}
+
+int get_operand_number(char *tkn, enum AsmOperand type, struct LabelTable *lt)
+{
+	int res, parse;
+	switch (type) {
+	case AO_NUL:
+		printf("Unexpected operand found\n");
+		return -1;
+	case AO_REG:
+		res = get_register(tkn);
+
+		if (res == -1)
+			printf("Unknown register given\n");
+
+		return res;
+	case AO_LAB:
+		res = label_table_lookup(lt, tkn);
+		if (res != -1)
+			return res;
+		/* No break here so a failed label will try to parse an int */
+	case AO_INT:
+		res = parse_int_string(tkn, &parse);
+
+		if (res == -1) {
+			printf("Unparsable integer or invalid label\n");
+			return -1;
+		}
+
+		return parse;
+	case AO_FLT:
+		/* Not yet implemented */
+		printf("Floats not yet implemented\n");
+	}
+
+	return -1;
+}
+
 int build_operation(struct CodeStream *cs, struct LabelTable *lt, char *tkn)
 {
-	unsigned int i, code;
+	unsigned int i;
 	char *next = strtok(tkn, " ");
-	for (i = 0; next != NULL; i++, next = strtok(NULL, "\n")) {
+	int code, op;
+	for (i = 0; next != NULL; i++, next = strtok(NULL, " ")) {
 		if (i == 0) {
 			code = get_code(next);
 
@@ -331,8 +431,18 @@ int build_operation(struct CodeStream *cs, struct LabelTable *lt, char *tkn)
 				return -1;
 
 			code_stream_add(cs, opcodes[code].code);
+		} else if (i == 1) {
+			op = get_operand_number(next, opcodes[code].oper0, lt);
+			if (op == -1)
+				return -1;
+			code_stream_add(cs, (unsigned int) op);
+		} else if (i == 2) {
+			op = get_operand_number(next, opcodes[code].oper1, lt);
+			if (op == -1)
+				return -1;
+			code_stream_add(cs, (unsigned int) op);
 		} else {
-
+			return -1;
 		}
 	}
 
@@ -355,7 +465,8 @@ struct CodeStream *assemble(char *data)
 			label_table_add(lt, tree->tkns[i]->tkn, cs->size);
 		} else {
 			if (build_operation(cs, lt, tree->tkns[i]->tkn) == -1) {
-				printf("Syntax error at line %d\n", i);
+				printf("Syntax error at %s\n",
+					tree->tkns[i]->tkn);
 				return NULL;
 			}
 		}
