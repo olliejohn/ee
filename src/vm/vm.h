@@ -23,6 +23,10 @@
 #ifndef VM_H
 #define VM_H
 
+#define VM_VERSION_MAJOR 0
+#define VM_VERSION_MINOR 0
+#define VM_VERSION_REVISION 1
+
 void vm_init();
 void vm_destroy();
 int vm_execute(int *program);
@@ -31,6 +35,23 @@ void dump_regs();
 void dump_stack();
 
 extern int vm_errpos;
+
+struct VMHeader {
+	unsigned int MAGIC;		/* Magic number */
+	unsigned char VER_MAJ;		/* VM major version */
+	unsigned char VER_MIN;		/* VM minor version */
+	unsigned char VER_REV;		/* VM revision number */
+	unsigned char hd_size;		/* Size of the VMHeader */
+	unsigned int ph_off;		/* Offset to the program header */
+	unsigned int sh_off;		/* Offset to the section header */
+	unsigned short ph_size;		/* Size of the program header */
+	unsigned short sh_size;		/* Size of the section header */
+	unsigned short ph_num;		/* Number of elements in the ph */
+	unsigned short sh_num;		/* Number of elements in the sh */
+	unsigned long flags;		/* Execution flags */
+} __attribute__((packed, aligned(1)));
+
+struct VMHeader build_header();
 
 enum Opcode {
 	/* Stack Management */

@@ -25,6 +25,9 @@
 
 #include "vm.h"
 
+/* Header magic number */
+const static char HMGC[] = { 0x7f, 'y', 'a', 'w' };
+
 extern int reg[NUM_REGS];
 
 union stk_elem {

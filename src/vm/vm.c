@@ -211,3 +211,23 @@ void dump_stack()
 	for (i = reg[ESP]; i < STACK_SIZE; i++)
 		printf("%d: %d\n", i, STACK[i].as_i);
 }
+
+struct VMHeader build_header()
+{
+	struct VMHeader hd = {
+		.MAGIC = (HMGC[0] << 24) + (HMGC[1] << 16) +
+					(HMGC[2] << 8) + HMGC[3],
+		.VER_MAJ = VM_VERSION_MAJOR,
+		.VER_MIN = VM_VERSION_MINOR,
+		.VER_REV = VM_VERSION_REVISION,
+		.hd_size = sizeof(struct VMHeader),
+		.ph_off = 0,
+		.sh_off = 0,
+		.ph_size = 0,
+		.sh_size = 0,
+		.ph_num = 0,
+		.sh_num = 0,
+		.flags = 0
+	};
+	return hd;
+}
