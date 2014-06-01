@@ -300,6 +300,66 @@ inline void report_error(const char *msg, const struct Token *tkn,
 		pos, tkn->linum, msg, tkn->tkn, pos, "^");
 }
 
+char *tok_sp = NULL;
+unsigned int tok_ln = 0;
+char *asmtok(char *str, const char *delimiters)
+{
+	int len = strlen(delimiters);
+
+	/* If the original string has nothing left */
+	if (!str && !tok_sp) {
+		tok_sp = NULL;
+		tok_ln = 0;
+		return NULL;
+	}
+
+	/* Initialize the sp during the first call */
+	if (str && !tok_sp)
+		tok_sp = str;
+
+	/* Find the start of the substring, skip delimiters */
+	unsigned int i;
+	char *p_start = tok_sp;
+	while (1) {
+		for (i = 0; i < len; i++) {
+			if (*p_start == delimiters[i]) {
+				p_start++;
+				tok_ln++;
+				break;
+			}
+		}
+
+		if (i == len) {
+			tok_sp = p_start;
+			break;
+		}
+	}
+
+	/* Return NULL if nothing left */
+	if (*tok_sp == 0) {
+		tok_sp = NULL;
+		tok_ln = 0;
+		return NULL;
+	}
+
+	/* Find the end of the substring, and replace the delimiter with null */
+	while (*tok_sp != 0) {
+		for (i = 0; i < len; i++) {
+			if (*tok_sp == delimiters[i]) {
+				*tok_sp = 0;
+				break;
+			}
+		}
+
+		tok_sp++;
+		if (i < len)
+			break;
+	}
+
+	tok_ln++;
+	return p_start;
+}
+
 struct Tree *parse(char *data)
 {
 	size_t len = strlen(data);
@@ -310,7 +370,7 @@ struct Tree *parse(char *data)
 
 	struct Tree *tree = tree_new();
 
-	char *next = strtok(data, "\n");
+	char *next = asmtok(data, "\n");
 	while (next != NULL) {
 		size_t len = strlen(next);
 
@@ -318,9 +378,9 @@ struct Tree *parse(char *data)
 		if (is_a_label(next, len) == 0)
 			type = ANT_LABEL;
 
-		tree_add(tree, next, len, type, 0);
+		tree_add(tree, next, len, type, tok_ln);
 
-		next = strtok(NULL, "\n");
+		next = asmtok(NULL, "\n");
 	}
 
 	return tree;
