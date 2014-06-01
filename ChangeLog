@@ -1,4 +1,108 @@
+2014-06-01  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Implemented significantly improved error reporting and can now assemble some reasonable programs
+
+	Fixed a bug where all comparison opcodes where reversed
+
+	The assembler is now functional (albeit feature lacking)
+
+	Fixed several namespace conflicts that broke the build
+
+	More work on the assembler and added it to the main install target
+
+	Removed accidentally commited executable and updated .gitignore accordingly
+
+2014-05-31  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Started work on the skeleton framework for the assembler
+
+	Added test files to .gitignore
+
+	Implemented call, ret, and retp opcodes
+
+	Improved comparison routine and implemented conditional jumps: je, jz, jne, jnz, jg, jge, jland jle
+
+	Improved flags system and implemented cmp, cmpr, and je opcodes
+
+	Added flag checking at the end of arithmetic and logical callbacks and implemented unconditional jumps
+
+	Implemented simple flags system
+
+	Removed accidentally commited demo executable and added local .gitignore accordingly
+
+	Implemented mod, modr, and, andr, or, orr, xor, xorr, not, neg, nop and hlt
+
+	Implemented add, addr, sub, subr, mul, mulr, div, divr and echo opcodes
+
+	Implemented the movr opcode
+
+	Fixed a bug in push and pop and implemented pusha, popa, pushf, popf, dup, inc and dec
+
+	Finished callbacks for push and pop when dealing with registers
+
+	Started work on the experimental byte-code VM and integrated it into the main makefile and init sequence
+
+	Starting work on the interface for clossing buffers and continued with opening buffers
+
+	More work on the lisp interpretter
+
+2014-05-28  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added cons and load functions to the lisp interpretter
+
+	Added not, >, <, >=, <= and = functions to the lisp interpretter
+
+	Fixed the memory leak when pushing return values from builtin functions onto the VM stack in the lisp interpretter
+
+2014-05-27  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	More work on the lisp interpretter - it's now more or less functional (albeit with only one function...) but there may be a small memory leak in the way that the final result of builtin functions is pushed onto the VM stack
+
+2014-05-26  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added lisp engine initialization and close current buffer keyboard shortcut to main.c and updated about/version/help dialogs
+
+	Added the close current buffer keyboard shortcut to the info and man pages
+
+2014-05-25  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	More small updates to the lisp interpreter
+
+	Updated documentation on command line options
+
+	Encapsulated the Bind struct
+
+	More work on the lisp interpreter including fixing demo make targets and the formatting errors in the debugging ast_dump function
+
+	Added ability to exit save_as prompt
+
+	Unified saving system
+
+	Added keyboard shortcut for creating a new buffer
+
+2014-05-22  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Removed unused macros and added small optimisation to a couple of infinite run loops
+
+2014-05-21  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added documentation comments to buffer.c
+
+2014-05-15  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added ability to change the maximum number of binds from a compile-time define
+
+	Several small optimizations in binds.c
+
+2014-05-14  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Added is_set macro to tools.h
+
 2014-05-13  Ollie Etherington  <ollie.etherington@gmail.com>
+
+	Greatly boosted performance by replacing a number of call to t_wrefresh() with optimized pairs of t_wnoutrefresh() and t_doupdate()
+
+	Updated changelog
 
 	Moved @node, @chapter and @section declarations into their subfiles added several more
 
