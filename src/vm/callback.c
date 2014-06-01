@@ -482,7 +482,8 @@ int cb_neg()
 
 static void do_comparison(int a, int b)
 {
-	int temp = b - a;
+	//int temp = b - a;
+	int temp = a - b;
 
 	if (temp == 0)
 		set_flag(F_ZERO);
