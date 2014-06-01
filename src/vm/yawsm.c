@@ -444,9 +444,9 @@ int label_table_lookup_ptr(struct LabelTable *lt, char *ident)
 	return -1;
 }
 
-unsigned int label_table_lookup_index(struct LabelTable *lt, char *ident)
+int label_table_lookup_index(struct LabelTable *lt, char *ident)
 {
-	unsigned int i;
+	int i;
 	for (i = 0; i < lt->size; i++)
 		if (strcmp(ident, lt->idents[i]) == 0)
 			return i;
@@ -657,6 +657,18 @@ struct CodeStream *assemble(char *data)
 	for (i = 0; i < tree->size; i++)
 		if (tree->tkns[i]->type == ANT_LABEL)
 			label_table_add(lt, tree->tkns[i]->tkn, -i);
+
+	/* Jump implicitly to the start symbol */
+	int start = label_table_lookup_index(lt, "start");
+
+	if (start == -1) {
+		printf("No start label found - assembly aborted\n");
+		return NULL;
+	}
+
+	code_stream_add(cs, OP_JMP);
+	label_tracker_add(ltracker, cs->size, start);
+	code_stream_add(cs, start);
 
 	/* Generate all code and track when labels are referenced */
 	for (i = 0; i < tree->size; i++) {
