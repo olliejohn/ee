@@ -296,7 +296,7 @@ inline void report_error(const char *msg, const struct Token *tkn,
 			 char *errstring)
 {
 	int pos = get_substring_index(tkn->tkn, errstring) + 1;
-	printf("Error at position %d line %d\n%s\n%s\n%*s\nAssembly aborted\n",
+	printf("Error at position %d line %d\n\t%s\n\t%s\n\t%*s\n",
 		pos, tkn->linum, msg, tkn->tkn, pos, "^");
 }
 
@@ -503,6 +503,9 @@ int build_operation(struct CodeStream *cs, struct LabelTable *lt,
 
 struct CodeStream *assemble(char *data)
 {
+	/* Track if we've encountered a syntax error */
+	int error = 0;
+
 	/* Tokenize and parse */
 	struct Tree *tree = parse(data);
 
@@ -517,16 +520,26 @@ struct CodeStream *assemble(char *data)
 			label_table_add(lt, tree->tkns[i]->tkn, cs->size);
 		} else {
 			if (build_operation(cs, lt, tree->tkns[i]) == -1)
-				return NULL;
+				error++;
 		}
 	}
-
-	code_stream_dump(cs);
 
 	/* Clean up */
 	tree_free(tree);
 	label_table_free(lt);
 
+	/* Deal with errors */
+	if (error == 1) {
+		printf("Encountered 1 error - Assembly aborted\n");
+		return NULL;
+	} else if (error) {
+		printf("Encountered %d errors - Assembly aborted\n", error);
+		return NULL;
+	}
+
+	code_stream_dump(cs);
+
+	/* Return our poopulated code stream */
 	return cs;
 }
 
