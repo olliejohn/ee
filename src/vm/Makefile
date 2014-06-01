@@ -11,10 +11,10 @@ ASM=yawsembler
 OBJECTS=*.o
 BINDIR=/usr/bin
 
-all: demo assembler
+all: assembler demo
 	@echo -- VM Make Success --
 
-debug: demoDebug assemblerDebug
+debug: assemblerDebug demoDebug
 
 demo: buildVM
 	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(NDEBUG) -o $(DEMO)

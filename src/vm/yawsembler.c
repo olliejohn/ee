@@ -137,58 +137,58 @@ int get_code(char *ident)
 	return -1;
 }
 
-enum AstNodeType {
+enum TreeNodeType {
 	ANT_LABEL,
 	ANT_OP,
 };
 
 struct Token {
 	char *tkn;
-	enum AstNodeType type;
+	enum TreeNodeType type;
 	unsigned int linum;
 };
 
-struct Ast {
+struct Tree {
 	struct Token **tkns;
 	unsigned int size;
 	unsigned int capacity;
 };
 
-struct Ast *ast_new()
+struct Tree *tree_new()
 {
-	struct Ast *ast = malloc(sizeof(struct Ast));
-	ast->size = 0;
-	ast->capacity = AST_INITIAL_SIZE;
-	ast->tkns = malloc(ast->capacity * sizeof(struct Token *));
-	return ast;
+	struct Tree *tree = malloc(sizeof(struct Tree));
+	tree->size = 0;
+	tree->capacity = AST_INITIAL_SIZE;
+	tree->tkns = malloc(tree->capacity * sizeof(struct Token *));
+	return tree;
 }
 
-void ast_free(struct Ast *ast)
+void tree_free(struct Tree *tree)
 {
 	unsigned int i;
-	for (i = 0; i < ast->size; i++) {
-		free(ast->tkns[i]->tkn);
-		free(ast->tkns[i]);
+	for (i = 0; i < tree->size; i++) {
+		free(tree->tkns[i]->tkn);
+		free(tree->tkns[i]);
 	}
 
-	free(ast->tkns);
-	free(ast);
+	free(tree->tkns);
+	free(tree);
 }
 
-void ast_add(struct Ast *ast, char *tkn, size_t tknlen,
-	     enum AstNodeType type, unsigned int linum)
+void tree_add(struct Tree *tree, char *tkn, size_t tknlen,
+	     enum TreeNodeType type, unsigned int linum)
 {
-	if (ast->size >= ast->capacity) {
-		ast->capacity <<= 1;
-		ast->tkns = realloc(ast->tkns, ast->capacity * sizeof(char *));
+	if (tree->size >= tree->capacity) {
+		tree->capacity <<= 1;
+		tree->tkns = realloc(tree->tkns, tree->capacity * sizeof(char *));
 	}
 
-	ast->tkns[ast->size] = malloc(sizeof(struct Token));
-	ast->tkns[ast->size]->tkn = malloc(tknlen * sizeof(char) + 1);
-	strcpy(ast->tkns[ast->size]->tkn, tkn);
-	ast->tkns[ast->size]->type = type;
-	ast->tkns[ast->size]->linum = linum;
-	ast->size++;
+	tree->tkns[tree->size] = malloc(sizeof(struct Token));
+	tree->tkns[tree->size]->tkn = malloc(tknlen * sizeof(char) + 1);
+	strcpy(tree->tkns[tree->size]->tkn, tkn);
+	tree->tkns[tree->size]->type = type;
+	tree->tkns[tree->size]->linum = linum;
+	tree->size++;
 }
 
 /*
@@ -213,7 +213,7 @@ int is_a_label(char *tkn, size_t tknlen)
 	return -1;
 }
 
-struct Ast *parse(char *data)
+struct Tree *parse(char *data)
 {
 	size_t len = strlen(data);
 	unsigned int i;
@@ -221,22 +221,22 @@ struct Ast *parse(char *data)
 		if (data[i] == '\t')
 			data[i] = ' ';
 
-	struct Ast *ast = ast_new();
+	struct Tree *tree = tree_new();
 
 	char *next = strtok(data, "\n");
 	while (next != NULL) {
 		size_t len = strlen(next);
 
-		enum AstNodeType type = ANT_OP;
+		enum TreeNodeType type = ANT_OP;
 		if (is_a_label(next, len) == 0)
 			type = ANT_LABEL;
 
-		ast_add(ast, next, len, type, 0);
+		tree_add(tree, next, len, type, 0);
 
 		next = strtok(NULL, "\n");
 	}
 
-	return ast;
+	return tree;
 }
 
 struct LabelTable {
@@ -342,19 +342,19 @@ int build_operation(struct CodeStream *cs, struct LabelTable *lt, char *tkn)
 struct CodeStream *assemble(char *data)
 {
 	/* Tokenize and parse */
-	struct Ast *ast = parse(data);
+	struct Tree *tree = parse(data);
 
 	/* Code generation */
 	struct CodeStream *cs = code_stream_new();
 	struct LabelTable *lt = label_table_new();
 
-	/* iter traverses the ast, ip is the instruction pointer */
+	/* iter traverses the tree, ip is the instruction pointer */
 	unsigned int i;
-	for (i = 0; i < ast->size; i++) {
-		if (ast->tkns[i]->type == ANT_LABEL) {
-			label_table_add(lt, ast->tkns[i]->tkn, cs->size);
+	for (i = 0; i < tree->size; i++) {
+		if (tree->tkns[i]->type == ANT_LABEL) {
+			label_table_add(lt, tree->tkns[i]->tkn, cs->size);
 		} else {
-			if (build_operation(cs, lt, ast->tkns[i]->tkn) == -1) {
+			if (build_operation(cs, lt, tree->tkns[i]->tkn) == -1) {
 				printf("Syntax error at line %d\n", i);
 				return NULL;
 			}
@@ -364,7 +364,7 @@ struct CodeStream *assemble(char *data)
 	code_stream_dump(cs);
 
 	/* Clean up */
-	ast_free(ast);
+	tree_free(tree);
 	label_table_free(lt);
 
 	return cs;
@@ -376,19 +376,19 @@ struct CodeStream *assemble(char *data)
 #define VERSION 	"0.0.1"
 #define AUTHOR		"Ollie Etherington"
 
-void version()
+void asm_version()
 {
 	printf("%s - Version %s\n", NAME, VERSION);
 }
 
-void about()
+void asm_about()
 {
-	version();
+	asm_version();
 	printf("By %s\n", AUTHOR);
 	printf("Available as free software under the GNU GPLv2\n");
 }
 
-void help()
+void asm_help()
 {
 	printf("\nUsage: yawsembler [ FILE | FLAG ]\n\n\
 Flags:\n\
@@ -407,22 +407,22 @@ int main(int argc, char **argv)
 {
 	if (argc != 2) {
 		printf("Yawsembler: Invalid Arguments\n");
-		help();
+		asm_help();
 		return 0;
 	}
 
 	if (strcmp(argv[1], "--version") == 0) {
-		version();
+		asm_version();
 		return 0;
 	}
 
 	if (strcmp(argv[1], "--about") == 0) {
-		about();
+		asm_about();
 		return 0;
 	}
 
 	if (strcmp(argv[1], "--help") == 0) {
-		help();
+		asm_help();
 		return 0;
 	}
 
