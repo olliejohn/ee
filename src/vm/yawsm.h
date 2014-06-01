@@ -1,5 +1,5 @@
 /*
- * yawsembler.h
+ * yawsm.h
  * Part of the VM subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef YAWSEMBLER_H
-#define YAWSEMBLER_H
+#ifndef YAWSM_H
+#define YAWSM_H
 
 struct CodeStream {
 	unsigned int *ops;

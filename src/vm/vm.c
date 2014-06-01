@@ -25,6 +25,7 @@
 #include "callback.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int reg[NUM_REGS];
 union stk_elem STACK[STACK_SIZE];
@@ -130,6 +131,64 @@ int vm_execute(int *program)
 //	dump_stack();
 
 	return 0;
+}
+
+#define PROGRAM_INITIAL_CAPACITY 16
+
+struct Program {
+	int *code;
+	unsigned int size;
+	unsigned int capacity;
+};
+
+struct Program *program_new()
+{
+	struct Program *pgm = malloc(sizeof(struct Program));
+	pgm->size = 0;
+	pgm->capacity = PROGRAM_INITIAL_CAPACITY;
+	pgm->code = malloc(pgm->capacity * sizeof(int));
+	return pgm;
+}
+
+void program_free(struct Program *pgm)
+{
+	free(pgm->code);
+	free(pgm);
+}
+
+void program_add(struct Program *pgm, int c)
+{
+	if (pgm->size >= pgm->capacity - 1) {
+		pgm->capacity <<= 1;
+		pgm->code = realloc(pgm->code, pgm->capacity * sizeof(int));
+	}
+
+	pgm->code[pgm->size++] = c;
+}
+
+int vm_execute_file(char *filename)
+{
+	FILE *file = fopen(filename, "r");
+
+	if (file == NULL) {
+		printf("Could not open file %s\n", filename);
+		return -1;
+	}
+
+	struct Program *pgm = program_new();
+
+	int num;
+	unsigned int i;
+	for (i = 0; fscanf(file, "%d ", &num) > 0; i++)
+		program_add(pgm, num);
+
+	fclose(file);
+
+	num = vm_execute(pgm->code);
+
+	program_free(pgm);
+
+	return num;
 }
 
 void dump_regs()

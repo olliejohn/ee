@@ -1,41 +1,39 @@
+/*
+ * vm_demo.c
+ * Part of the VM subsystem in the Yaw text editor
+ *
+ * Copyright 2014 Ollie Etherington.
+ * All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "vm.h"
 
 #include <stdio.h>
 
 int main(int argc, char **argv)
 {
+	if (argc != 2) {
+		printf("Invalid arguments\n");
+		return 0;
+	}
+
 	vm_init();
-/*
-	int program[] = {
-		OP_JMP, 27,
 
-		OP_PUSH, EBP,
-		OP_MOVR, EBP, ESP,
-		OP_ADD, ESP, 2,
-		OP_POP, ECX,
-		OP_ADD, ECX, 5,
-		OP_ECHO, ECX,
-		OP_SUB, ESP, 3,
-		OP_MOVR, ESP, EBP,
-		OP_POP, EBP,
-		OP_RETP, 1,
-
-		OP_MOV, EAX, 10,
-		OP_PUSH, EAX,
-		OP_ECHO, EAX,
-		OP_CALL, 2,
-		OP_ECHO, EAX,
-		OP_END
-	};
-*/
-
-	int program[] = {
-		37, 5, 58, 0, 62, 6, 0, 10, 18, 0, 32, 0, 15, 45, 8, 37, 2,
-	};
-
-	if (vm_execute(program) == 0)
-		printf("Success\n");
-	else
+	if (vm_execute_file(argv[1]) != 0)
 		printf("Error at %d\n", vm_errpos);
 
 	vm_destroy();

@@ -1,5 +1,5 @@
 /*
- * yawsembler.c
+ * yawsm.c
  * Part of the VM subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "yawsembler.h"
+#include "yawsm.h"
 
 #include "vm.h"
 
@@ -545,7 +545,7 @@ struct CodeStream *assemble(char *data)
 
 #ifdef FREESTANDING_ASSEMBLER
 
-#define NAME		"yawsembler"
+#define NAME		"yawsm"
 #define VERSION 	"0.0.1"
 #define AUTHOR		"Ollie Etherington"
 
@@ -563,11 +563,11 @@ void asm_about()
 
 void asm_help()
 {
-	printf("\nUsage: yawsembler [ FILE | FLAG ]\n\n\
+	printf("\nUsage: yawsm [ FILE | FLAG ]\n\n\
 Flags:\n\
---about		Information about yawsembler\n\
---help		Help about how to use yawsembler\n\
---version	Version information about yawsembler\n\
+--about		Information about yawsm\n\
+--help		Help about how to use yawsm\n\
+--version	Version information about yawsm\n\
 	\n");
 }
 
@@ -579,7 +579,7 @@ Flags:\n\
 int main(int argc, char **argv)
 {
 	if (argc != 2) {
-		printf("Yawsembler: Invalid Arguments\n");
+		printf("Yawsm: Invalid Arguments\n");
 		asm_help();
 		return 0;
 	}
@@ -604,7 +604,7 @@ int main(int argc, char **argv)
 	FILE *f = fopen(argv[1], "rb");
 
 	if (f == NULL) {
-		printf("yawsembler: Error opening file %s\n", argv[1]);
+		printf("yawsm: Error opening file %s\n", argv[1]);
 		return 0;
 	}
 
@@ -614,7 +614,7 @@ int main(int argc, char **argv)
 	buffer = calloc(length + 1, sizeof(char));
 
 	if (buffer == NULL) {
-		printf("yawsembler: Error allocating memory for output\n");
+		printf("yawsm: Error allocating memory for output\n");
 		return 0;
 	}
 
@@ -623,7 +623,7 @@ int main(int argc, char **argv)
 	fclose (f);
 
 	if (buffer == NULL) {
-		printf("yawsembler: Error assembling\n");
+		printf("yawsm: Error assembling\n");
 		return 0;
 	}
 
@@ -639,11 +639,13 @@ int main(int argc, char **argv)
 	FILE *fout = fopen(fout_path, "wb");
 
 	if (fout == NULL) {
-		printf("yawsembler: Error opening outfile %s\n", fout_path);
+		printf("yawsm: Error opening outfile %s\n", fout_path);
 		return 0;
 	}
 
-	fwrite(cs->ops, sizeof(unsigned int), sizeof(cs->ops), fout);
+	unsigned int i;
+	for (i = 0; i < cs->size; i++)
+		fprintf(fout, "%d ", cs->ops[i]);
 
 	fclose(fout);
 

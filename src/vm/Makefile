@@ -7,7 +7,7 @@ NDEBUG=-UDEBUG -DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
 DEMO=vm_demo
 SOURCES:=$(shell ls | grep \\.c | grep -v demo)
-ASM=yawsembler
+ASM=yawsm
 OBJECTS=*.o
 BINDIR=/usr/bin
 
@@ -33,7 +33,7 @@ assembler: buildAssembler linkAssembler
 assemblerDebug: buildAssemblerDebug linkAssembler
 
 linkAssembler:
-	$(CC) $(ASM).o -o yawsembler
+	$(CC) $(ASM).o -o $(ASM)
 
 buildAssembler:
 	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_ASSEMBLER $(NDEBUG) $(ASM).c

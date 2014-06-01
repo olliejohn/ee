@@ -26,6 +26,7 @@
 void vm_init();
 void vm_destroy();
 int vm_execute(int *program);
+int vm_execute_file(char *filename);
 void dump_regs();
 void dump_stack();
 
