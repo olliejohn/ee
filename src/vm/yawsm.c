@@ -31,6 +31,7 @@
 
 #define AST_INITIAL_SIZE 32
 #define LABEL_TABLE_INITIAL_LABELS 32
+#define LABEL_TRACKER_INITIAL_SIZE 32
 #define CODE_STREAM_INITIAL_SIZE 32
 
 struct AsmRegister {
@@ -300,6 +301,7 @@ inline void report_error(const char *msg, const struct Token *tkn,
 		pos, tkn->linum, msg, tkn->tkn, pos, "^");
 }
 
+/* This is just an implementation of strtok but with line number tracking */
 char *tok_sp = NULL;
 unsigned int tok_ln = 0;
 char *asmtok(char *str, const char *delimiters)
@@ -422,7 +424,17 @@ void label_table_add(struct LabelTable *lt, char *ident, int ptr)
 	lt->ptrs[lt->size++] = ptr;
 }
 
-int label_table_lookup(struct LabelTable *lt, char *ident)
+void label_table_update(struct LabelTable *lt, char *ident, int ptr)
+{
+	unsigned int i;
+	for (i = 0; i < lt->size; i++)
+		if (strcmp(ident, lt->idents[i]) == 0) {
+			lt->ptrs[i] = ptr;
+			return;
+		}
+}
+
+int label_table_lookup_ptr(struct LabelTable *lt, char *ident)
 {
 	unsigned int i;
 	for (i = 0; i < lt->size; i++)
@@ -430,6 +442,55 @@ int label_table_lookup(struct LabelTable *lt, char *ident)
 			return lt->ptrs[i];
 
 	return -1;
+}
+
+unsigned int label_table_lookup_index(struct LabelTable *lt, char *ident)
+{
+	unsigned int i;
+	for (i = 0; i < lt->size; i++)
+		if (strcmp(ident, lt->idents[i]) == 0)
+			return i;
+
+	return -1;
+}
+
+struct LabelTracker {
+	unsigned int *locs; /* Locations */
+	unsigned int *refs;
+	unsigned int size;
+	unsigned int capacity;
+};
+
+struct LabelTracker *label_tracker_new()
+{
+	struct LabelTracker *ltracker = malloc(sizeof(struct LabelTracker));
+	ltracker->size = 0;
+	ltracker->capacity = LABEL_TRACKER_INITIAL_SIZE;
+	ltracker->locs = malloc(ltracker->capacity * sizeof(unsigned int));
+	ltracker->refs = malloc(ltracker->capacity * sizeof(unsigned int));
+	return ltracker;
+}
+
+void label_tracker_free(struct LabelTracker *ltracker)
+{
+	free(ltracker->locs);
+	free(ltracker->refs);
+	free(ltracker);
+}
+
+void label_tracker_add(struct LabelTracker *ltracker, unsigned int location,
+		       unsigned int ref)
+{
+	if (ltracker->size >= ltracker->capacity - 1) {
+		ltracker->capacity <<= 1;
+		ltracker->locs = realloc(ltracker->locs,
+				ltracker->capacity * sizeof(unsigned int));
+		ltracker->refs = realloc(ltracker->refs,
+				ltracker->capacity * sizeof(unsigned int));
+	}
+
+	ltracker->locs[ltracker->size] = location;
+	ltracker->refs[ltracker->size++] = ref;
 }
 
 struct CodeStream *code_stream_new()
@@ -457,6 +518,19 @@ void code_stream_add(struct CodeStream *cs, unsigned int op)
 	cs->ops[cs->size++] = op;
 }
 
+void code_stream_set(struct CodeStream *cs, unsigned int index, unsigned int op)
+{
+	if (index == cs->size) {
+		code_stream_add(cs, op);
+		return;
+	}
+
+	if (index > cs->size)
+		return;
+
+	cs->ops[index] = op;
+}
+
 void code_stream_dump(struct CodeStream *cs)
 {
 	unsigned int i;
@@ -482,7 +556,8 @@ int parse_int_string(char *src, int *dest)
 }
 
 int get_operand_number(struct Token *tkn, char *part, enum AsmOperand type,
-		       struct LabelTable *lt)
+		       struct CodeStream *cs, struct LabelTable *lt,
+		       struct LabelTracker *ltracker)
 {
 	int res, parse;
 	switch (type) {
@@ -497,9 +572,12 @@ int get_operand_number(struct Token *tkn, char *part, enum AsmOperand type,
 
 		return res;
 	case AO_LAB:
-		res = label_table_lookup(lt, part);
-		if (res != -1)
-			return res;
+		res = label_table_lookup_ptr(lt, part);
+		if (res != -1) {
+			label_tracker_add(ltracker, cs->size,
+					  label_table_lookup_index(lt, part));
+			return 100; /* Random value */
+		}
 		/* No break here so a failed label will try to parse an int */
 	case AO_INT:
 		res = parse_int_string(part, &parse);
@@ -519,7 +597,7 @@ int get_operand_number(struct Token *tkn, char *part, enum AsmOperand type,
 }
 
 int build_operation(struct CodeStream *cs, struct LabelTable *lt,
-		    struct Token *tkn)
+		    struct LabelTracker *ltracker, struct Token *tkn)
 {
 	char *cpy = malloc(strlen(tkn->tkn + 1) * sizeof(char));
 	strcpy(cpy, tkn->tkn);
@@ -537,15 +615,15 @@ int build_operation(struct CodeStream *cs, struct LabelTable *lt,
 
 			code_stream_add(cs, opcodes[code].code);
 		} else if (i == 1) {
-			op = get_operand_number(tkn, next,
-						opcodes[code].oper0, lt);
+			op = get_operand_number(tkn, next, opcodes[code].oper0,
+						cs, lt, ltracker);
 			if (op == -1)
 				return -1;
 
 			code_stream_add(cs, (unsigned int) op);
 		} else if (i == 2) {
-			op = get_operand_number(tkn, next,
-						opcodes[code].oper1, lt);
+			op = get_operand_number(tkn, next, opcodes[code].oper1,
+						cs, lt, ltracker);
 			if (op == -1)
 				return -1;
 
@@ -572,21 +650,34 @@ struct CodeStream *assemble(char *data)
 	/* Code generation */
 	struct CodeStream *cs = code_stream_new();
 	struct LabelTable *lt = label_table_new();
+	struct LabelTracker *ltracker = label_tracker_new();
 
-	/* iter traverses the tree, ip is the instruction pointer */
+	/* Populate the label table with reference pointers */
 	unsigned int i;
+	for (i = 0; i < tree->size; i++)
+		if (tree->tkns[i]->type == ANT_LABEL)
+			label_table_add(lt, tree->tkns[i]->tkn, -i);
+
+	/* Generate all code and track when labels are referenced */
 	for (i = 0; i < tree->size; i++) {
 		if (tree->tkns[i]->type == ANT_LABEL) {
-			label_table_add(lt, tree->tkns[i]->tkn, cs->size);
+			label_table_update(lt, tree->tkns[i]->tkn, cs->size);
 		} else {
-			if (build_operation(cs, lt, tree->tkns[i]) == -1)
+			if (build_operation(cs, lt, ltracker,
+					    tree->tkns[i]) == -1)
 				error++;
 		}
 	}
 
+	/* Replace all label place holders with their actual values */
+	for (i = 0; i < ltracker->size; i++)
+		cs->ops[ltracker->locs[i]] =
+			lt->ptrs[ltracker->refs[i]];
+
 	/* Clean up */
-	tree_free(tree);
+	label_tracker_free(ltracker);
 	label_table_free(lt);
+	tree_free(tree);
 
 	/* Deal with errors */
 	if (error == 1) {
