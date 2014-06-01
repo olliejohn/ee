@@ -5,28 +5,31 @@ CFLAGS=-c -Wall -std=gnu99 -O3
 DEFS=-D_GNU_SOURCE
 NDEBUG=-UDEBUG -DNDEBUG
 CDEBUG=-g -UNDEBUG -DDEBUG
-DEMO=vm_demo
-SOURCES:=$(shell ls | grep \\.c | grep -v demo)
+SOURCES:=$(shell ls | grep \\.c | grep -v runtime)
+RT=yawvm
 ASM=yawsm
 OBJECTS=*.o
 BINDIR=/usr/bin
 
-all: assembler demo
+all: assembler runtime build
 	@echo -- VM Make Success --
 
-debug: assemblerDebug demoDebug
+debug: assemblerDebug runtimeDebug buildDebug
+	@echo -- VM Make Debug Success --
 
-demo: buildVM
-	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(NDEBUG) -o $(DEMO)
-
-demoDebug: debugVM
-	$(CC) $(DEMO).c $(OBJECTS) $(DEFS) $(CDEBUG) -o $(DEMO)
-
-buildVM:
+build:
 	$(CC) $(CFLAGS) $(DEFS) $(NDEBUG) $(SOURCES)
 
-debugVM:
+buildDebug:
 	$(CC) $(CFLAGS) $(DEFS) $(CDEBUG) $(SOURCES)
+
+runtime:
+	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_RUNTIME $(NDEBUG) $(SOURCES)
+	$(CC) $(OBJECTS) $(DEFS) $(NDEBUG) -o $(RT)
+
+runtimeDebug:
+	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_RUNTIME $(CDEBUG) $(SOURCES)
+	$(CC) $(OBJECTS) -o $(RT)
 
 assembler: buildAssembler linkAssembler
 
@@ -41,6 +44,18 @@ buildAssembler:
 buildAssemblerDebug:
 	$(CC) $(CFLAGS) $(DEFS) -DFREESTANDING_ASSEMBLER $(CDEBUG) $(ASM).c
 
+install: installAssembler installRuntime
+
+uninstall: uninstallAssembler uninstallRuntime
+
+installRuntime:
+	strip $(RT)
+	cp $(RT) $(BINDIR)
+	chmod 755 $(BINDIR)/$(RT)
+
+uninstallRuntime:
+	rm -rf $(BINDIR)/$(RT)
+
 installAssembler:
 	strip $(ASM)
 	cp $(ASM) $(BINDIR)
@@ -50,5 +65,4 @@ uninstallAssembler:
 	rm -rf $(BINDIR)/$(ASM)
 
 clean:
-	rm -rf *.o
-	rm -rf $(DEMO)
+	rm -rf *.o $(ASM) $(RT)

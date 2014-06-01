@@ -1,5 +1,5 @@
 /*
- * vm_demo.c
+ * yawvm.c
  * Part of the VM subsystem in the Yaw text editor
  *
  * Copyright 2014 Ollie Etherington.
@@ -19,6 +19,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
+#ifdef FREESTANDING_RUNTIME
 
 #include "vm.h"
 
@@ -40,3 +42,5 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
+#endif /* FREESTANDING_RUNTIME */
