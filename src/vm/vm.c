@@ -127,7 +127,7 @@ int vm_execute(int *program)
 		}
 
 //	dump_regs();
-	dump_stack();
+//	dump_stack();
 
 	return 0;
 }

@@ -261,6 +261,45 @@ int is_a_label(char *tkn, size_t tknlen)
 	return -1;
 }
 
+int get_substring_index(char *haystack, char *needle)
+{
+	int i = 0, d = 0, found, nlen = strlen(needle), hlen = strlen(haystack);
+
+	if (hlen < nlen)
+		return -1;
+
+	for (i = hlen - nlen; i >= 0; i--) {
+		found = 1;
+
+		for (d = 0; d < nlen; d++) {
+			if (haystack[i + d] != needle[d]) {
+				found = 0;
+				break;
+			}
+		}
+
+		if (found == 1)
+			return i;
+	}
+
+	return -1;
+}
+
+const char *ERR_UNEXPECTED_OPERAND = "Unexpected operand found";
+const char *ERR_UNKNOWN_REGISTER = "Unknown register given";
+const char *ERR_BAD_INT_OR_LABEL = "Unparsable integer or invalid label";
+const char *ERR_FLOATS_NOT_IMPLEMENTED = "Floats not yet implemented";
+const char *ERR_UNKNOWN_OPCODE = "Unrecognized opcode";
+const char *ERR_TOO_MANY_TOKENS = "Too many tokens";
+
+inline void report_error(const char *msg, const struct Token *tkn,
+			 char *errstring)
+{
+	int pos = get_substring_index(tkn->tkn, errstring) + 1;
+	printf("Error at position %d line %d\n%s\n%s\n%*s\nAssembly aborted\n",
+		pos, tkn->linum, msg, tkn->tkn, pos, "^");
+}
+
 struct Tree *parse(char *data)
 {
 	size_t len = strlen(data);
@@ -362,7 +401,7 @@ void code_stream_dump(struct CodeStream *cs)
 {
 	unsigned int i;
 	for (i = 0; i < cs->size; i++)
-		printf("%d ", cs->ops[i]);
+		printf("%d, ", cs->ops[i]);
 
 	printf("\n");
 }
@@ -382,69 +421,82 @@ int parse_int_string(char *src, int *dest)
 	return 0;
 }
 
-int get_operand_number(char *tkn, enum AsmOperand type, struct LabelTable *lt)
+int get_operand_number(struct Token *tkn, char *part, enum AsmOperand type,
+		       struct LabelTable *lt)
 {
 	int res, parse;
 	switch (type) {
 	case AO_NUL:
-		printf("Unexpected operand found\n");
+		report_error(ERR_UNEXPECTED_OPERAND, tkn, part);
 		return -1;
 	case AO_REG:
-		res = get_register(tkn);
+		res = get_register(part);
 
 		if (res == -1)
-			printf("Unknown register given\n");
+			report_error(ERR_UNKNOWN_REGISTER, tkn, part);
 
 		return res;
 	case AO_LAB:
-		res = label_table_lookup(lt, tkn);
+		res = label_table_lookup(lt, part);
 		if (res != -1)
 			return res;
 		/* No break here so a failed label will try to parse an int */
 	case AO_INT:
-		res = parse_int_string(tkn, &parse);
+		res = parse_int_string(part, &parse);
 
 		if (res == -1) {
-			printf("Unparsable integer or invalid label\n");
+			report_error(ERR_BAD_INT_OR_LABEL, tkn, part);
 			return -1;
 		}
 
 		return parse;
 	case AO_FLT:
 		/* Not yet implemented */
-		printf("Floats not yet implemented\n");
+		report_error(ERR_FLOATS_NOT_IMPLEMENTED, tkn, part);
 	}
 
 	return -1;
 }
 
-int build_operation(struct CodeStream *cs, struct LabelTable *lt, char *tkn)
+int build_operation(struct CodeStream *cs, struct LabelTable *lt,
+		    struct Token *tkn)
 {
-	unsigned int i;
-	char *next = strtok(tkn, " ");
+	char *cpy = malloc(strlen(tkn->tkn + 1) * sizeof(char));
+	strcpy(cpy, tkn->tkn);
+	char *next = strtok(cpy, " ");
 	int code, op;
+	unsigned int i;
 	for (i = 0; next != NULL; i++, next = strtok(NULL, " ")) {
 		if (i == 0) {
 			code = get_code(next);
 
-			if (code == -1)
+			if (code == -1) {
+				report_error(ERR_UNKNOWN_OPCODE, tkn, next);
 				return -1;
+			}
 
 			code_stream_add(cs, opcodes[code].code);
 		} else if (i == 1) {
-			op = get_operand_number(next, opcodes[code].oper0, lt);
+			op = get_operand_number(tkn, next,
+						opcodes[code].oper0, lt);
 			if (op == -1)
 				return -1;
+
 			code_stream_add(cs, (unsigned int) op);
 		} else if (i == 2) {
-			op = get_operand_number(next, opcodes[code].oper1, lt);
+			op = get_operand_number(tkn, next,
+						opcodes[code].oper1, lt);
 			if (op == -1)
 				return -1;
+
 			code_stream_add(cs, (unsigned int) op);
 		} else {
+			report_error(ERR_TOO_MANY_TOKENS, tkn, next);
 			return -1;
 		}
 	}
+
+	free(cpy);
 
 	return 0;
 }
@@ -464,11 +516,8 @@ struct CodeStream *assemble(char *data)
 		if (tree->tkns[i]->type == ANT_LABEL) {
 			label_table_add(lt, tree->tkns[i]->tkn, cs->size);
 		} else {
-			if (build_operation(cs, lt, tree->tkns[i]->tkn) == -1) {
-				printf("Syntax error at %s\n",
-					tree->tkns[i]->tkn);
+			if (build_operation(cs, lt, tree->tkns[i]) == -1)
 				return NULL;
-			}
 		}
 	}
 

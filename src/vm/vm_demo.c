@@ -5,7 +5,7 @@
 int main(int argc, char **argv)
 {
 	vm_init();
-
+/*
 	int program[] = {
 		OP_JMP, 27,
 
@@ -26,6 +26,11 @@ int main(int argc, char **argv)
 		OP_CALL, 2,
 		OP_ECHO, EAX,
 		OP_END
+	};
+*/
+
+	int program[] = {
+		37, 5, 58, 0, 62, 6, 0, 10, 18, 0, 32, 0, 15, 45, 8, 37, 2,
 	};
 
 	if (vm_execute(program) == 0)
