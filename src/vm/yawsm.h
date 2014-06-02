@@ -23,6 +23,10 @@
 #ifndef YAWSM_H
 #define YAWSM_H
 
+#define YAWSM_PRINTF_SIZE 	64
+#define YAWSM_FILENAME_MAX_SIZE	128
+#define YAWSM_MAX_FILES		48
+
 struct CodeStream {
 	unsigned int *ops;
 	unsigned int size;

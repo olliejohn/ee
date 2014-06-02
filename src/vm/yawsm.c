@@ -34,6 +34,34 @@
 #define LABEL_TRACKER_INITIAL_SIZE 32
 #define CODE_STREAM_INITIAL_SIZE 32
 
+char PRINT_FMT[YAWSM_PRINTF_SIZE];
+unsigned int ASM_FLAGS;
+
+enum AsmFlag {
+	F_PRINT,
+	F_PRINTF,
+};
+
+inline void set_flag(enum AsmFlag f)
+{
+	ASM_FLAGS |= 1 << f;
+}
+
+inline void clear_flag(enum AsmFlag f)
+{
+	ASM_FLAGS &= ~(1 << f);
+}
+
+inline int get_flag(enum AsmFlag f)
+{
+	return (ASM_FLAGS & (1 << f)) ? 1 : 0;
+}
+
+inline void clear_all_flags()
+{
+	ASM_FLAGS = 0;
+}
+
 struct AsmRegister {
 	char *str;
 	int code;
@@ -534,10 +562,10 @@ void code_stream_set(struct CodeStream *cs, unsigned int index, unsigned int op)
 void code_stream_dump(struct CodeStream *cs)
 {
 	unsigned int i;
-	for (i = 0; i < cs->size; i++)
+	for (i = 0; i < cs->size - 1; i++)
 		printf("%d, ", cs->ops[i]);
 
-	printf("\n");
+	printf("%d\n", cs->ops[cs->size - 1]);
 }
 
 int parse_int_string(char *src, int *dest)
@@ -700,38 +728,67 @@ struct CodeStream *assemble(char *data)
 		return NULL;
 	}
 
-	code_stream_dump(cs);
+	if (get_flag(F_PRINT)) {
+		code_stream_dump(cs);
+	} else if (get_flag(F_PRINTF)) {
+		for (i = 0; i < cs->size; i++)
+			printf(PRINT_FMT, cs->ops[i]);
+		printf("\n");
+	}
 
-	/* Return our poopulated code stream */
+	/* Return our populated code stream */
 	return cs;
 }
 
 #ifdef FREESTANDING_ASSEMBLER
 
+#include <getopt.h>
+
 #define NAME		"yawsm"
 #define VERSION 	"0.0.1"
 #define AUTHOR		"Ollie Etherington"
 
-void asm_version()
+int asm_version()
 {
 	printf("%s - Version %s\n", NAME, VERSION);
+	return 0;
 }
 
-void asm_about()
+int asm_about()
 {
 	asm_version();
-	printf("By %s\n", AUTHOR);
+	printf("The Yaw Assembler\nBy %s\n", AUTHOR);
 	printf("Available as free software under the GNU GPLv2\n");
+	return 0;
 }
 
-void asm_help()
+int asm_help()
 {
-	printf("\nUsage: yawsm [ FILE | FLAG ]\n\n\
+	printf(
+"\nUsage: yawsm [ FILE | FLAG ]\n\n\
 Flags:\n\
---about		Information about yawsm\n\
---help		Help about how to use yawsm\n\
---version	Version information about yawsm\n\
-	\n");
+-a  --about                  Information about yawsm\n\
+-h  --help                   Help dialog for command line options\n\
+-v  --version                Version information\n\
+-p  --print                  Print the p-code output to stdout after assembly\n\
+-f  --printf  [fmt_str]      As with print, but takes a format string as an \
+argument which it uses to format the output\n\
+\n");
+	return 0;
+}
+
+int is_assembly_file(char *filename)
+{
+	const size_t len = strlen(filename);
+
+	if (filename[len - 1] == 's' && filename[len - 2] == '.')
+		return 0;
+
+	if (filename[len - 1] == 'm' && filename[len - 2] == 's' &&
+			filename[len - 3] == 'a' && filename[len - 4] == '.')
+		return 0;
+
+	return -1;
 }
 
 /*
@@ -741,33 +798,69 @@ Flags:\n\
  */
 int main(int argc, char **argv)
 {
-	if (argc != 2) {
-		printf("Yawsm: Invalid Arguments\n");
-		asm_help();
-		return 0;
+	if (argc < 2) {
+		printf("Yawsm: Too few arguments\n");
+		return asm_help();
 	}
 
-	if (strcmp(argv[1], "--version") == 0) {
-		asm_version();
-		return 0;
-	}
+	char file[YAWSM_FILENAME_MAX_SIZE];
+	unsigned int num_files = 0;
 
-	if (strcmp(argv[1], "--about") == 0) {
-		asm_about();
-		return 0;
-	}
+	const struct option opts[] = {
+		{ "about",	no_argument,		NULL,	'a'	},
+		{ "help",	no_argument,		NULL,	'h'	},
+		{ "version",	no_argument,		NULL,	'v'	},
+		{ "print",	no_argument,		NULL,	'p'	},
+		{ "printf",	required_argument,	NULL,	'f'	}
+	};
 
-	if (strcmp(argv[1], "--help") == 0) {
-		asm_help();
-		return 0;
+	int arg;
+	while ((arg = getopt_long(argc, argv, "-:ahvpf:", opts, NULL)) != -1) {
+		switch (arg) {
+		case 'a':
+			return asm_about();
+		case 'h':
+			return asm_help();
+		case 'v':
+			return asm_version();
+		case 'p':
+			set_flag(F_PRINT);
+			break;
+		case 'f':
+			set_flag(F_PRINTF);
+			snprintf(PRINT_FMT, YAWSM_PRINTF_SIZE, "%s", optarg);
+			break;
+		case ':': /* Missing argument */
+			printf("Yawsm: Missing argument to '%s'\n",
+				argv[optind - 1]);
+			return 0;
+		case 1:	  /* Not a "-x" or "--xyz" argument */
+		case '?':
+			if (is_assembly_file(argv[optind - 1]) == 0) {
+				if (num_files) {
+					printf("Yawsm: Too many input files\n");
+					return 0;
+				}
+
+				snprintf(file, YAWSM_FILENAME_MAX_SIZE,
+					 "%s", argv[optind - 1]);
+				num_files++;
+				break;
+			}
+			/* No break here so we fall through to default */
+		default:
+			printf("Yawsm: Invalid Arguments");
+			asm_help();
+			return 0;
+		}
 	}
 
 	char *buffer = NULL;
 	long length;
-	FILE *f = fopen(argv[1], "rb");
+	FILE *f = fopen(file, "rb");
 
 	if (f == NULL) {
-		printf("yawsm: Error opening file %s\n", argv[1]);
+		printf("yawsm: Error opening input file %s\n", file);
 		return 0;
 	}
 
@@ -797,12 +890,12 @@ int main(int argc, char **argv)
 	if (cs == NULL)
 		return 0;
 
-	char *fout_path = strtok(argv[1], ".");
+	char *fout_path = strtok(file, ".");
 
 	FILE *fout = fopen(fout_path, "wb");
 
 	if (fout == NULL) {
-		printf("yawsm: Error opening outfile %s\n", fout_path);
+		printf("yawsm: Error opening output file %s\n", fout_path);
 		return 0;
 	}
 
