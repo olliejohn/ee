@@ -67,23 +67,24 @@ struct AsmRegister {
 	int code;
 };
 
+/* These must be alphabetical for the binary search */
 const static struct AsmRegister registers[] = {
-	{ "eax",	EAX	},
-	{ "ebx",	EBX	},
-	{ "ecx",	ECX	},
-	{ "edx",	EDX	},
 	{ "cs",		CS	},
 	{ "ds",		DS	},
+	{ "eax",	EAX	},
+	{ "ebp",	EBP	},
+	{ "ebx",	EBX	},
+	{ "ecx",	ECX	},
+	{ "edi",	EDI	},
+	{ "edx",	EDX	},
+	{ "eflags",	EFLAGS	},
+	{ "eip",	EIP	},
 	{ "es",		ES	},
+	{ "esi",	ESI	},
+	{ "esp",	ESP	},
 	{ "fs",		FS	},
 	{ "gs",		GS	},
 	{ "ss",		SS	},
-	{ "edi",	EDI	},
-	{ "esi",	ESI	},
-	{ "ebp",	EBP	},
-	{ "esp",	ESP	},
-	{ "eip",	EIP	},
-	{ "eflags",	EFLAGS	},
 };
 
 /*
