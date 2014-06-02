@@ -29,10 +29,12 @@
 
 void vm_init();
 void vm_destroy();
-int vm_execute(int *program);
-int vm_execute_file(char *filename);
+int vm_validate_header(char *filename);
+int vm_execute(int *program, int flags);
+int vm_execute_file(char *filename, int flags);
 void dump_regs();
 void dump_stack();
+void dump_flags();
 
 extern int vm_errpos;
 
@@ -52,6 +54,12 @@ struct VMHeader {
 } __attribute__((packed, aligned(1)));
 
 struct VMHeader build_header();
+
+enum VMExecFlag {
+	VM_PRINT_STACK,
+	VM_PRINT_REGS,
+	VM_PRINT_FLAGS,
+};
 
 enum Opcode {
 	/* Stack Management */

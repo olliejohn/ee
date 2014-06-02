@@ -31,7 +31,7 @@ int reg[NUM_REGS];
 union stk_elem STACK[STACK_SIZE];
 struct Instruction codes[NUM_OPS];
 int *exec_ctx;
-int vm_errpos;
+int vm_errpos = -1;
 
 void init_instructions()
 {
@@ -116,7 +116,12 @@ void vm_destroy()
 
 }
 
-int vm_execute(int *program)
+int vm_validate_header(char *filename)
+{
+	return 0;
+}
+
+int vm_execute(int *program, int flags)
 {
 	exec_ctx = program;
 	reg[EIP] = 0;
@@ -127,8 +132,15 @@ int vm_execute(int *program)
 			return -1;
 		}
 
-//	dump_regs();
-//	dump_stack();
+	if (flags & (1 << VM_PRINT_STACK))
+		dump_stack();
+	if (flags & (1 << VM_PRINT_REGS))
+		dump_regs();
+	if (flags & (1 << VM_PRINT_FLAGS))
+		dump_flags();
+
+	/* Execution finished successfully - reset vm_errpos */
+	vm_errpos = -1;
 
 	return 0;
 }
@@ -166,7 +178,7 @@ void program_add(struct Program *pgm, int c)
 	pgm->code[pgm->size++] = c;
 }
 
-int vm_execute_file(char *filename)
+int vm_execute_file(char *filename, int flags)
 {
 	FILE *file = fopen(filename, "r");
 
@@ -184,7 +196,7 @@ int vm_execute_file(char *filename)
 
 	fclose(file);
 
-	num = vm_execute(pgm->code);
+	num = vm_execute(pgm->code, flags);
 
 	program_free(pgm);
 
@@ -196,20 +208,25 @@ void dump_regs()
 	printf("\nRegisters:\n\
 EAX: %d      EBX: %d      ECX: %d      EDX: %d\n\
 CS: %d      DS: %d      ES: %d      FS: %d      GS: %d      SS: %d\n\
-EDI: %d      ESI: %d      EBP: %d      ESP: %d      EIP: %d      EFLAGS: %d\n\n\
-Flags:\n\
-Carry: %d   Overflow: %d   Sign: %d   Zero: %d\n\n",
+EDI: %d      ESI: %d      EBP: %d      ESP: %d      EIP: %d      EFLAGS: %d\n",
  		reg[EAX], reg[EBX], reg[ECX], reg[EDX], reg[CS], reg[DS],
 		reg[ES], reg[FS], reg[GS], reg[SS], reg[EDI], reg[ESI],
-		reg[EBP], reg[ESP], reg[EIP], reg[EFLAGS], get_flag(F_CARRY),
-		get_flag(F_OVERFLOW), get_flag(F_SIGN), get_flag(F_ZERO));
+		reg[EBP], reg[ESP], reg[EIP], reg[EFLAGS]);
 }
 
 void dump_stack()
 {
+	printf("\nStack:\n");
 	unsigned int i;
 	for (i = reg[ESP]; i < STACK_SIZE; i++)
 		printf("%d: %d\n", i, STACK[i].as_i);
+}
+
+void dump_flags()
+{
+	printf("\nFlags:\nCarry: %d   Overflow: %d   Sign: %d   Zero: %d\n",
+		get_flag(F_CARRY), get_flag(F_OVERFLOW),
+		get_flag(F_SIGN), get_flag(F_ZERO));
 }
 
 struct VMHeader build_header()
