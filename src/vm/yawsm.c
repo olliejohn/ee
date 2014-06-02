@@ -688,16 +688,16 @@ struct CodeStream *assemble(char *data)
 			label_table_add(lt, tree->tkns[i]->tkn, -i);
 
 	/* Jump implicitly to the start symbol */
-	int start = label_table_lookup_index(lt, "start");
+	int mn = label_table_lookup_index(lt, "main");
 
-	if (start == -1) {
-		printf("No start label found - assembly aborted\n");
+	if (mn == -1) {
+		printf("No main label found - assembly aborted\n");
 		return NULL;
 	}
 
 	code_stream_add(cs, OP_JMP);
-	label_tracker_add(ltracker, cs->size, start);
-	code_stream_add(cs, start);
+	label_tracker_add(ltracker, cs->size, mn);
+	code_stream_add(cs, mn);
 
 	/* Generate all code and track when labels are referenced */
 	for (i = 0; i < tree->size; i++) {
